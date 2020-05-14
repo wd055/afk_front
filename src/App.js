@@ -5,20 +5,31 @@ import ScreenSpinner from '@vkontakte/vkui/dist/components/ScreenSpinner/ScreenS
 import '@vkontakte/vkui/dist/vkui.css';
 
 import Home from './panels/Home';
-import Persik from './panels/Persik';
 
 const App = () => {
 	const [activePanel, setActivePanel] = useState('home');
 	const [fetchedUser, setUser] = useState(null);
 	const [popout, setPopout] = useState(<ScreenSpinner size='large' />);
 
+	bridge.send("VKWebAppGetUserInfo", {});
+
 	useEffect(() => {
-		bridge.subscribe(({ detail: { type, data }}) => {
+		bridge.subscribe(({ detail: { type, data } }) => {
 			if (type === 'VKWebAppUpdateConfig') {
 				const schemeAttribute = document.createAttribute('scheme');
 				schemeAttribute.value = data.scheme ? data.scheme : 'client_light';
 				document.body.attributes.setNamedItem(schemeAttribute);
 			}
+			if (type === 'VKWebAppGetEmailResult') {
+				document.getElementById('email').value = data.email;
+			}
+			if (type === 'VKWebAppGetPhoneNumberResult') {
+				document.getElementById('phone').value = data.phone_number;
+			}
+			if (type === 'VKWebAppGetUserInfoResult') {
+				setUser(data.id)
+			}
+			console.log(type, data)
 		});
 		async function fetchData() {
 			// const user = await bridge.send('VKWebAppGetUserInfo');
@@ -35,7 +46,6 @@ const App = () => {
 	return (
 		<View activePanel={activePanel} popout={popout}>
 			<Home id='home' fetchedUser={fetchedUser} go={go} />
-			<Persik id='persik' go={go} />
 		</View>
 	);
 }
