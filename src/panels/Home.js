@@ -16,6 +16,7 @@ import ScreenSpinner from '@vkontakte/vkui/dist/components/ScreenSpinner/ScreenS
 import Snackbar from '@vkontakte/vkui/dist/components/Snackbar/Snackbar';
 import Avatar from '@vkontakte/vkui/dist/components/Avatar/Avatar';
 import Icon16Clear from '@vkontakte/icons/dist/16/clear';
+import Icon16Done from '@vkontakte/icons/dist/16/done';
 
 import Group from '@vkontakte/vkui/dist/components/Group/Group';
 import SimpleCell from '@vkontakte/vkui/dist/components/SimpleCell/SimpleCell';
@@ -25,8 +26,14 @@ import Placeholder from '@vkontakte/vkui/dist/components/Placeholder/Placeholder
 import PanelHeaderBack from '@vkontakte/vkui/dist/components/PanelHeaderBack/PanelHeaderBack';
 import Icon56CheckCircleOutline from '@vkontakte/icons/dist/56/check_circle_outline';
 import Icon56ErrorOutline from '@vkontakte/icons/dist/56/error_outline';
+import Icon24Error from '@vkontakte/icons/dist/24/error';
 
 import bridge from '@vkontakte/vk-bridge';
+
+var origin = "https://thingworx.asuscomm.com:10888/"
+var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
+// var main_url = "http://thingworx.asuscomm.com/"
+// var main_url = "http://localhost:8000/"
 
 const App = ({ id, fetchedUser, go, setPopout }) => {
 	const redIcon = {
@@ -34,6 +41,16 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 	};
 	const blueIcon = {
 		color: 'var(--accent)'
+	};
+	const orangeBackground = {
+		backgroundImage: 'linear-gradient(135deg, #ffb73d, #ffa000)'
+	};
+	
+	const blueBackground = {
+		backgroundColor: 'var(--accent)'
+	};
+	const redBackground = {
+		backgroundColor: 'var(--field_error_border)'
 	};
 
 	var params = window
@@ -63,14 +80,13 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 
 
 	useEffect(() => {
-		var url = "http://thingworx.asuscomm.com/profkom_bot/all_categories/";
-		// var url = "http://localhost:8000/profkom_bot/all_categories/";
-		var temp = true
+		var url = main_url + "profkom_bot/all_categories/";
+
 		if (categories.length == 0 && showForm == true) {
 			fetch(url, {
 				method: 'POST',
 				headers: {
-					'Origin': 'http://localhost:10888/'
+					'Origin': origin
 				}
 			})
 				.then(response => response.json())
@@ -85,8 +101,7 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 
 
 
-			var url = "http://thingworx.asuscomm.com/profkom_bot/get_form/";
-			// var url = "http://localhost:8000/profkom_bot/get_form/";
+			var url = main_url + "profkom_bot/get_form/";
 
 			var data = {
 				token: params['token'],
@@ -96,7 +111,7 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 				method: 'POST',
 				body: JSON.stringify(data),
 				headers: {
-					'Origin': 'http://localhost:10888/'
+					'Origin': origin
 				}
 			})
 				.then(response => response.json())
@@ -108,6 +123,7 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 						setEmail(data.email)
 						setPhone(data.phone)
 						setGetCategories(data.categories)
+						setPayments_edu(data.payments_edu)
 					}else{
 						setShowForm(false)
 						setSubmitSuccess(<div>Ошибка авторизации</div>)
@@ -136,9 +152,28 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 		}
 	};
 
+	function validateEmail(email) {
+		const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+		return re.test(String(email).toLowerCase());
+	}
+
+	function validatePhone(phone) {
+		const re = /^(\s*)?(\+)?([- _():=+]?\d[- _():=+]?){10,14}(\s*)?$/;
+		return re.test(String(phone).toLowerCase());
+	}
+
 	function onFormClick(e) {
-		if (!email || !phone || !payments_edu)
+		if (!email || !phone || !payments_edu || !validateEmail(email) || !validatePhone(phone))
+		{
+			setSnackbar(<Snackbar
+				layout="vertical"
+				onClose={() => setSnackbar(null)}
+				before={<Avatar size={24} style={orangeBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
+			>
+				Заполните форму
+			  </Snackbar>);
 			return;
+		}
 		var categorys = document.getElementsByName("category");
 		var data = {
 			token: params['token'],
@@ -154,15 +189,15 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 			}
 		}
 
-		var url = "http://thingworx.asuscomm.com/profkom_bot/form/";
-		// var url = "http://localhost:8000/profkom_bot/form/";
+		var url = main_url + "profkom_bot/form/";
+		
 		setPopout(<ScreenSpinner size='large' />);
 
 		fetch(url, {
 			method: 'POST',
 			body: JSON.stringify(data),
 			headers: {
-				'Origin': 'http://localhost:10888/'
+				'Origin': origin
 			}
 		})
 			.then(response => response.json())
@@ -177,7 +212,7 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 					setSnackbar(<Snackbar
 						layout="vertical"
 						onClose={() => setSnackbar(null)}
-						before={<Avatar size={24} style={redIcon}><Icon16Clear fill="#fff" width={14} height={14} /></Avatar>}
+						before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
 					>
 						Ошибка соединения
 					  </Snackbar>);
@@ -185,6 +220,12 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 					console.error('send form:', error);
 				})
 	};
+	function onLoadCategory(){
+		var categorys = document.getElementsByName("category");
+		for (var i = 0; i < categorys.length; i++) {
+			categorys[i].checked = getCategories.indexOf(categories[i]) != -1
+		}
+	}
 	// console.log('token', params['token'])
 
 	const Home =
@@ -201,65 +242,67 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 					</Group>
 					<FormLayout>
 						<Input
-							type="email"
+							type="text"
 							top="E-mail"
+							placeholder="E-mail"
 							name="email"
 							id="email"
 							onClick={onEmailClick}
 							onChange={(e) => {
 								const { value } = e.currentTarget;
-								setEmail(value);
+								setEmail(value.slice(0,100));
 							}}
 							value={email}
-							status={email ? 'valid' : 'error'}
-							bottom={email ? '' : 'Пожалуйста, введите электронную почту'}
+							status={validateEmail(email) ? 'valid' : 'error'}
+							bottom={validateEmail(email) ? '' : 'Пожалуйста, корректно введите Вашу электронную почту'}
 							required
 						/>
 						<Input
 							id="phone"
 							type="phone"
-							top=" Телефон"
+							top="Телефон"
+							placeholder="Телефон"
 							name="phone"
 							onClick={onPhoneClick}
 							onChange={(e) => {
 								const { value } = e.currentTarget;
-								setPhone(value);
+								setPhone(value.slice(0,50));
 							}}
 							value={phone}
-							status={phone ? 'valid' : 'error'}
-							bottom={phone ? '' : 'Пожалуйста, введите номер телефона'}
+							status={validatePhone(phone) ? 'valid' : 'error'}
+							bottom={validatePhone(phone) ? '' : 'Пожалуйста, корректно введите Ваш номер телефона'}
 							required
 						/>
 
 						<Select
 							top="Форма обучения"
-							placeholder="Выберите форму обучения"
+							placeholder="Форма обучения"
 							id='payments_edu'
 							name="payments_edu"
 							onChange={(e) => {
 								const { value } = e.currentTarget;
 								setPayments_edu(value);
 							}}
-							value={payments_edu}
+							value={String(payments_edu)}
 							status={payments_edu ? 'valid' : 'error'}
 							bottom={payments_edu ? '' : 'Пожалуйста, выберите форму обучения'}
 							required
 						>
-							<option value="free">Бюджетная</option>
-							<option value="paid">Платная</option>
+							<option value="free" id="select_free">Бюджетная</option>
+							<option value="paid" id="select_paid">Платная</option>
 						</Select>
 
-						<FormLayoutGroup top="Выберите подходящие категории:">
+						<FormLayoutGroup top="Выберите подходящие категории:" onLoad={onLoadCategory()}>
 							{/* <Radio name="type">Паспорт</Radio>
 				<Radio name="type">Загран</Radio> */}
 							{categories.map((category, i) => (
-								<Checkbox name="category" id={i.toString()} checked={getCategories.indexOf(category) != -1}>{category}</Checkbox>
+								<Checkbox name="category" id={i.toString()} defaultChecked={getCategories.indexOf(categories) != -1}>{category}</Checkbox>
 							))}
 						</FormLayoutGroup>
 						{/* <Checkbox>Согласен со всем <Link>этим</Link></Checkbox> */}
 
 						{/* <Textarea top="О себе" /> */}
-						<Button size="xl" onClick={onFormClick}>Зарегистрироваться</Button>
+						<Button size="xl" onClick={onFormClick}>Подтвердить</Button>
 					</FormLayout>
 				</Group>
 				: <Placeholder

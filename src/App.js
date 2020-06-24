@@ -12,6 +12,13 @@ import PanelHeaderBack from '@vkontakte/vkui/dist/components/PanelHeaderBack/Pan
 import Icon56CheckCircleOutline from '@vkontakte/icons/dist/56/check_circle_outline';
 import Icon56ErrorOutline from '@vkontakte/icons/dist/56/error_outline';
 
+import ModalRoot from '@vkontakte/vkui/dist/components/ModalRoot/ModalRoot';
+import ModalPage from '@vkontakte/vkui/dist/components/ModalPage/ModalPage';
+import ModalPageHeader from '@vkontakte/vkui/dist/components/ModalPageHeader/ModalPageHeader';
+import List from '@vkontakte/vkui/dist/components/List/List';
+import Cell from '@vkontakte/vkui/dist/components/Cell/Cell';
+import InfoRow from '@vkontakte/vkui/dist/components/InfoRow/InfoRow';
+
 import {
 	BrowserRouter as Router,
 	Switch,
@@ -22,10 +29,12 @@ import {
 } from "react-router-dom";
 
 import Home from './panels/Home';
+import Profkom from './panels/Profkom';
 
 const App = () => {
 	const [activePanel, setActivePanel] = useState('home');
 	const [fetchedUser, setUser] = useState(null);
+	const [modal, setModal] = useState(null);
 	const [popout, setPopout] = useState(<ScreenSpinner size='large' />);
 
 	bridge.send("VKWebAppGetUserInfo", {});
@@ -67,59 +76,101 @@ const App = () => {
 		color: 'var(--accent)'
 	};
 
+	const params = window
+	.location
+	.search
+	.replace('?', '')
+	.split('&')
+	.reduce(
+		function (p, e) {
+			var a = e.split('=');
+			p[decodeURIComponent(a[0])] = decodeURIComponent(a[1]);
+			return p;
+		},
+		{}
+	);
+	
+	if (params["activePanel"])
+		setActivePanel(params["activePanel"])
+
+	const modals = (
+		<ModalRoot
+			activeModal={modal}
+			onClose={() => setModal(null)}>
+			<ModalPage
+				id={'select'}
+				header={
+					<ModalPageHeader
+					//   left={IS_PLATFORM_ANDROID && <PanelHeaderButton onClick={this.modalBack}><Icon24Cancel /></PanelHeaderButton>}
+					//   right={IS_PLATFORM_IOS && <PanelHeaderButton onClick={this.modalBack}><Icon24Dismiss /></PanelHeaderButton>}
+					>
+						Информация о пользователе
+	        </ModalPageHeader>
+				}
+			>
+				<List>
+					<Cell>
+						<InfoRow header="Дата рождения">
+							30 января 1993
+	          </InfoRow>
+					</Cell>
+					<Cell>
+						<InfoRow header="Родной город">
+							Ереван
+	          </InfoRow>
+					</Cell>
+					<Cell>
+						<InfoRow header="Место работы">
+							Команда ВКонтакте
+	          </InfoRow>
+					</Cell>
+				</List>
+			</ModalPage>
+		</ModalRoot>
+	);
+
 	return (
-
 		<Router>
-			{/* <div>
-				<ul>
-					<li>
-						<Link to="/"></Link>
-					</li>
-					<li>
-						<Link to="/success"></Link>
-					</li>
-					<li>
-						<Link to="/error"></Link>
-					</li>
-				</ul> */}
-
-				<Switch>
-					<Route path="/success">
-						<View activePanel="Success" popout={popout}>
-							<Panel id="Success">
-								<PanelHeader>Успешная авторизация</PanelHeader>
-								<Placeholder
-									icon={<Icon56CheckCircleOutline style={blueIcon} />}
-									stretched
-									id="Placeholder"
-								>
-									Успешная авторизация!
+			<Switch>
+				<Route path="/success">
+					<View activePanel="Success" popout={popout}>
+						<Panel id="Success">
+							<PanelHeader>Успешная авторизация</PanelHeader>
+							<Placeholder
+								icon={<Icon56CheckCircleOutline style={blueIcon} />}
+								stretched
+								id="Placeholder"
+							>
+								Успешная авторизация!
 							</Placeholder>
-							</Panel>
-						</View>
-					</Route>
-					<Route path="/error">
-						<View activePanel="Error" popout={popout}>
-							<Panel id="Error">
-								<PanelHeader>Ошибка авторизации</PanelHeader>
-								<Placeholder
-									icon={<Icon56ErrorOutline style={redIcon} />}
-									stretched
-									id="Placeholder"
-								>
-									Ошибка авторизации<br />Попробуйте позже или свяжитесь с администратором группы!
+						</Panel>
+					</View>
+				</Route>
+				<Route path="/error">
+					<View activePanel="Error" popout={popout}>
+						<Panel id="Error">
+							<PanelHeader>Ошибка авторизации</PanelHeader>
+							<Placeholder
+								icon={<Icon56ErrorOutline style={redIcon} />}
+								stretched
+								id="Placeholder"
+							>
+								Ошибка авторизации<br />Попробуйте позже или свяжитесь с администратором группы!
 							</Placeholder>
-							</Panel>
-						</View>
-					</Route>
-					<Route path="/">
-						{/* <Home /> */}
-						<View activePanel={activePanel} popout={popout}>
-							<Home id='home' fetchedUser={fetchedUser} go={go} setPopout={setPopout} />
-						</View>
-					</Route>
-				</Switch>
-			{/* </div> */}
+						</Panel>
+					</View>
+				</Route>
+				<Route path="/profkom">
+					<View activePanel={activePanel} popout={popout} modal={modals}>
+						<Profkom id='home' fetchedUser={fetchedUser} go={go} setPopout={setPopout} setModal={setModal} />
+					</View>
+				</Route>
+				<Route path="/">
+					<View activePanel={activePanel} popout={popout}>
+						<Home id='home' fetchedUser={fetchedUser} go={go} setPopout={setPopout} />
+					</View>
+				</Route>
+			</Switch>
 		</Router>
 	);
 }
