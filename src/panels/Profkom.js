@@ -43,6 +43,7 @@ import Icon28DeleteOutline from '@vkontakte/icons/dist/28/delete_outline';
 import Icon28HistoryForwardOutline from '@vkontakte/icons/dist/28/history_forward_outline';
 import Icon28DoneOutline from '@vkontakte/icons/dist/28/done_outline';
 import Icon28CancelCircleOutline from '@vkontakte/icons/dist/28/cancel_circle_outline';
+import Icon28ErrorOutline from '@vkontakte/icons/dist/28/error_outline';
 
 import Tabs from '@vkontakte/vkui/dist/components/Tabs/Tabs';
 import TabsItem from '@vkontakte/vkui/dist/components/TabsItem/TabsItem';
@@ -216,9 +217,7 @@ const App = ({ id, fetchedUser, go, setPopout, setModal }) => {
 	const [tabsState, setTabsState] = useState('students');
 	const [searchValue, setSearchValue] = useState("");
 
-	// const [browserBack, setBrowserBack] = useState(true);
-	// const [browserForward, setBrowserForward] = useState(true);
-	const count_on_page = 10;
+	const count_on_page = 8;
 	const [search_lenght, set_search_lenght] = useState(4000);
 	const [list_left_end, set_list_left_end] = useState(0);
 	const [list_right_end, set_list_right_end] = useState(count_on_page);
@@ -334,16 +333,57 @@ const App = ({ id, fetchedUser, go, setPopout, setModal }) => {
 	}
 
 	function getSearchFilter() {
-		return students.filter(({ name, login, i }) =>
+		return students.filter(({ name, login}) =>
 			(name.toLowerCase().indexOf(searchValue.toLowerCase()) == 0 ||
 				login.toLowerCase().indexOf(searchValue.toLowerCase()) > -1)
 		)
 	}
-	function getLenghtSearchFilter() {
-		return getSearchFilter().length
+
+	function getPayoutsSearchFilter() {
+		return searchPayouts.filter(({ id }) =>(id.toString().toLowerCase().indexOf(searchValue.toLowerCase()) == 0))
 	}
 
-	function drow_search_list() {
+	function getLenghtSearchFilter() {
+		return tabsState=="students" ? getSearchFilter().length : getPayoutsSearchFilter().length;
+	}
+
+	function drow_payouts_list() {
+		var rows = [];
+		var temp_arr = getPayoutsSearchFilter();
+		var search_arr = temp_arr.slice(list_left_end, list_right_end);
+
+		for (var i in search_arr) {
+			var before = <Icon28DoneOutline />;
+			if (search_arr[i].delete == true) before = <Icon28DeleteOutline style={redIcon} /> 
+			else if (search_arr[i].status == "filed") before = <Icon28HistoryForwardOutline />
+			else if (search_arr[i].status == "accepted") before = <Icon28DoneOutline />
+			else if (search_arr[i].status == "err") before = <Icon28ErrorOutline style={redIcon} />
+
+			rows.push(<Cell key={i} size="l"
+					before={before}
+					asideContent={search_arr[i].status == "filed" &&
+						<div style={{ display: 'flex' }}>
+							<Icon28DoneOutline style={blueIcon} />							
+							<Icon28CancelCircleOutline style={{ marginLeft: 8, color: 'red' }} />
+						</div>
+					}
+					bottomContent={
+						<HorizontalScroll>
+							<div style={{ display: 'flex' }}>
+								<Button size="m" mode="outline">{search_arr[i].id}</Button>
+								<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{search_arr[i].students_login}</Button>
+								<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{search_arr[i].surname_and_initials}</Button>
+							</div>
+						</HorizontalScroll>
+					}>{search_arr[i].payouts_type}</Cell>);
+
+			rows.push(<Separator style={{ margin: '2px 0' }} />)
+		}
+		rows = rows.slice(0, -1)
+		return rows
+	}
+
+	function drow_students_list() {
 		var rows = [];
 		var temp_arr = getSearchFilter();
 		var search_arr = temp_arr.slice(list_left_end, list_right_end);
@@ -351,9 +391,7 @@ const App = ({ id, fetchedUser, go, setPopout, setModal }) => {
 		for (var i in search_arr) {
 			rows.push(<Cell key={i} size="l"
 				asideContent={
-					<div style={{ display: 'flex' }}>
-						<Icon28AddOutline style={blueIcon} />
-					</div>
+					<Icon28AddOutline style={blueIcon} />
 				}
 				bottomContent={
 					<HorizontalScroll>
@@ -389,17 +427,19 @@ const App = ({ id, fetchedUser, go, setPopout, setModal }) => {
 					selected={tabsState === 'students'}
 				>Студенты</TabsItem>
 				<TabsItem
-					onClick={() => setTabsState('payouts')}
+					onClick={() => {
+						if (searchPayouts.length == 0)
+							search_payouts('');
+						setTabsState('payouts')}}
 					selected={tabsState === 'payouts'}
 				>Заявления</TabsItem>
 			</Tabs>
 
 			<Search
 				value={searchValue}
+				placeholder={tabsState === 'payouts' ? "Поиск по номеру" : "Поиск"}
 				onChange={(e) => {
 					const { value } = e.currentTarget;
-					if (tabsState == "payouts")
-						search_payouts(value);
 					setSearchValue(value);
 					set_list_left_end(0);
 					set_list_right_end(count_on_page);
@@ -410,7 +450,7 @@ const App = ({ id, fetchedUser, go, setPopout, setModal }) => {
 			{/* <Is_list/> */}
 
 			<List>
-				{drow_search_list()}
+				{tabsState=="students"? drow_students_list() : drow_payouts_list()}
 			</List>
 
 			<Div style={{ display: 'flex' }}>
