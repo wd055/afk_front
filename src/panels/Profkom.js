@@ -55,144 +55,6 @@ var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
 // var main_url = "http://thingworx.asuscomm.com/"
 // var main_url = "http://localhost:8000/"
 
-const redIcon = {
-	color: 'red'
-};
-const blueIcon = {
-	color: 'var(--accent)'
-};
-const orangeBackground = {
-	backgroundImage: 'linear-gradient(135deg, #ffb73d, #ffa000)'
-};
-
-const blueBackground = {
-	backgroundColor: 'var(--accent)'
-};
-const redBackground = {
-	backgroundColor: 'var(--field_error_border)'
-};
-
-function Is_list(props) {
-	var rows = [];
-	for (var i = 0; i < props.count; i++) {
-		rows.push(<Cell
-			key={i}
-			size="l"
-			// description="Друзья в Facebook"
-			asideContent={
-				<div style={{ display: 'flex' }}>
-				</div>
-			}
-			bottomContent={
-				<HorizontalScroll>
-					<div style={{ display: 'flex' }}>
-						<Button size="m" mode="outline" style={{ marginLeft: 8 }}>19У153</Button>
-						<Button size="m" mode="outline" style={{ marginLeft: 8 }}>ИУ7-21Б</Button>
-					</div>
-				</HorizontalScroll>
-			}
-		>Власов Денис Владимирович</Cell>);
-	}
-
-	const list =
-		<Group>
-			<List>
-				{rows}
-				<Cell
-					before={<Icon28HistoryForwardOutline />}
-					size="l"
-					// description="Друзья в Facebook"
-					asideContent={
-						<div style={{ display: 'flex' }}>
-							<Icon28DoneOutline style={blueIcon} />
-							<Icon28CancelCircleOutline style={{ marginLeft: 8, color: 'red' }} />
-						</div>
-					}
-					bottomContent={
-						<HorizontalScroll>
-							<div style={{ display: 'flex' }}>
-								<Button size="m" mode="outline">1234</Button>
-								<Button size="m" mode="outline" style={{ marginLeft: 8 }}>19У153</Button>
-								<Button size="m" mode="outline" style={{ marginLeft: 8 }}>Власов Д.В.</Button>
-							</div>
-						</HorizontalScroll>
-					}
-				>Компенсация за проживание в общежитии</Cell>
-				<Cell
-					before={<Icon28DoneOutline />}
-					size="l"
-					// description="Друзья в Facebook"
-					asideContent={
-						<div style={{ display: 'flex' }}>
-						</div>
-					}
-					bottomContent={
-						<HorizontalScroll>
-							<div style={{ display: 'flex' }}>
-								<Button size="m" mode="outline">1234</Button>
-								<Button size="m" mode="outline" style={{ marginLeft: 8 }}>19У153</Button>
-								<Button size="m" mode="outline" style={{ marginLeft: 8 }}>Власов Д.В.</Button>
-							</div>
-						</HorizontalScroll>
-					}
-				>Выплаты старостам и профоргам</Cell>
-				<Cell
-					before={<Icon28CancelCircleOutline style={redIcon} />}
-					size="l"
-					// description="Друзья в Facebook"
-					asideContent={
-						<div style={{ display: 'flex' }}>
-						</div>
-					}
-					bottomContent={
-						<HorizontalScroll>
-							<div style={{ display: 'flex' }}>
-								<Button size="m" mode="outline">1234</Button>
-								<Button size="m" mode="outline" style={{ marginLeft: 8 }}>19У153</Button>
-								<Button size="m" mode="outline" style={{ marginLeft: 8 }}>Власов Д.В.</Button>
-							</div>
-						</HorizontalScroll>
-					}
-				>Выплаты старостам и профоргам</Cell>
-				<Cell
-					before={<Icon28DeleteOutline style={redIcon} />}
-					size="l"
-					// description="Друзья в Facebook"
-					asideContent={
-						<div style={{ display: 'flex' }}>
-						</div>
-					}
-					bottomContent={
-						<HorizontalScroll>
-							<div style={{ display: 'flex' }}>
-								<Button size="m" mode="outline">1234</Button>
-								<Button size="m" mode="outline" style={{ marginLeft: 8 }}>19У153</Button>
-								<Button size="m" mode="outline" style={{ marginLeft: 8 }}>Власов Д.В.</Button>
-							</div>
-						</HorizontalScroll>
-					}
-				>Выплаты старостам и профоргам</Cell>
-				<Cell
-					size="l"
-					// description="Друзья в Facebook"
-					asideContent={
-						<div style={{ display: 'flex' }}>
-						</div>
-					}
-					bottomContent={
-						<HorizontalScroll>
-							<div style={{ display: 'flex' }}>
-								<Button size="m" mode="outline" style={{ marginLeft: 8 }}>19У153</Button>
-								<Button size="m" mode="outline" style={{ marginLeft: 8 }}>ИУ7-21Б</Button>
-							</div>
-						</HorizontalScroll>
-					}
-				>Власов Денис Владимирович</Cell>
-			</List>
-		</Group>
-	return list;
-}
-
 const App = ({ id, fetchedUser, go, setPopout, setModal }) => {
 	const redIcon = {
 		color: 'red'
@@ -241,7 +103,12 @@ const App = ({ id, fetchedUser, go, setPopout, setModal }) => {
 	// 		})
 
 	useEffect(() => {
-		get_all_users();
+		if (students.length == 0)
+			get_all_users();
+		if (searchPayouts.length == 0) {
+			search_payouts("");
+			get_paoyuts();
+		}
 	});
 
 	function search_payouts(value) {
@@ -287,7 +154,7 @@ const App = ({ id, fetchedUser, go, setPopout, setModal }) => {
 					return null
 				})
 	}
-	
+
 	function get_all_users() {
 		var url = main_url + "profkom_bot/get_all_users/";
 		if (students.length == 0 && students != null) {
@@ -333,18 +200,22 @@ const App = ({ id, fetchedUser, go, setPopout, setModal }) => {
 	}
 
 	function getSearchFilter() {
-		return students.filter(({ name, login}) =>
+		return students.filter(({ name, login }) =>
 			(name.toLowerCase().indexOf(searchValue.toLowerCase()) == 0 ||
 				login.toLowerCase().indexOf(searchValue.toLowerCase()) > -1)
 		)
 	}
 
 	function getPayoutsSearchFilter() {
-		return searchPayouts.filter(({ id }) =>(id.toString().toLowerCase().indexOf(searchValue.toLowerCase()) == 0))
+		return searchPayouts.filter(({ id }) => (id.toString().toLowerCase().indexOf(searchValue.toLowerCase()) == 0))
 	}
 
 	function getLenghtSearchFilter() {
-		return tabsState=="students" ? getSearchFilter().length : getPayoutsSearchFilter().length;
+		return tabsState == "students" ? getSearchFilter().length : getPayoutsSearchFilter().length;
+	}
+
+	function set_accepted(id) {
+		console.log(id);
 	}
 
 	function drow_payouts_list() {
@@ -354,28 +225,28 @@ const App = ({ id, fetchedUser, go, setPopout, setModal }) => {
 
 		for (var i in search_arr) {
 			var before = <Icon28DoneOutline />;
-			if (search_arr[i].delete == true) before = <Icon28DeleteOutline style={redIcon} /> 
+			if (search_arr[i].delete == true) before = <Icon28DeleteOutline style={redIcon} />
 			else if (search_arr[i].status == "filed") before = <Icon28HistoryForwardOutline />
 			else if (search_arr[i].status == "accepted") before = <Icon28DoneOutline />
 			else if (search_arr[i].status == "err") before = <Icon28ErrorOutline style={redIcon} />
 
 			rows.push(<Cell key={i} size="l"
-					before={before}
-					asideContent={search_arr[i].status == "filed" &&
+				before={before}
+				asideContent={search_arr[i].status == "filed" &&
+					<div style={{ display: 'flex' }}>
+						<Icon28DoneOutline style={blueIcon} onClick={set_accepted} />
+						<Icon28CancelCircleOutline style={{ marginLeft: 8, color: 'red' }} />
+					</div>
+				}
+				bottomContent={
+					<HorizontalScroll>
 						<div style={{ display: 'flex' }}>
-							<Icon28DoneOutline style={blueIcon} />							
-							<Icon28CancelCircleOutline style={{ marginLeft: 8, color: 'red' }} />
+							<Button size="m" mode="outline">{search_arr[i].id}</Button>
+							<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{search_arr[i].students_login}</Button>
+							<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{search_arr[i].surname_and_initials}</Button>
 						</div>
-					}
-					bottomContent={
-						<HorizontalScroll>
-							<div style={{ display: 'flex' }}>
-								<Button size="m" mode="outline">{search_arr[i].id}</Button>
-								<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{search_arr[i].students_login}</Button>
-								<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{search_arr[i].surname_and_initials}</Button>
-							</div>
-						</HorizontalScroll>
-					}>{search_arr[i].payouts_type}</Cell>);
+					</HorizontalScroll>
+				}>{search_arr[i].payouts_type}</Cell>);
 
 			rows.push(<Separator style={{ margin: '2px 0' }} />)
 		}
@@ -383,6 +254,27 @@ const App = ({ id, fetchedUser, go, setPopout, setModal }) => {
 		return rows
 	}
 
+	function get_paoyuts() {
+		var temp_arr = getPayoutsSearchFilter();
+		var search_arr = temp_arr.slice(list_left_end, list_right_end);
+		return search_arr;
+	}
+
+	function get_students() {
+		var temp_arr = getSearchFilter();
+		var search_arr = temp_arr.slice(list_left_end, list_right_end);
+		return search_arr;
+	}
+
+	function get_before_payouts(is_delete, status){
+		var before = <Icon28DoneOutline />;
+		if (is_delete == true) before = <Icon28DeleteOutline style={redIcon} />
+		else if (status == "filed") before = <Icon28HistoryForwardOutline />
+		else if (status == "accepted") before = <Icon28DoneOutline />
+		else if (status == "err") before = <Icon28ErrorOutline style={redIcon} />
+		return before;
+	}
+	
 	function drow_students_list() {
 		var rows = [];
 		var temp_arr = getSearchFilter();
@@ -430,14 +322,15 @@ const App = ({ id, fetchedUser, go, setPopout, setModal }) => {
 					onClick={() => {
 						if (searchPayouts.length == 0)
 							search_payouts('');
-						setTabsState('payouts')}}
+						setTabsState('payouts')
+					}}
 					selected={tabsState === 'payouts'}
 				>Заявления</TabsItem>
 			</Tabs>
 
 			<Search
 				value={searchValue}
-				placeholder={tabsState === 'payouts' ? "Поиск по номеру" : "Поиск"}
+				placeholder={tabsState === 'payouts' ? "Поиск по номеру заявления" : "Поиск по ФИО или студ. билету"}
 				onChange={(e) => {
 					const { value } = e.currentTarget;
 					setSearchValue(value);
@@ -447,10 +340,41 @@ const App = ({ id, fetchedUser, go, setPopout, setModal }) => {
 				// icon={tabsState === 'payouts' && <Icon24Send />}
 				after={null}
 			/>
-			{/* <Is_list/> */}
-
 			<List>
-				{tabsState=="students"? drow_students_list() : drow_payouts_list()}
+				{tabsState == "payouts" && get_paoyuts().map((post) =>
+					(<Group>
+						<Cell key={post.i} size="l"
+							before={get_before_payouts(post.delete, post.status)}
+							asideContent={post.status == "filed" &&
+								<div style={{ display: 'flex' }}>
+									<Icon28DoneOutline style={blueIcon} onClick={() => console.log(post.id)} />
+									<Icon28CancelCircleOutline style={{ marginLeft: 8, color: 'red' }} />
+								</div>}
+							bottomContent={
+								<HorizontalScroll>
+									<div style={{ display: 'flex' }}>
+										<Button size="m" mode="outline">{post.id}</Button>
+										<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{post.students_login}</Button>
+										<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{post.surname_and_initials}</Button>
+									</div>
+								</HorizontalScroll>
+							}>{post.payouts_type}</Cell>
+					</Group>))}
+				{tabsState == "students" && get_students().map((post) =>
+					(<Group>
+						<Cell key={post.i} size="l"
+							asideContent={
+								<Icon28AddOutline style={blueIcon} />
+							}
+							bottomContent={
+								<HorizontalScroll>
+									<div style={{ display: 'flex' }}>
+										<Button size="m" mode="outline">{post.group}</Button>
+										<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{post.login}</Button>
+									</div>
+								</HorizontalScroll>
+							}>{post.name}</Cell>
+					</Group>))}
 			</List>
 
 			<Div style={{ display: 'flex' }}>
