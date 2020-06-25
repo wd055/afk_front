@@ -32,7 +32,7 @@ import Home from './panels/Home';
 import Profkom from './panels/Profkom';
 
 const App = () => {
-	const [activePanel, setActivePanel] = useState('home');
+	const [activePanel, setActivePanel] = useState('Home');
 	const [fetchedUser, setUser] = useState(null);
 	const [modal, setModal] = useState(null);
 	const [popout, setPopout] = useState(<ScreenSpinner size='large' />);
@@ -46,16 +46,15 @@ const App = () => {
 				schemeAttribute.value = data.scheme ? data.scheme : 'client_light';
 				document.body.attributes.setNamedItem(schemeAttribute);
 			}
-			if (type === 'VKWebAppGetEmailResult') {
-				document.getElementById('email').value = data.email;
-			}
-			if (type === 'VKWebAppGetPhoneNumberResult') {
-				document.getElementById('phone').value = data.phone_number;
-			}
+			// if (type === 'VKWebAppGetEmailResult') {
+			// 	document.getElementById('email').value = data.email;
+			// }
+			// if (type === 'VKWebAppGetPhoneNumberResult') {
+			// 	document.getElementById('phone').value = data.phone_number;
+			// }
 			if (type === 'VKWebAppGetUserInfoResult') {
 				setUser(data.id)
 			}
-			console.log(type, data)
 		});
 		async function fetchData() {
 			// const user = await bridge.send('VKWebAppGetUserInfo');
@@ -75,23 +74,27 @@ const App = () => {
 	const blueIcon = {
 		color: 'var(--accent)'
 	};
-
-	const params = window
-	.location
-	.search
-	.replace('?', '')
-	.split('&')
-	.reduce(
-		function (p, e) {
-			var a = e.split('=');
-			p[decodeURIComponent(a[0])] = decodeURIComponent(a[1]);
-			return p;
-		},
-		{}
-	);
 	
-	if (params["activePanel"])
-		setActivePanel(params["activePanel"])
+	const parseQueryString = (string) => {
+		return string.slice(1).split('&')
+			.map((queryParam) => {
+				let kvp = queryParam.split('=');
+				return {key: kvp[0], value: kvp[1]}
+			})
+			.reduce((query, kvp) => {
+				query[kvp.key] = kvp.value;
+				return query
+			}, {})
+	};
+
+	const queryParams = parseQueryString(window.location.search);
+	const hashParams = parseQueryString(window.location.hash);
+
+	if (hashParams["activePanel"] && activePanel != hashParams["activePanel"])
+		setActivePanel(hashParams["activePanel"])
+
+	console.log(queryParams)
+	// console.log(hashParams)
 
 	const modals = (
 		<ModalRoot
@@ -101,28 +104,28 @@ const App = () => {
 				id={'select'}
 				header={
 					<ModalPageHeader
-					//   left={IS_PLATFORM_ANDROID && <PanelHeaderButton onClick={this.modalBack}><Icon24Cancel /></PanelHeaderButton>}
-					//   right={IS_PLATFORM_IOS && <PanelHeaderButton onClick={this.modalBack}><Icon24Dismiss /></PanelHeaderButton>}
-					>
-						Информация о пользователе
-	        </ModalPageHeader>
+						//   left={IS_PLATFORM_ANDROID && <PanelHeaderButton onClick={this.modalBack}><Icon24Cancel /></PanelHeaderButton>}
+						//   right={IS_PLATFORM_IOS && <PanelHeaderButton onClick={this.modalBack}><Icon24Dismiss /></PanelHeaderButton>}
+						>
+							Информация о пользователе
+					</ModalPageHeader>
 				}
 			>
 				<List>
-					<Cell>
+					<Cell key={1}>
 						<InfoRow header="Дата рождения">
 							30 января 1993
-	          </InfoRow>
+	          			</InfoRow>
 					</Cell>
-					<Cell>
+					<Cell key={2}>
 						<InfoRow header="Родной город">
 							Ереван
-	          </InfoRow>
+	          			</InfoRow>
 					</Cell>
-					<Cell>
+					<Cell key={3}>
 						<InfoRow header="Место работы">
 							Команда ВКонтакте
-	          </InfoRow>
+	          			</InfoRow>
 					</Cell>
 				</List>
 			</ModalPage>
@@ -130,48 +133,30 @@ const App = () => {
 	);
 
 	return (
-		<Router>
-			<Switch>
-				<Route path="/success">
-					<View activePanel="Success" popout={popout}>
-						<Panel id="Success">
-							<PanelHeader>Успешная авторизация</PanelHeader>
-							<Placeholder
-								icon={<Icon56CheckCircleOutline style={blueIcon} />}
-								stretched
-								id="Placeholder"
-							>
-								Успешная авторизация!
+		<View activePanel={activePanel} popout={popout} modal={modals}>
+			<Panel id="Success">
+				<PanelHeader>Успешная авторизация</PanelHeader>
+				<Placeholder
+					icon={<Icon56CheckCircleOutline style={blueIcon} />}
+					stretched
+					id="Placeholder"
+				>
+					Успешная авторизация!
 							</Placeholder>
-						</Panel>
-					</View>
-				</Route>
-				<Route path="/error">
-					<View activePanel="Error" popout={popout}>
-						<Panel id="Error">
-							<PanelHeader>Ошибка авторизации</PanelHeader>
-							<Placeholder
-								icon={<Icon56ErrorOutline style={redIcon} />}
-								stretched
-								id="Placeholder"
-							>
-								Ошибка авторизации<br />Попробуйте позже или свяжитесь с администратором группы!
+			</Panel>
+			<Panel id="ErrorOauth">
+				<PanelHeader>Ошибка авторизации</PanelHeader>
+				<Placeholder
+					icon={<Icon56ErrorOutline style={redIcon} />}
+					stretched
+					id="Placeholder"
+				>
+					Ошибка авторизации<br />Попробуйте позже или свяжитесь с администратором группы!
 							</Placeholder>
-						</Panel>
-					</View>
-				</Route>
-				<Route path="/profkom">
-					<View activePanel={activePanel} popout={popout} modal={modals}>
-						<Profkom id='home' fetchedUser={fetchedUser} go={go} setPopout={setPopout} setModal={setModal} />
-					</View>
-				</Route>
-				<Route path="/">
-					<View activePanel={activePanel} popout={popout}>
-						<Home id='home' fetchedUser={fetchedUser} go={go} setPopout={setPopout} />
-					</View>
-				</Route>
-			</Switch>
-		</Router>
+			</Panel>
+			<Profkom id='Profkom' fetchedUser={fetchedUser} go={go} setPopout={setPopout} setModal={setModal} />
+			<Home id='Home' fetchedUser={fetchedUser} go={go} setPopout={setPopout} />
+		</View>
 	);
 }
 

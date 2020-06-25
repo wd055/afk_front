@@ -17,6 +17,7 @@ import Snackbar from '@vkontakte/vkui/dist/components/Snackbar/Snackbar';
 import Avatar from '@vkontakte/vkui/dist/components/Avatar/Avatar';
 import Icon16Clear from '@vkontakte/icons/dist/16/clear';
 import Icon16Done from '@vkontakte/icons/dist/16/done';
+import Icon28CheckCircleOutline from '@vkontakte/icons/dist/28/check_circle_outline';
 
 import Group from '@vkontakte/vkui/dist/components/Group/Group';
 import SimpleCell from '@vkontakte/vkui/dist/components/SimpleCell/SimpleCell';
@@ -45,27 +46,13 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 	const orangeBackground = {
 		backgroundImage: 'linear-gradient(135deg, #ffb73d, #ffa000)'
 	};
-	
+
 	const blueBackground = {
 		backgroundColor: 'var(--accent)'
 	};
 	const redBackground = {
 		backgroundColor: 'var(--field_error_border)'
 	};
-
-	var params = window
-		.location
-		.search
-		.replace('?', '')
-		.split('&')
-		.reduce(
-			function (p, e) {
-				var a = e.split('=');
-				p[decodeURIComponent(a[0])] = decodeURIComponent(a[1]);
-				return p;
-			},
-			{}
-		);
 
 	const [categories, setCategories] = useState([]);
 	const [getCategories, setGetCategories] = useState([]);
@@ -76,12 +63,23 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 	const [email, setEmail] = useState();
 	const [phone, setPhone] = useState();
 	const [payments_edu, setPayments_edu] = useState();
-	const [name, setName] = useState();
-
+	const [name, setName] = useState("");
 
 	useEffect(() => {
-		var url = main_url + "profkom_bot/all_categories/";
+		
+		bridge.subscribe(({ detail: { type, data } }) => {
+			if (type === 'VKWebAppGetEmailResult') {
+				document.getElementById('email').value = data.email;
+				setEmail(data.email);
+			}
+			if (type === 'VKWebAppGetPhoneNumberResult') {
+				document.getElementById('phone').value = data.phone_number;
+				setPhone(data.phone_number);
+			}
+		});
 
+		var url = main_url + "profkom_bot/all_categories/";
+		
 		if (categories.length == 0 && showForm == true) {
 			fetch(url, {
 				method: 'POST',
@@ -92,11 +90,21 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 				.then(response => response.json())
 				.then((data) => {
 					setCategories(data)
+					setShowForm(true)
+					setSubmitSuccess("Успешно!")
 				},
 					(error) => {
-						setShowForm(false)
-						setSubmitSuccess(<div>Ошибка подключения<br />Пожалуйста, попробуйте через несколько минут!</div>)
+						setSnackbar(<Snackbar
+							layout="vertical"
+							onClose={() => setSnackbar(null)}
+							before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
+						>
+							Ошибка подключения
+						</Snackbar>);
+						// setShowForm(false)
+						// setSubmitSuccess(<div>Ошибка подключения<br />Пожалуйста, попробуйте через несколько минут!</div>)
 						console.error('get category:', error)
+						console.error('get category_data:', data)
 					})
 
 
@@ -104,9 +112,8 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 			var url = main_url + "profkom_bot/get_form/";
 
 			var data = {
-				token: params['token'],
+				querys: window.location.search,
 			}
-
 			fetch(url, {
 				method: 'POST',
 				body: JSON.stringify(data),
@@ -116,39 +123,60 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 			})
 				.then(response => response.json())
 				.then((data) => {
-					if (data != "Error"){
-						console.log(JSON.parse(data));
-						data = JSON.parse(data);
-						setName(data.name)
-						setEmail(data.email)
-						setPhone(data.phone)
-						setGetCategories(data.categories)
-						setPayments_edu(data.payments_edu)
-					}else{
-						setShowForm(false)
-						setSubmitSuccess(<div>Ошибка авторизации</div>)
+					if (data != "Error") {
+						console.log('get info:', data);
+						setName(data.name);
+						setEmail(data.email);
+						setPhone(data.phone);
+						setGetCategories(data.categories);
+						setPayments_edu(data.payments_edu);
+						setShowForm(true);
+						setSubmitSuccess("Успешно!");
+					} else {
+						console.error('get info:', data);
+						
+						setSnackbar(<Snackbar
+							layout="vertical"
+							onClose={() => setSnackbar(null)}
+							before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
+						>
+							Ошибка авторизации
+						</Snackbar>);
+						// setShowForm(false)
+						// setSubmitSuccess(<div>Ошибка авторизации</div>)
 					}
 				},
 					(error) => {
-						setShowForm(false)
-						setSubmitSuccess(<div>Ошибка подключения<br />Пожалуйста, попробуйте через несколько минут!</div>)
-						console.error('get category:', error)
+						if (name == "") {
+							setSnackbar(<Snackbar
+								layout="vertical"
+								onClose={() => setSnackbar(null)}
+								before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
+							>
+								Ошибка подключения
+							</Snackbar>);
+							// setShowForm(false)
+							// setSubmitSuccess(<div>Ошибка подключения<br />Пожалуйста, попробуйте через несколько минут!</div>)
+							console.error('get info:', error)
+						}
 					})
 		}
 	});
 
-	var clickEmail = true;
-	var clickPhone = true;
-	const onPhoneClick = e => {
-		if (clickPhone) {
-			bridge.send("VKWebAppGetPhoneNumber", {});
-			clickPhone = false;
-		}
-	};
+	const [clickEmail, setClickEmail] = useState(true);
+	const [clickPhone, setClickPhone] = useState(true);
+	
 	const onEmailClick = e => {
 		if (clickEmail) {
+			setClickEmail(false);
 			bridge.send("VKWebAppGetEmail", {});
-			clickEmail = false;
+		}
+	};
+
+	const onPhoneClick = e => {
+		if (clickPhone) {
+			setClickPhone(false);
+			bridge.send("VKWebAppGetPhoneNumber", {});
 		}
 	};
 
@@ -163,8 +191,7 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 	}
 
 	function onFormClick(e) {
-		if (!email || !phone || !payments_edu || !validateEmail(email) || !validatePhone(phone))
-		{
+		if (!email || !phone || !payments_edu || !validateEmail(email) || !validatePhone(phone)) {
 			setSnackbar(<Snackbar
 				layout="vertical"
 				onClose={() => setSnackbar(null)}
@@ -176,7 +203,8 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 		}
 		var categorys = document.getElementsByName("category");
 		var data = {
-			token: params['token'],
+			// token: params['token'],
+			querys: window.location.search,
 			email: document.getElementById("email").value,
 			phone: document.getElementById("phone").value,
 			payments_edu: document.getElementById("payments_edu").value,
@@ -189,9 +217,13 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 			}
 		}
 
+		setGetCategories(data.categories)
+
 		var url = main_url + "profkom_bot/form/";
-		
+
 		setPopout(<ScreenSpinner size='large' />);
+
+		console.log("set form:", data)
 
 		fetch(url, {
 			method: 'POST',
@@ -203,10 +235,29 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 			.then(response => response.json())
 			.then((data) => {
 				setPopout(null);
-				setShowForm(false);
+				// setShowForm(false);
 				if (data != 'Success') {
-					setSubmitSuccess(<div>Ошибка отправики <br />Попробуйте еще раз или свяжитесь с администратором!</div>);
+					setSnackbar(<Snackbar
+						layout="vertical"
+						onClose={() => setSnackbar(null)}
+						before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
+					>
+						Ошибка отправики
+					  </Snackbar>);
+					setPopout(null);
+					// setSubmitSuccess(<div>Ошибка отправики <br />Попробуйте еще раз или свяжитесь с администратором!</div>);
 				}
+				else{
+					setSnackbar(<Snackbar
+						layout="vertical"
+						onClose={() => setSnackbar(null)}
+						before={<Avatar size={24} style={blueBackground}><Icon28CheckCircleOutline fill="#fff" width={14} height={14} /></Avatar>}
+					>
+						Успешно!
+					  </Snackbar>);
+					setPopout(null);
+				}
+				console.log("set form:", data)
 			},
 				(error) => {
 					setSnackbar(<Snackbar
@@ -220,7 +271,7 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 					console.error('send form:', error);
 				})
 	};
-	function onLoadCategory(){
+	function onLoadCategory() {
 		var categorys = document.getElementsByName("category");
 		for (var i = 0; i < categorys.length; i++) {
 			categorys[i].checked = getCategories.indexOf(categories[i]) != -1
@@ -250,7 +301,7 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 							onClick={onEmailClick}
 							onChange={(e) => {
 								const { value } = e.currentTarget;
-								setEmail(value.slice(0,100));
+								setEmail(value.slice(0, 100));
 							}}
 							value={email}
 							status={validateEmail(email) ? 'valid' : 'error'}
@@ -266,7 +317,7 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 							onClick={onPhoneClick}
 							onChange={(e) => {
 								const { value } = e.currentTarget;
-								setPhone(value.slice(0,50));
+								setPhone(value.slice(0, 50));
 							}}
 							value={phone}
 							status={validatePhone(phone) ? 'valid' : 'error'}
@@ -296,7 +347,8 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 							{/* <Radio name="type">Паспорт</Radio>
 				<Radio name="type">Загран</Radio> */}
 							{categories.map((category, i) => (
-								<Checkbox name="category" id={i.toString()} defaultChecked={getCategories.indexOf(categories) != -1}>{category}</Checkbox>
+								<Checkbox name="category" id={i.toString()}>{category}</Checkbox>
+								// <Checkbox name="category" id={i.toString()} defaultChecked={getCategories.indexOf(categories) != -1}>{category}</Checkbox>
 							))}
 						</FormLayoutGroup>
 						{/* <Checkbox>Согласен со всем <Link>этим</Link></Checkbox> */}
@@ -306,7 +358,7 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 					</FormLayout>
 				</Group>
 				: <Placeholder
-					icon={submitSuccess == 'Успешно!' ? <Icon56CheckCircleOutline style={blueIcon}/> : <Icon56ErrorOutline style={redIcon} />}
+					icon={submitSuccess == 'Успешно!' ? <Icon56CheckCircleOutline style={blueIcon} /> : <Icon56ErrorOutline style={redIcon} />}
 					// action={<Button size="l" mode="tertiary">Показать все сообщения</Button>}
 					stretched
 					id="Placeholder"

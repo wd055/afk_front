@@ -28,6 +28,7 @@ import List from '@vkontakte/vkui/dist/components/List/List';
 import Search from '@vkontakte/vkui/dist/components/Search/Search';
 import Gallery from '@vkontakte/vkui/dist/components/Gallery/Gallery';
 import Div from '@vkontakte/vkui/dist/components/Div/Div';
+import Separator from '@vkontakte/vkui/dist/components/Separator/Separator';
 
 import Placeholder from '@vkontakte/vkui/dist/components/Placeholder/Placeholder';
 import PanelHeaderBack from '@vkontakte/vkui/dist/components/PanelHeaderBack/PanelHeaderBack';
@@ -36,7 +37,9 @@ import Icon56ErrorOutline from '@vkontakte/icons/dist/56/error_outline';
 import Icon24Error from '@vkontakte/icons/dist/24/error';
 import Icon28AddOutline from '@vkontakte/icons/dist/28/add_outline';
 import Icon24Send from '@vkontakte/icons/dist/24/send';
-
+import Icon24BrowserBack from '@vkontakte/icons/dist/24/browser_back';
+import Icon24BrowserForward from '@vkontakte/icons/dist/24/browser_forward';
+import Icon28DeleteOutline from '@vkontakte/icons/dist/28/delete_outline';
 import Icon28HistoryForwardOutline from '@vkontakte/icons/dist/28/history_forward_outline';
 import Icon28DoneOutline from '@vkontakte/icons/dist/28/done_outline';
 import Icon28CancelCircleOutline from '@vkontakte/icons/dist/28/cancel_circle_outline';
@@ -151,6 +154,24 @@ function Is_list(props) {
 				}
 			>Выплаты старостам и профоргам</Cell>
 			<Cell
+				before={<Icon28DeleteOutline style={redIcon} />}
+				size="l"
+				// description="Друзья в Facebook"
+				asideContent={
+					<div style={{ display: 'flex' }}>
+					</div>
+				}
+				bottomContent={
+					<HorizontalScroll>
+						<div style={{ display: 'flex' }}>
+							<Button size="m" mode="outline">1234</Button>
+							<Button size="m" mode="outline" style={{ marginLeft: 8 }}>19У153</Button>
+							<Button size="m" mode="outline" style={{ marginLeft: 8 }}>Власов Д.В.</Button>
+						</div>
+					</HorizontalScroll>
+				}
+			>Выплаты старостам и профоргам</Cell>
+			<Cell
 				size="l"
 				// description="Друзья в Facebook"
 				asideContent={
@@ -189,67 +210,177 @@ const App = ({ id, fetchedUser, go, setPopout, setModal }) => {
 		backgroundColor: 'var(--field_error_border)'
 	};
 
-	var params = window
-		.location
-		.search
-		.replace('?', '')
-		.split('&')
-		.reduce(
-			function (p, e) {
-				var a = e.split('=');
-				p[decodeURIComponent(a[0])] = decodeURIComponent(a[1]);
-				return p;
-			},
-			{}
-		);
-
 	const [students, setStudents] = useState([]);
+	const [payouts, setPayouts] = useState([]);
 	const [snackbar, setSnackbar] = useState();
 	const [tabsState, setTabsState] = useState('students');
 	const [searchValue, setSearchValue] = useState("");
 
+	// const [browserBack, setBrowserBack] = useState(true);
+	// const [browserForward, setBrowserForward] = useState(true);
+	const count_on_page = 10;
+	const [search_lenght, set_search_lenght] = useState(4000);
+	const [list_left_end, set_list_left_end] = useState(0);
+	const [list_right_end, set_list_right_end] = useState(count_on_page);
+
+	// fetch(main_url + "profkom_bot/get_users_info/", {
+	// 	method: 'POST',
+	// 	body: JSON.stringify({
+	// 		querys: window.location.search,
+	// 		students_login:"19У153"
+	// 	}),
+	// 	headers: {
+	// 		'Origin': origin
+	// 	}
+	// })
+	// 	.then(response => response.json())
+	// 	.then((data) => {
+	// 		console.log("get_users_info", data)
+	// 	},
+	// 		(error) => {
+	// 			console.error('get_users_info:', error)
+	// 		})
+
 	useEffect(() => {
+		get_all_users();
+	});
+
+	// function get_all_users() {
+	// 	var url = main_url + "profkom_bot/get_all_users/";
+	// 	if (students.length == 0 && students != null) {
+	// 		fetch(url, {
+	// 			method: 'POST',
+	// 			body: JSON.stringify({
+	// 				querys: window.location.search,
+	// 			}),
+	// 			headers: {
+	// 				'Origin': origin
+	// 			}
+	// 		})
+	// 			.then(response => response.json())
+	// 			.then((data) => {
+	// 				if (data != "Error") {
+	// 					console.log(data)
+	// 					setStudents(data)
+	// 					return(data)
+	// 				}
+	// 				else {
+	// 					setSnackbar(<Snackbar
+	// 						layout="vertical"
+	// 						onClose={() => setSnackbar(null)}
+	// 						before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
+	// 					>
+	// 						Ошибка подключения
+	// 					</Snackbar>);
+	// 					return null
+	// 				}
+	// 			},
+	// 				(error) => {
+	// 					setSnackbar(<Snackbar
+	// 						layout="vertical"
+	// 						onClose={() => setSnackbar(null)}
+	// 						before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
+	// 					>
+	// 						Ошибка подключения
+	// 					</Snackbar>);
+	// 					console.error('get_all_users:', error)
+	// 					return null
+	// 				})
+	// 	}
+	// }
+	function get_all_users() {
 		var url = main_url + "profkom_bot/get_all_users/";
-		if (students.length == 0) {
+		if (students.length == 0 && students != null) {
 			fetch(url, {
 				method: 'POST',
+				body: JSON.stringify({
+					querys: window.location.search,
+				}),
 				headers: {
 					'Origin': origin
 				}
 			})
 				.then(response => response.json())
 				.then((data) => {
-					setStudents(data)
-					console.log(data)
+					if (data != "Error") {
+						console.log(data)
+						setStudents(data)
+						return(data)
+					}
+					else {
+						setSnackbar(<Snackbar
+							layout="vertical"
+							onClose={() => setSnackbar(null)}
+							before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
+						>
+							Ошибка подключения
+						</Snackbar>);
+						return null
+					}
 				},
 					(error) => {
-						console.error('get category:', error)
+						setSnackbar(<Snackbar
+							layout="vertical"
+							onClose={() => setSnackbar(null)}
+							before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
+						>
+							Ошибка подключения
+						</Snackbar>);
+						console.error('get_all_users:', error)
+						return null
 					})
 		}
-	});
-
-	const onEmailClick = e => {
-		console.log("qweqweqwe")
-		bridge.send("VKWebAppGetEmail", {});
-	};
-
-	// get thematics () {
-	// 	const search = this.state.search.toLowerCase();
-	// 	return thematics.filter(({name}) => name.toLowerCase().indexOf(search) > -1);
-	//   }
+	}
 
 	function getSearchFilter() {
-		return students.filter(({ name }) => name.toLowerCase().indexOf(searchValue.toLowerCase()) > -1)
+		return students.filter(({ name, login, i }) =>
+			(name.toLowerCase().indexOf(searchValue.toLowerCase()) == 0 ||
+				login.toLowerCase().indexOf(searchValue.toLowerCase()) > -1)
+		)
+	}
+	function getLenghtSearchFilter() {
+		return getSearchFilter().length
+	}
+	
+	function drow_search_list(){		
+		var rows = [];
+		var temp_arr = getSearchFilter();
+		var search_arr = temp_arr.slice(list_left_end, list_right_end);
+
+		for (var i in search_arr) {
+			rows.push(<Cell key = {i} size="l"
+				asideContent={
+					<div style={{ display: 'flex' }}>
+						<Icon28AddOutline style={blueIcon}/>
+					</div>
+				}
+				bottomContent={
+					<HorizontalScroll>
+						<div style={{ display: 'flex' }}>
+							<Button size="m" mode="outline">{search_arr[i].group}</Button>
+							<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{search_arr[i].login}</Button>
+						</div>
+					</HorizontalScroll>
+				}>{search_arr[i].name}</Cell>);
+
+			rows.push(<Separator style={{ margin: '2px 0' }} />)
+		}
+		rows = rows.slice(0,-1)
+		return rows
+	}
+
+	function left_button_list_click() {
+		set_list_left_end(list_left_end - count_on_page);
+		set_list_right_end(list_right_end - count_on_page);
+	}
+	function right_button_list_click() {
+		set_list_left_end(list_left_end + count_on_page);
+		set_list_right_end(list_right_end + count_on_page);
 	}
 
 	const Home =
 		<Panel id={id} style={{ 'max-width': 600, margin: 'auto' }}>
-			<PanelHeader>Форма</PanelHeader>
-			
-			<Div style={{display: 'flex'}}>
-				<Button size="l" stretched style={{ marginRight: 8 }}>Stretched</Button>
-				<Button size="l" stretched mode="secondary">Stretched</Button>
-			</Div>
+			<PanelHeader>Профком МГТУ</PanelHeader>
 
 			<Tabs mode="buttons">
 				<TabsItem
@@ -267,86 +398,28 @@ const App = ({ id, fetchedUser, go, setPopout, setModal }) => {
 				onChange={(e) => {
 					const { value } = e.currentTarget;
 					setSearchValue(value);
+					set_list_left_end(0);
+					set_list_right_end(count_on_page);
 				}}
-				icon={tabsState === 'payouts' && <Icon24Send />}
+				// icon={tabsState === 'payouts' && <Icon24Send />}
 				after={null}
 			/>
-			<Group>
-				<List>
-					<Cell
-						before={<Icon28HistoryForwardOutline />}
-						size="l"
-						// description="Друзья в Facebook"
-						asideContent={
-							<div style={{ display: 'flex' }}>
-								<Icon28DoneOutline style={blueIcon} />
-								<Icon28CancelCircleOutline style={{ marginLeft: 8, color: 'red' }} />
-							</div>
-						}
-						bottomContent={
-							<HorizontalScroll>
-								<div style={{ display: 'flex' }}>
-									<Button size="m" mode="outline">1234</Button>
-									<Button size="m" mode="outline" style={{ marginLeft: 8 }}>19У153</Button>
-									<Button size="m" mode="outline" style={{ marginLeft: 8 }}>Власов Д.В.</Button>
-								</div>
-							</HorizontalScroll>
-						}
-					>Компенсация за проживание в общежитии</Cell>
-					<Cell
-						before={<Icon28DoneOutline />}
-						size="l"
-						// description="Друзья в Facebook"
-						asideContent={
-							<div style={{ display: 'flex' }}>
-							</div>
-						}
-						bottomContent={
-							<HorizontalScroll>
-								<div style={{ display: 'flex' }}>
-									<Button size="m" mode="outline">1234</Button>
-									<Button size="m" mode="outline" style={{ marginLeft: 8 }}>19У153</Button>
-									<Button size="m" mode="outline" style={{ marginLeft: 8 }}>Власов Д.В.</Button>
-								</div>
-							</HorizontalScroll>
-						}
-					>Выплаты старостам и профоргам</Cell>
-					<Cell
-						before={<Icon28CancelCircleOutline style={redIcon} />}
-						size="l"
-						// description="Друзья в Facebook"
-						asideContent={
-							<div style={{ display: 'flex' }}>
-							</div>
-						}
-						bottomContent={
-							<HorizontalScroll>
-								<div style={{ display: 'flex' }}>
-									<Button size="m" mode="outline">1234</Button>
-									<Button size="m" mode="outline" style={{ marginLeft: 8 }}>19У153</Button>
-									<Button size="m" mode="outline" style={{ marginLeft: 8 }}>Власов Д.В.</Button>
-								</div>
-							</HorizontalScroll>
-						}
-					>Выплаты старостам и профоргам</Cell>
-					<Cell
-						size="l"
-						// description="Друзья в Facebook"
-						asideContent={
-							<div style={{ display: 'flex' }}>
-							</div>
-						}
-						bottomContent={
-							<HorizontalScroll>
-								<div style={{ display: 'flex' }}>
-									<Button size="m" mode="outline" style={{ marginLeft: 8 }}>19У153</Button>
-									<Button size="m" mode="outline" style={{ marginLeft: 8 }}>ИУ7-21Б</Button>
-								</div>
-							</HorizontalScroll>
-						}
-					>Власов Денис Владимирович</Cell>
-				</List>
-			</Group>
+			{/* <Is_list/> */}
+
+			<List>
+				{drow_search_list()}
+			</List>
+
+			<Div style={{display: 'flex'}}>
+				{ list_left_end > 0 ? 
+					<Button size="l" before={<Icon24BrowserBack/>} stretched mode="secondary" style={{ marginRight: 8 }} onClick={left_button_list_click}>Назад</Button>
+					: <Button size="l"  stretched mode="tertiary" style={{ marginRight: 8 }} ></Button> }
+
+				{ list_right_end <= getLenghtSearchFilter() ? 
+				<Button size="l"  after={<Icon24BrowserForward/>} stretched mode="secondary" onClick={right_button_list_click}>Вперед</Button>
+					: <Button size="l"  stretched mode="tertiary"></Button> }
+			</Div>
+
 			{snackbar}
 		</Panel>
 	return Home;
