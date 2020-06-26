@@ -48,12 +48,12 @@ const App = () => {
 				schemeAttribute.value = data.scheme ? data.scheme : 'client_light';
 				document.body.attributes.setNamedItem(schemeAttribute);
 			}
-			// if (type === 'VKWebAppGetEmailResult') {
-			// 	document.getElementById('email').value = data.email;
-			// }
-			// if (type === 'VKWebAppGetPhoneNumberResult') {
-			// 	document.getElementById('phone').value = data.phone_number;
-			// }
+			if (type === 'VKWebAppCopyTextResult') {
+				console.log(data)
+			}
+			if (type === 'VKWebAppCopyTextFailed') {
+				console.log(data)
+			}
 			if (type === 'VKWebAppGetUserInfoResult') {
 				setUser(data.id)
 			}

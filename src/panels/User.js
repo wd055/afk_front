@@ -77,8 +77,8 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 		backgroundColor: 'var(--field_error_border)'
 	};
 
-	const [students, setStudents] = useState([]);
 	const [searchPayouts, setSearchPayouts] = useState([]);
+
 	const [student, setStudent] = useState({
 		birthday: "2001-01-01",
 		categories: [],
@@ -91,130 +91,25 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 		photo_100: "https://sun9-69.userapi.com/c857736/v857736442/11b6a3/hxWcSZwrJ50.jpg?ava=1",
 		users_payouts: [],
 		proforg: false});
+
 	const [snackbar, setSnackbar] = useState();
 	const [tabsState, setTabsState] = useState('students');
 	const [searchValue, setSearchValue] = useState("");
 
 	const count_on_page = 7;
 	const [set_accepted_temp, set_set_accepted_temp] = useState(0);
-	const [list_left_end, set_list_left_end] = useState(0);
-	const [list_right_end, set_list_right_end] = useState(count_on_page);
 
-	// fetch(main_url + "profkom_bot/get_users_info/", {
-	// 	method: 'POST',
-	// 	body: JSON.stringify({
-	// 		querys: window.location.search,
-	// 		students_login:"19У153"
-	// 	}),
-	// 	headers: {
-	// 		'Origin': origin
-	// 	}
-	// })
-	// 	.then(response => response.json())
-	// 	.then((data) => {
-	// 		console.log("get_users_info", data)
-	// 	},
-	// 		(error) => {
-	// 			console.error('get_users_info:', error)
-	// 		})
-
+	
 	useEffect(() => {
-		// if (students.length == 0)
-		// 	get_all_users();
-		// if (searchPayouts.length == 0)
-		// 	search_payouts("");
 		if (student.name == "ФИО")
 			get_users_info();
 	});
+
+	function copy_in_bufer(text){
+		console.log(text)
+		bridge.send("VKWebAppCopyText", {text: "Этот текст будет скопирован в буфер обмена."});
+	}
 	
-	function search_payouts(value) {
-		var url = main_url + "profkom_bot/search_payouts/";
-		fetch(url, {
-			method: 'POST',
-			body: JSON.stringify({
-				querys: window.location.search,
-				payouts_id: value
-			}),
-			headers: {
-				'Origin': origin
-			}
-		})
-			.then(response => response.json())
-			.then((data) => {
-				if (data != "Error") {
-					console.log(data)
-					setSearchPayouts(data)
-					return (data)
-				}
-				else {
-					setSnackbar(<Snackbar
-						layout="vertical"
-						onClose={() => setSnackbar(null)}
-						before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
-					>
-						Ошибка подключения
-						</Snackbar>);
-					console.error('search_payouts:', data)
-					return null
-				}
-			},
-				(error) => {
-					setSnackbar(<Snackbar
-						layout="vertical"
-						onClose={() => setSnackbar(null)}
-						before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
-					>
-						Ошибка подключения
-						</Snackbar>);
-					console.error('search_payouts:', error)
-					return null
-				})
-	}
-
-	function get_all_users() {
-		var url = main_url + "profkom_bot/get_all_users/";
-		if (students.length == 0 && students != null) {
-			fetch(url, {
-				method: 'POST',
-				body: JSON.stringify({
-					querys: window.location.search,
-				}),
-				headers: {
-					'Origin': origin
-				}
-			})
-				.then(response => response.json())
-				.then((data) => {
-					if (data != "Error") {
-						console.log(data)
-						setStudents(data)
-						return (data)
-					}
-					else {
-						setSnackbar(<Snackbar
-							layout="vertical"
-							onClose={() => setSnackbar(null)}
-							before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
-						>
-							Ошибка подключения
-						</Snackbar>);
-						return null
-					}
-				},
-					(error) => {
-						setSnackbar(<Snackbar
-							layout="vertical"
-							onClose={() => setSnackbar(null)}
-							before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
-						>
-							Ошибка подключения
-						</Snackbar>);
-						console.error('get_all_users:', error)
-						return null
-					})
-		}
-	}
-
 	function get_users_info() {
 		var url = main_url + "profkom_bot/get_users_info/";
 		fetch(url, {
@@ -256,21 +151,6 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 					console.error('get_all_users:', error)
 					return null
 				})
-	}
-
-	function getSearchFilter() {
-		return students.filter(({ name, login }) =>
-			(name.toLowerCase().indexOf(searchValue.toLowerCase()) == 0 ||
-				login.toLowerCase().indexOf(searchValue.toLowerCase()) > -1)
-		)
-	}
-
-	function getPayoutsSearchFilter() {
-		return searchPayouts.filter(({ id }) => (id.toString().toLowerCase().indexOf(searchValue.toLowerCase()) == 0))
-	}
-
-	function getLenghtSearchFilter() {
-		return tabsState == "students" ? getSearchFilter().length : getPayoutsSearchFilter().length;
 	}
 
 	function set_accepted(id) {
@@ -332,10 +212,6 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 		set_set_accepted_temp(set_accepted_temp + 1)
 	}
 
-	function get_payouts() {
-		return getPayoutsSearchFilter().slice(list_left_end, list_right_end);
-	}
-
 	function get_before_payouts(is_delete, status){
 		var before = <Icon28DoneOutline />;
 		if (is_delete == true) before = <Icon28DeleteOutline style={redIcon} />
@@ -343,15 +219,6 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 		else if (status == "accepted") before = <Icon28DoneOutline />
 		else if (status == "err") before = <Icon28ErrorOutline style={redIcon} />
 		return before;
-	}
-
-	function left_button_list_click() {
-		set_list_left_end(list_left_end - count_on_page);
-		set_list_right_end(list_right_end - count_on_page);
-	}
-	function right_button_list_click() {
-		set_list_left_end(list_left_end + count_on_page);
-		set_list_right_end(list_right_end + count_on_page);
 	}
 
 	const Home =
@@ -369,19 +236,34 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 					}>{student.name}</Cell>
 			</Group>
 
-			<Group>
-				{student.domain.length > 0 && <CellButton before={<Icon28LogoVkOutline />}>{student.domain}</CellButton>}
-				{student.phone.length > 0 && <CellButton before={<Icon28PhoneOutline />}>{student.phone}</CellButton>}
-				{student.email.length > 0 && <CellButton before={<Icon28MailOutline />}>{student.email}</CellButton>}
+			<Group separator={"hide"}>
+				{student.domain.length > 0 &&
+					<CellButton before={<Icon28LogoVkOutline />}
+					>{student.domain}</CellButton>}
+
+				{student.phone.length > 0 &&
+					<CellButton
+						onClick={() => copy_in_bufer(student.phone)}
+						before={<Icon28PhoneOutline />}
+					>{student.phone}</CellButton>}
+
+				{student.email.length > 0 &&
+					<CellButton
+						href={student.email}
+						before={<Icon28MailOutline />}
+					>{student.email}</CellButton>}
+
 			</Group>
 			
 			<Header mode="secondary" aside={<Icon16Chevron />}>
 				Подбробнее
 			</Header>
 
-			<Div>
-				<Button stretched  size="xl">Добавить заявление</Button>
-			</Div>
+			<Group separator={"hide"}>
+				<Div>
+					<Button stretched  size="xl">Добавить заявление</Button>
+				</Div>
+			</Group>
 
 			{/* <Div>
 				<Button stretched  size="xl" mode="secondary">Добавить заявление</Button>
@@ -408,7 +290,7 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 			<Group header={<Header mode="secondary">Актуальные заявления</Header>}>
 				<List>
 					{student.users_payouts.map((post) =>
-						(<Group key={post.i}>
+						(<Group key={post.i} separator={"show"}>
 							<Cell size="l"
 								before={get_before_payouts(post.delete, post.status)}
 								asideContent={post.status == "filed" &&
@@ -416,9 +298,9 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 										<Icon28DoneOutline style={blueIcon} onClick={() => set_accepted(post.id)} />
 										<Icon28CancelCircleOutline style={{ marginLeft: 8, color: 'red' }} />
 									</div>}
-								bottomContent={<Button size="m" mode="outline">{post.id}</Button>}>
-								{post.payouts_type}
-							</Cell>
+								// bottomContent={<Button size="m" mode="outline">{post.id}</Button>}
+								description={post.id}
+								>{post.payouts_type}</Cell>
 						</Group>))}
 				</List>
 			</Group>

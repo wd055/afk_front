@@ -332,7 +332,7 @@ const App = ({ id, fetchedUser, go, setPopout, setModal,  setLogin }) => {
 			<List>
 				{tabsState == "payouts" && get_payouts().map((post) =>
 					(<Group key={post.i}>
-						<Cell size="l"
+						<Cell multiline size="l"
 							before={get_before_payouts(post.delete, post.status)}
 							asideContent={post.status == "filed" &&
 								<div style={{ display: 'flex' }}>
@@ -351,7 +351,7 @@ const App = ({ id, fetchedUser, go, setPopout, setModal,  setLogin }) => {
 					</Group>))}
 				{tabsState == "students" && get_students().map((post) =>
 					(<Group>
-						<Cell key={post.i} size="l"
+						<Cell multiline key={post.i} size="l"
 							asideContent={
 								<Icon28AddOutline style={blueIcon} />
 							}
