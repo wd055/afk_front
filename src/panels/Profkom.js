@@ -74,29 +74,9 @@ const App = ({ id, fetchedUser,
 	const [list_left_end, set_list_left_end] = useState(0);
 	const [list_right_end, set_list_right_end] = useState(count_on_page);
 
-	// fetch(main_url + "profkom_bot/get_users_info/", {
-	// 	method: 'POST',
-	// 	body: JSON.stringify({
-	// 		querys: window.location.search,
-	// 		students_login:"19У153"
-	// 	}),
-	// 	headers: {
-	// 		'Origin': origin
-	// 	}
-	// })
-	// 	.then(response => response.json())
-	// 	.then((data) => {
-	// 		console.log("get_users_info", data)
-	// 	},
-	// 		(error) => {
-	// 			console.error('get_users_info:', error)
-	// 		})
-
 	useEffect(() => {
-		// if (students.length == 0)
-		// 	get_all_users();
-		if (searchPayouts.length == 0)
-			search_payouts("");
+		// if (searchPayouts.length == 0)
+		// 	search_payouts("");
 	});
 
 	function search_payouts(value) {
@@ -116,6 +96,56 @@ const App = ({ id, fetchedUser,
 				if (data != "Error") {
 					console.log(data)
 					setSearchPayouts(data)
+					return (data)
+				}
+				else {
+					setSnackbar(<Snackbar
+						layout="vertical"
+						onClose={() => setSnackbar(null)}
+						before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
+					>
+						Ошибка подключения
+						</Snackbar>);
+					console.error('search_payouts:', data)
+					return null
+				}
+			},
+				(error) => {
+					setSnackbar(<Snackbar
+						layout="vertical"
+						onClose={() => setSnackbar(null)}
+						before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
+					>
+						Ошибка подключения
+						</Snackbar>);
+					console.error('search_payouts:', error)
+					return null
+				})
+	}
+	function search_users(value, list_left_end) {
+		console.log({
+			from: list_left_end,
+			to: list_left_end + count_on_page + 1,
+			value: value,
+		})
+		var url = main_url + "profkom_bot/search_users/";
+		fetch(url, {
+			method: 'POST',
+			body: JSON.stringify({
+				querys: window.location.search,
+				from: list_left_end,
+				to: list_left_end + count_on_page + 1,
+				value: value,
+			}),
+			headers: {
+				'Origin': origin
+			}
+		})
+			.then(response => response.json())
+			.then((data) => {
+				if (data != "Error") {
+					console.log(data)
+					setStudents(data)
 					return (data)
 				}
 				else {
@@ -234,22 +264,21 @@ const App = ({ id, fetchedUser,
 		return before;
 	}
 
-	function left_button_list_click() {
-		set_list_left_end(list_left_end - count_on_page);
-		set_list_right_end(list_right_end - count_on_page);
-	}
-	function right_button_list_click() {
-		set_list_left_end(list_left_end + count_on_page);
-		set_list_right_end(list_right_end + count_on_page);
+	function button_list_click(value) {
+		set_list_left_end(list_left_end + value);
+		set_list_right_end(list_right_end + value);
+		search_users(searchValue, list_left_end + value);
 	}
 
 	const Home =
 		<Panel id={id} style={{ 'max-width': 600, margin: 'auto' }}>
-			<PanelHeader>Профком МГТУ</PanelHeader>
-
+			<PanelHeader >Профком МГТУ</PanelHeader>
 			<Tabs mode="buttons">
 				<TabsItem
-					onClick={() => setTabsState('students')}
+					onClick={() => {
+						setTabsState('students');
+						setSearchValue("");
+					}}
 					selected={tabsState === 'students'}
 				>Студенты</TabsItem>
 				<TabsItem
@@ -257,6 +286,7 @@ const App = ({ id, fetchedUser,
 						if (searchPayouts.length == 0)
 							search_payouts('');
 						setTabsState('payouts')
+						setSearchValue("");
 					}}
 					selected={tabsState === 'payouts'}
 				>Заявления</TabsItem>
@@ -267,6 +297,10 @@ const App = ({ id, fetchedUser,
 				placeholder={tabsState === 'payouts' ? "Поиск по номеру заявления" : "Поиск по ФИО или студ. билету"}
 				onChange={(e) => {
 					const { value } = e.currentTarget;
+					if (tabsState == "payouts")
+						search_payouts(value);
+					else if (tabsState == "students")
+						search_users(value, list_left_end)
 					setSearchValue(value);
 					set_list_left_end(0);
 					set_list_right_end(count_on_page);
@@ -275,9 +309,13 @@ const App = ({ id, fetchedUser,
 				after={null}
 			/>
 			<List>
-				{tabsState == "students" && get_students().map((post) =>
+				{/* {tabsState == "students" && get_students().map((post) => */}
+				{tabsState == "students" && students.slice(0, count_on_page).map((post) =>
 					(<Group>
-						<Cell multiline key={post.i} size="l" onClick={() => {go("User")}}
+						<Cell multiline key={post.i} size="l" onClick={() => {
+							go("User");
+							setLogin(post.login);
+						}}
 							asideContent={
 								<Icon28AddOutline style={blueIcon} onClick={() => {console.log("WQWEQWE")}}/>
 							}
@@ -290,7 +328,8 @@ const App = ({ id, fetchedUser,
 								</HorizontalScroll>
 							}>{post.name}</Cell>
 					</Group>))}
-				{tabsState == "payouts" && get_payouts().map((post) =>
+				{/* {tabsState == "payouts" && get_payouts().map((post) => */}
+				{tabsState == "payouts" && searchPayouts.map((post) =>
 					(<Group key={post.i}>
 						<Cell multiline size="l"
 							before={get_before_payouts(post.delete, post.status)}
@@ -313,11 +352,11 @@ const App = ({ id, fetchedUser,
 
 			<Div style={{ display: 'flex' }}>
 				{list_left_end > 0 ?
-					<Button size="l" before={<Icon24BrowserBack />} stretched mode="secondary" style={{ marginRight: 8 }} onClick={left_button_list_click}>Назад</Button>
+					<Button size="l" before={<Icon24BrowserBack />} stretched mode="secondary" style={{ marginRight: 8 }} onClick={() => button_list_click(-count_on_page)}>Назад</Button>
 					: <Button size="l" stretched mode="tertiary" style={{ marginRight: 8 }} ></Button>}
 
-				{list_right_end <= getLenghtSearchFilter() ?
-					<Button size="l" after={<Icon24BrowserForward />} stretched mode="secondary" onClick={right_button_list_click}>Вперед</Button>
+				{students.length > count_on_page ?
+					<Button size="l" after={<Icon24BrowserForward />} stretched mode="secondary" onClick={() => button_list_click(count_on_page)}>Вперед</Button>
 					: <Button size="l" stretched mode="tertiary"></Button>}
 			</Div>
 

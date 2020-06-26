@@ -62,7 +62,10 @@ var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
 // var main_url = "http://thingworx.asuscomm.com/"
 // var main_url = "http://localhost:8000/"
 
-const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
+const App = ({ id, fetchedUser, go, 
+	setPopout, setModal, login,
+	snackbar, setSnackbar
+}) => {
 
 	const [searchPayouts, setSearchPayouts] = useState([]);
 
@@ -80,7 +83,6 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 		proforg: false
 	});
 
-	const [snackbar, setSnackbar] = useState();
 	const [tabsState, setTabsState] = useState('students');
 	const [searchValue, setSearchValue] = useState("");
 
@@ -232,9 +234,11 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 
 	const Home =
 		<Panel id={id} style={{ 'max-width': 600, margin: 'auto' }}>
-			<PanelHeader>Профком МГТУ</PanelHeader>
+			<PanelHeader  
+				left={<PanelHeaderBack onClick={() => window.history.back()} />}
+			>Профком МГТУ</PanelHeader>
 			<Group>
-				<Cell size="l"  onClick={() => {go("Profkom")}}
+				<Cell size="l"
 				 	before={(student.photo_100 && student.photo_100.length > 0) && <Avatar size={40} src={student.photo_100} /> }
 					bottomContent={
 						<HorizontalScroll>
@@ -286,7 +290,7 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 						>{student.domain}</CellButton>
 					</Link>}
 
-				{student.phone != null &&
+				{(student.phone != null && student.phone.length > 0) &&
 					<Link href={"tel:" + student.phone} target="_blank">
 						<CellButton
 							before={<Icon28PhoneOutline />}
@@ -294,7 +298,7 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 						>{student.phone}</CellButton>
 					</Link>}
 
-				{student.email != null &&
+				{(student.email != null && student.email.length > 0) &&
 					<Link href={"mailto:" + student.email} target="_blank">
 						<CellButton
 							before={<Icon28MailOutline />}
@@ -304,8 +308,12 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 
 			</Group>
 
-			<Header mode="secondary" aside={<Icon16Chevron />}>
-				Подбробнее
+			<Header 
+				mode="secondary" 
+				aside={<Icon16Chevron />}
+				onClick={() => go("Home")}
+			>
+				Подробнее
 			</Header>
 
 			<Group separator={"hide"}>

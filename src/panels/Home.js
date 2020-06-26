@@ -27,6 +27,7 @@ import PanelHeaderButton from '@vkontakte/vkui/dist/components/PanelHeaderButton
 
 import Placeholder from '@vkontakte/vkui/dist/components/Placeholder/Placeholder';
 import PanelHeaderBack from '@vkontakte/vkui/dist/components/PanelHeaderBack/PanelHeaderBack';
+import PanelHeaderClose from '@vkontakte/vkui/dist/components/PanelHeaderClose/PanelHeaderClose';
 import Icon56CheckCircleOutline from '@vkontakte/icons/dist/56/check_circle_outline';
 import Icon56ErrorOutline from '@vkontakte/icons/dist/56/error_outline';
 import Icon24Error from '@vkontakte/icons/dist/24/error';
@@ -43,7 +44,10 @@ var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
 const App = ({
 	id, fetchedUser,
 	go, setPopout, login,
-	snackbar, setSnackbar
+	snackbar, setSnackbar,
+	students, usersInfo,
+	setActivePanel, setHistory,
+	proforg, setProforg
 }) => {
 
 	const [categories, setCategories] = useState([]);
@@ -60,7 +64,7 @@ const App = ({
 	const [students_login, set_students_login] = useState("");
 
 	useEffect(() => {
-
+		get_users_info()
 		bridge.subscribe(({ detail: { type, data } }) => {
 			if (type === 'VKWebAppGetEmailResult') {
 				document.getElementById('email').value = data.email;
@@ -98,18 +102,19 @@ const App = ({
 						// setShowForm(false)
 						// setSubmitSuccess(<div>Ошибка подключения<br />Пожалуйста, попробуйте через несколько минут!</div>)
 						console.error('get category:', error)
-						console.error('get category_data:', data)
 					})
+		}
+	});
+	function get_users_info(){
+		var url = main_url + "profkom_bot/get_form/";
 
+		var data = {
+			querys: window.location.search,
+		}
 
+		if (login != null) {
 
-			var url = main_url + "profkom_bot/get_form/";
-
-			var data = {
-				querys: window.location.search,
-			}
-			if (login != null)
-				data.students_login = login;
+			data.students_login = login;
 
 			fetch(url, {
 				method: 'POST',
@@ -121,9 +126,11 @@ const App = ({
 				.then(response => response.json())
 				.then((data) => {
 					if (data != "Error") {
-						if (data.proforg == true)
-							go("Profkom")
+						// if (data.proforg == true && login == null && students.length == 0) {
+						// 	go("Profkom");
+						// }
 						console.log('get info:', data);
+						// if (login == null) setProforg(data.proforg);
 						setGroup(data.group);
 						set_students_login(data.login);
 						setName(data.name);
@@ -161,9 +168,18 @@ const App = ({
 							console.error('get info:', error)
 						}
 					})
+		}else if (usersInfo != null){
+			setGroup(usersInfo.group);
+			set_students_login(usersInfo.login);
+			setName(usersInfo.name);
+			setEmail(usersInfo.email);
+			setPhone(usersInfo.phone);
+			setGetCategories(usersInfo.categories);
+			setPayments_edu(usersInfo.payments_edu);
+			setShowForm(true);
+			setSubmitSuccess("Успешно!");
 		}
-	});
-
+	}
 	const [clickEmail, setClickEmail] = useState(true);
 	const [clickPhone, setClickPhone] = useState(true);
 
@@ -212,6 +228,7 @@ const App = ({
 			payments_edu: document.getElementById("payments_edu").value,
 			categories: []
 		}
+
 		if (login != null)
 			data.students_login = login;
 
@@ -220,7 +237,6 @@ const App = ({
 				data.categories.push(categories[i]);
 			}
 		}
-
 
 		setGetCategories(data.categories)
 
@@ -261,6 +277,8 @@ const App = ({
 						Успешно!
 					  </Snackbar>);
 					setPopout(null);
+					if (proforg == true)
+						window.history.back();
 				}
 				console.log("set form:", data)
 			},
@@ -286,10 +304,8 @@ const App = ({
 
 	const Home =
 		<Panel id={id}>
-			<PanelHeader
-				left={<PanelHeaderButton >{/* label={<Counter size="s" mode="prominent">3</Counter>} */}
-					{/* <Icon28SettingsOutline/> */}
-				</PanelHeaderButton>}
+			<PanelHeader 
+				left={proforg == true && <PanelHeaderClose onClick={() => window.history.back()} />}
 			>Форма</PanelHeader>
 			{showForm
 				? <Group>
