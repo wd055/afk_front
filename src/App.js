@@ -30,12 +30,14 @@ import {
 
 import Home from './panels/Home';
 import Profkom from './panels/Profkom';
+import User from './panels/User';
 
 const App = () => {
 	const [activePanel, setActivePanel] = useState('Home');
 	const [fetchedUser, setUser] = useState(null);
 	const [modal, setModal] = useState(null);
 	const [popout, setPopout] = useState(<ScreenSpinner size='large' />);
+	const [login, setLogin] = useState("19У153");
 
 	bridge.send("VKWebAppGetUserInfo", {});
 
@@ -154,7 +156,8 @@ const App = () => {
 					Ошибка авторизации<br />Попробуйте позже или свяжитесь с администратором группы!
 							</Placeholder>
 			</Panel>
-			<Profkom id='Profkom' fetchedUser={fetchedUser} go={go} setPopout={setPopout} setModal={setModal} />
+			<Profkom id='Profkom' fetchedUser={fetchedUser} go={go} setPopout={setPopout} setModal={setModal} setLogin={setLogin}/>
+			<User id='User' fetchedUser={fetchedUser} go={go} setPopout={setPopout} setModal={setModal} login={login}  />
 			<Home id='Home' fetchedUser={fetchedUser} go={go} setPopout={setPopout} />
 		</View>
 	);
