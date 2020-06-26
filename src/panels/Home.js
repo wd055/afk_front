@@ -22,6 +22,7 @@ import Icon28CheckCircleOutline from '@vkontakte/icons/dist/28/check_circle_outl
 import Group from '@vkontakte/vkui/dist/components/Group/Group';
 import SimpleCell from '@vkontakte/vkui/dist/components/SimpleCell/SimpleCell';
 import InfoRow from '@vkontakte/vkui/dist/components/InfoRow/InfoRow';
+import Cell from '@vkontakte/vkui/dist/components/Cell/Cell';
 
 import Placeholder from '@vkontakte/vkui/dist/components/Placeholder/Placeholder';
 import PanelHeaderBack from '@vkontakte/vkui/dist/components/PanelHeaderBack/PanelHeaderBack';
@@ -36,7 +37,7 @@ var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
 // var main_url = "http://thingworx.asuscomm.com/"
 // var main_url = "http://localhost:8000/"
 
-const App = ({ id, fetchedUser, go, setPopout }) => {
+const App = ({ id, fetchedUser, go, setPopout, login}) => {
 	const redIcon = {
 		color: 'red'
 	};
@@ -64,6 +65,8 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 	const [phone, setPhone] = useState();
 	const [payments_edu, setPayments_edu] = useState();
 	const [name, setName] = useState("");
+	const [group, setGroup] = useState("");
+	const [students_login, set_students_login] = useState("");
 
 	useEffect(() => {
 		
@@ -114,6 +117,9 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 			var data = {
 				querys: window.location.search,
 			}
+			if (login != null)
+				data.students_login = login;
+
 			fetch(url, {
 				method: 'POST',
 				body: JSON.stringify(data),
@@ -125,6 +131,8 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 				.then((data) => {
 					if (data != "Error") {
 						console.log('get info:', data);
+						setGroup(data.group);
+						set_students_login(data.login);
 						setName(data.name);
 						setEmail(data.email);
 						setPhone(data.phone);
@@ -167,14 +175,14 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 	const [clickPhone, setClickPhone] = useState(true);
 	
 	const onEmailClick = e => {
-		if (clickEmail) {
+		if (clickEmail && login == null) {
 			setClickEmail(false);
 			bridge.send("VKWebAppGetEmail", {});
 		}
 	};
 
 	const onPhoneClick = e => {
-		if (clickPhone) {
+		if (clickPhone && login == null) {
 			setClickPhone(false);
 			bridge.send("VKWebAppGetPhoneNumber", {});
 		}
@@ -191,7 +199,8 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 	}
 
 	function onFormClick(e) {
-		if (!email || !phone || !payments_edu || !validateEmail(email) || !validatePhone(phone)) {
+		if ((!email || !phone || !payments_edu || !validateEmail(email) ||
+			!validatePhone(phone)) && login == null) {
 			setSnackbar(<Snackbar
 				layout="vertical"
 				onClose={() => setSnackbar(null)}
@@ -210,12 +219,15 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 			payments_edu: document.getElementById("payments_edu").value,
 			categories: []
 		}
+		if (login != null)
+			data.students_login = login;
 
 		for (var i = 0; i < categorys.length; i++) {
 			if (categorys[i].checked) {
 				data.categories.push(categories[i]);
 			}
 		}
+
 
 		setGetCategories(data.categories)
 
@@ -285,11 +297,18 @@ const App = ({ id, fetchedUser, go, setPopout }) => {
 			{showForm
 				? <Group>
 					<Group>
-						<SimpleCell>
+						<Cell size="l"
+							bottomContent={
+								<div style={{ display: 'flex' }}>
+									<Button size="m" mode="outline">{group}</Button>
+									<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{students_login}</Button>
+								</div>
+							}>{name}</Cell>
+						{/* <SimpleCell>
 							<InfoRow header="ФИО">
 								{name}
 							</InfoRow>
-						</SimpleCell>
+						</SimpleCell> */}
 					</Group>
 					<FormLayout>
 						<Input

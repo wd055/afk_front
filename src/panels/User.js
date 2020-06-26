@@ -51,6 +51,7 @@ import Icon28LogoVkOutline from '@vkontakte/icons/dist/28/logo_vk_outline';
 import Icon28MailOutline from '@vkontakte/icons/dist/28/mail_outline';
 import Icon28PhoneOutline from '@vkontakte/icons/dist/28/phone_outline';
 import Icon16Chevron from '@vkontakte/icons/dist/16/chevron';
+import Icon24Copy from '@vkontakte/icons/dist/24/copy';
 
 import bridge from '@vkontakte/vk-bridge';
 
@@ -82,15 +83,16 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 	const [student, setStudent] = useState({
 		birthday: "2001-01-01",
 		categories: [],
-		domain: "",
-		email: "",
+		domain: null,
+		email: null,
 		group: "",
 		name: "ФИО",
 		payments_edu: "free",
 		phone: "",
-		photo_100: "https://sun9-69.userapi.com/c857736/v857736442/11b6a3/hxWcSZwrJ50.jpg?ava=1",
+		photo_100: "",
 		users_payouts: [],
-		proforg: false});
+		proforg: false
+	});
 
 	const [snackbar, setSnackbar] = useState();
 	const [tabsState, setTabsState] = useState('students');
@@ -99,17 +101,37 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 	const count_on_page = 7;
 	const [set_accepted_temp, set_set_accepted_temp] = useState(0);
 
-	
+
 	useEffect(() => {
+		bridge.subscribe(({ detail: { type, data } }) => {
+			if (type === 'VKWebAppCopyTextResult') {
+				setSnackbar(<Snackbar
+					layout="vertical"
+					onClose={() => setSnackbar(null)}
+					before={<Avatar size={24} style={blueBackground}><Icon24Copy fill="#fff" width={14} height={14} /></Avatar>}
+				>
+					Скопировано в буфер обмена
+				  </Snackbar>);
+			}
+			if (type === 'VKWebAppCopyTextFailed') {
+				setSnackbar(<Snackbar
+					layout="vertical"
+					onClose={() => setSnackbar(null)}
+					before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
+				>
+					Ошибка копирования
+				  </Snackbar>);
+			}
+		});
+
 		if (student.name == "ФИО")
 			get_users_info();
 	});
 
-	function copy_in_bufer(text){
-		console.log(text)
-		bridge.send("VKWebAppCopyText", {text: "Этот текст будет скопирован в буфер обмена."});
+	function copy_in_bufer(text) {
+		bridge.send("VKWebAppCopyText", { text: text });
 	}
-	
+
 	function get_users_info() {
 		var url = main_url + "profkom_bot/get_users_info/";
 		fetch(url, {
@@ -154,7 +176,7 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 	}
 
 	function set_accepted(id) {
-		var temp_arr = searchPayouts;
+		var temp_arr = student.users_payouts;
 		for (var i in temp_arr) {
 			if (temp_arr[i].id == id) {
 				temp_arr[i].status = "accepted";
@@ -162,6 +184,7 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 				var url = main_url + "profkom_bot/edit_payout/";
 				var data = temp_arr[i];
 				data.querys = window.location.search;
+				console.log(data)
 				fetch(url, {
 					method: 'POST',
 					body: JSON.stringify(data),
@@ -172,7 +195,8 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 					.then(response => response.json())
 					.then((data) => {
 						if (data != "Error") {
-							console.log("edit_payout", data)
+							console.log("edit_payout", data)							
+							setSearchPayouts(temp_arr);
 							setSnackbar(<Snackbar
 								layout="vertical"
 								onClose={() => setSnackbar(null)}
@@ -190,7 +214,7 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 							>
 								Ошибка подключения
 							</Snackbar>);
-							console.error('edit_payout:', data)
+							console.error('edit_payout_data:', data)
 							return null
 						}
 					},
@@ -208,11 +232,10 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 				break;
 			}
 		}
-		setSearchPayouts(temp_arr);
 		set_set_accepted_temp(set_accepted_temp + 1)
 	}
 
-	function get_before_payouts(is_delete, status){
+	function get_before_payouts(is_delete, status) {
 		var before = <Icon28DoneOutline />;
 		if (is_delete == true) before = <Icon28DeleteOutline style={redIcon} />
 		else if (status == "filed") before = <Icon28HistoryForwardOutline />
@@ -226,6 +249,7 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 			<PanelHeader>Профком МГТУ</PanelHeader>
 			<Group>
 				<Cell size="l"
+				 	before={(student.photo_100 && student.photo_100.length > 0) && <Avatar size={40} src={student.photo_100} /> }
 					bottomContent={
 						<HorizontalScroll>
 							<div style={{ display: 'flex' }}>
@@ -237,31 +261,64 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 			</Group>
 
 			<Group separator={"hide"}>
-				{student.domain.length > 0 &&
-					<CellButton before={<Icon28LogoVkOutline />}
+
+				{(student.domain && student.domain.length > 0) &&
+					<SimpleCell
+						before={<Icon28LogoVkOutline />}
+						onClick={() => copy_in_bufer(student.domain)}
+					>
+						<InfoRow>
+							{student.domain}
+						</InfoRow>
+					</SimpleCell>}
+				{student.phone != null &&
+					<SimpleCell
+						before={<Icon28PhoneOutline />}
+						onClick={() => copy_in_bufer(student.phone)}
+					>
+						<InfoRow>
+							{student.phone}
+						</InfoRow>
+					</SimpleCell>}
+
+				{student.email != null &&
+					<SimpleCell
+						before={<Icon28MailOutline />}
+						onClick={() => copy_in_bufer(student.email)}
+					>
+						<InfoRow>
+							{student.email}
+						</InfoRow>
+					</SimpleCell>}
+
+
+				{(student.domain && student.domain.length > 0) &&
+					<CellButton
+						before={<Icon28LogoVkOutline />}
+						onClick={() => copy_in_bufer(student.domain)}
 					>{student.domain}</CellButton>}
 
-				{student.phone.length > 0 &&
+				{student.phone != null &&
 					<CellButton
 						onClick={() => copy_in_bufer(student.phone)}
 						before={<Icon28PhoneOutline />}
 					>{student.phone}</CellButton>}
 
-				{student.email.length > 0 &&
+				{student.email != null &&
 					<CellButton
-						href={student.email}
+						onClick={() => copy_in_bufer(student.email)}
 						before={<Icon28MailOutline />}
 					>{student.email}</CellButton>}
 
 			</Group>
-			
+
 			<Header mode="secondary" aside={<Icon16Chevron />}>
 				Подбробнее
 			</Header>
 
 			<Group separator={"hide"}>
 				<Div>
-					<Button stretched  size="xl">Добавить заявление</Button>
+					<Button stretched size="xl">Добавить заявление</Button>
 				</Div>
 			</Group>
 
@@ -271,7 +328,7 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 			<Div>
 				<Button stretched  size="xl" mode="outline">Добавить заявление</Button>
 			</Div> */}
-			
+
 			{/* <Tabs mode="buttons">
 				<TabsItem
 					onClick={() => setTabsState('students')}
@@ -300,7 +357,7 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 									</div>}
 								// bottomContent={<Button size="m" mode="outline">{post.id}</Button>}
 								description={post.id}
-								>{post.payouts_type}</Cell>
+							>{post.payouts_type}</Cell>
 						</Group>))}
 				</List>
 			</Group>

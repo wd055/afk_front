@@ -37,6 +37,7 @@ const App = () => {
 	const [fetchedUser, setUser] = useState(null);
 	const [modal, setModal] = useState(null);
 	const [popout, setPopout] = useState(<ScreenSpinner size='large' />);
+	// const [login, setLogin] = useState(null);
 	const [login, setLogin] = useState("19У153");
 
 	bridge.send("VKWebAppGetUserInfo", {});
@@ -47,12 +48,6 @@ const App = () => {
 				const schemeAttribute = document.createAttribute('scheme');
 				schemeAttribute.value = data.scheme ? data.scheme : 'client_light';
 				document.body.attributes.setNamedItem(schemeAttribute);
-			}
-			if (type === 'VKWebAppCopyTextResult') {
-				console.log(data)
-			}
-			if (type === 'VKWebAppCopyTextFailed') {
-				console.log(data)
 			}
 			if (type === 'VKWebAppGetUserInfoResult') {
 				setUser(data.id)
@@ -157,8 +152,8 @@ const App = () => {
 							</Placeholder>
 			</Panel>
 			<Profkom id='Profkom' fetchedUser={fetchedUser} go={go} setPopout={setPopout} setModal={setModal} setLogin={setLogin}/>
-			<User id='User' fetchedUser={fetchedUser} go={go} setPopout={setPopout} setModal={setModal} login={login}  />
-			<Home id='Home' fetchedUser={fetchedUser} go={go} setPopout={setPopout} />
+			<User id='User' fetchedUser={fetchedUser} go={go} setPopout={setPopout} setModal={setModal} login={login} />
+			<Home id='Home' fetchedUser={fetchedUser} go={go} setPopout={setPopout} login={login}/>
 		</View>
 	);
 }
