@@ -287,6 +287,7 @@ const App = ({ id, fetchedUser,
 							search_payouts('');
 						setTabsState('payouts')
 						setSearchValue("");
+						set_list_left_end(0)
 					}}
 					selected={tabsState === 'payouts'}
 				>Заявления</TabsItem>
