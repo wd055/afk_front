@@ -55,28 +55,14 @@ import Icon24Copy from '@vkontakte/icons/dist/24/copy';
 
 import bridge from '@vkontakte/vk-bridge';
 
+import {redIcon, blueIcon, orangeBackground, blueBackground, redBackground} from './style';
+
 var origin = "https://thingworx.asuscomm.com:10888"
 var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
 // var main_url = "http://thingworx.asuscomm.com/"
 // var main_url = "http://localhost:8000/"
 
 const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
-	const redIcon = {
-		color: 'red'
-	};
-	const blueIcon = {
-		color: 'var(--accent)'
-	};
-	const orangeBackground = {
-		backgroundImage: 'linear-gradient(135deg, #ffb73d, #ffa000)'
-	};
-
-	const blueBackground = {
-		backgroundColor: 'var(--accent)'
-	};
-	const redBackground = {
-		backgroundColor: 'var(--field_error_border)'
-	};
 
 	const [searchPayouts, setSearchPayouts] = useState([]);
 
@@ -88,7 +74,7 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 		group: "",
 		name: "ФИО",
 		payments_edu: "free",
-		phone: "",
+		phone: null,
 		photo_100: "",
 		users_payouts: [],
 		proforg: false
@@ -248,7 +234,7 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 		<Panel id={id} style={{ 'max-width': 600, margin: 'auto' }}>
 			<PanelHeader>Профком МГТУ</PanelHeader>
 			<Group>
-				<Cell size="l"
+				<Cell size="l"  onClick={() => {go("Profkom")}}
 				 	before={(student.photo_100 && student.photo_100.length > 0) && <Avatar size={40} src={student.photo_100} /> }
 					bottomContent={
 						<HorizontalScroll>
@@ -262,7 +248,7 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 
 			<Group separator={"hide"}>
 
-				{(student.domain && student.domain.length > 0) &&
+				{/* {(student.domain && student.domain.length > 0) &&
 					<SimpleCell
 						before={<Icon28LogoVkOutline />}
 						onClick={() => copy_in_bufer(student.domain)}
@@ -289,26 +275,32 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 						<InfoRow>
 							{student.email}
 						</InfoRow>
-					</SimpleCell>}
+					</SimpleCell>} */}
 
 
 				{(student.domain && student.domain.length > 0) &&
-					<CellButton
-						before={<Icon28LogoVkOutline />}
-						onClick={() => copy_in_bufer(student.domain)}
-					>{student.domain}</CellButton>}
+					<Link href={"https://vk.com/" + student.domain} target="_blank">
+						<CellButton
+							before={<Icon28LogoVkOutline />}
+							// onClick={() => copy_in_bufer(student.domain)}
+						>{student.domain}</CellButton>
+					</Link>}
 
 				{student.phone != null &&
-					<CellButton
-						onClick={() => copy_in_bufer(student.phone)}
-						before={<Icon28PhoneOutline />}
-					>{student.phone}</CellButton>}
+					<Link href={"tel:" + student.phone} target="_blank">
+						<CellButton
+							before={<Icon28PhoneOutline />}
+							// onClick={() => copy_in_bufer(student.phone)}
+						>{student.phone}</CellButton>
+					</Link>}
 
 				{student.email != null &&
-					<CellButton
-						onClick={() => copy_in_bufer(student.email)}
-						before={<Icon28MailOutline />}
-					>{student.email}</CellButton>}
+					<Link href={"mailto:" + student.email} target="_blank">
+						<CellButton
+							before={<Icon28MailOutline />}
+							// onClick={() => copy_in_bufer(student.email)}
+						>{student.email}</CellButton>
+					</Link>}
 
 			</Group>
 
@@ -321,28 +313,6 @@ const App = ({ id, fetchedUser, go, setPopout, setModal, login }) => {
 					<Button stretched size="xl">Добавить заявление</Button>
 				</Div>
 			</Group>
-
-			{/* <Div>
-				<Button stretched  size="xl" mode="secondary">Добавить заявление</Button>
-			</Div>
-			<Div>
-				<Button stretched  size="xl" mode="outline">Добавить заявление</Button>
-			</Div> */}
-
-			{/* <Tabs mode="buttons">
-				<TabsItem
-					onClick={() => setTabsState('students')}
-					selected={tabsState === 'students'}
-				>Студенты</TabsItem>
-				<TabsItem
-					onClick={() => {
-						if (searchPayouts.length == 0)
-							search_payouts('');
-						setTabsState('payouts')
-					}}
-					selected={tabsState === 'payouts'}
-				>Заявления</TabsItem>
-			</Tabs> */}
 
 			<Group header={<Header mode="secondary">Актуальные заявления</Header>}>
 				<List>

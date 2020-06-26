@@ -19,6 +19,12 @@ import List from '@vkontakte/vkui/dist/components/List/List';
 import Cell from '@vkontakte/vkui/dist/components/Cell/Cell';
 import InfoRow from '@vkontakte/vkui/dist/components/InfoRow/InfoRow';
 
+import Snackbar from '@vkontakte/vkui/dist/components/Snackbar/Snackbar';
+import Avatar from '@vkontakte/vkui/dist/components/Avatar/Avatar';
+
+import Icon24Error from '@vkontakte/icons/dist/24/error';
+
+
 import {
 	BrowserRouter as Router,
 	Switch,
@@ -32,6 +38,13 @@ import Home from './panels/Home';
 import Profkom from './panels/Profkom';
 import User from './panels/User';
 
+import {redIcon, blueIcon, orangeBackground, blueBackground, redBackground} from './panels/style';
+
+var origin = "https://thingworx.asuscomm.com:10888"
+var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
+// var main_url = "http://thingworx.asuscomm.com/"
+// var main_url = "http://localhost:8000/"
+
 const App = () => {
 	const [activePanel, setActivePanel] = useState('Home');
 	const [fetchedUser, setUser] = useState(null);
@@ -39,10 +52,14 @@ const App = () => {
 	const [popout, setPopout] = useState(<ScreenSpinner size='large' />);
 	// const [login, setLogin] = useState(null);
 	const [login, setLogin] = useState("19У153");
+	const [modalData, setModalData] = useState({});
+	const [students, setStudents] = useState([]);
+	const [snackbar, setSnackbar] = useState();
 
 	bridge.send("VKWebAppGetUserInfo", {});
-
 	useEffect(() => {
+		get_all_users();
+
 		bridge.subscribe(({ detail: { type, data } }) => {
 			if (type === 'VKWebAppUpdateConfig') {
 				const schemeAttribute = document.createAttribute('scheme');
@@ -60,9 +77,8 @@ const App = () => {
 		}
 		fetchData();
 	}, []);
-
 	const go = e => {
-		setActivePanel(e.currentTarget.dataset.to);
+		setActivePanel(e);
 	};
 
 	const redIcon = {
@@ -71,7 +87,51 @@ const App = () => {
 	const blueIcon = {
 		color: 'var(--accent)'
 	};
-	
+
+	function get_all_users() {
+		var url = main_url + "profkom_bot/get_all_users/";
+		if (students.length == 0 && students != null) {
+			fetch(url, {
+				method: 'POST',
+				body: JSON.stringify({
+					querys: window.location.search,
+				}),
+				headers: {
+					'Origin': origin
+				}
+			})
+				.then(response => response.json())
+				.then((data) => {
+					if (data != "Error") {
+						console.log(data)
+						setStudents(data)
+						return (data)
+					}
+					else {
+						// setSnackbar(<Snackbar
+						// 	layout="vertical"
+						// 	onClose={() => setSnackbar(null)}
+						// 	before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
+						// >
+						// 	Ошибка подключения
+						// </Snackbar>);
+						return null
+					}
+				},
+					(error) => {
+						// setSnackbar(<Snackbar
+						// 	layout="vertical"
+						// 	onClose={() => setSnackbar(null)}
+						// 	before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
+						// >
+						// 	Ошибка подключения
+						// </Snackbar>);
+						console.error('get_all_users:', error)
+						return null
+					})
+		}
+	}
+
 	const parseQueryString = (string) => {
 		return string.slice(1).split('&')
 			.map((queryParam) => {
@@ -151,9 +211,14 @@ const App = () => {
 					Ошибка авторизации<br />Попробуйте позже или свяжитесь с администратором группы!
 							</Placeholder>
 			</Panel>
-			<Profkom id='Profkom' fetchedUser={fetchedUser} go={go} setPopout={setPopout} setModal={setModal} setLogin={setLogin}/>
+			<Profkom id='Profkom' fetchedUser={fetchedUser} go={go} 
+				setPopout={setPopout} setModal={setModal} setLogin={setLogin}
+				students={students} setStudents={setStudents}
+				snackbar={snackbar} setSnackbar={setSnackbar}/>
 			<User id='User' fetchedUser={fetchedUser} go={go} setPopout={setPopout} setModal={setModal} login={login} />
-			<Home id='Home' fetchedUser={fetchedUser} go={go} setPopout={setPopout} login={login}/>
+			<Home id='Home' fetchedUser={fetchedUser} go={go} 
+				setPopout={setPopout} login={login}
+				snackbar={snackbar} setSnackbar={setSnackbar}/>
 		</View>
 	);
 }

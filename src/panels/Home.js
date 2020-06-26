@@ -23,6 +23,7 @@ import Group from '@vkontakte/vkui/dist/components/Group/Group';
 import SimpleCell from '@vkontakte/vkui/dist/components/SimpleCell/SimpleCell';
 import InfoRow from '@vkontakte/vkui/dist/components/InfoRow/InfoRow';
 import Cell from '@vkontakte/vkui/dist/components/Cell/Cell';
+import PanelHeaderButton from '@vkontakte/vkui/dist/components/PanelHeaderButton/PanelHeaderButton';
 
 import Placeholder from '@vkontakte/vkui/dist/components/Placeholder/Placeholder';
 import PanelHeaderBack from '@vkontakte/vkui/dist/components/PanelHeaderBack/PanelHeaderBack';
@@ -32,34 +33,24 @@ import Icon24Error from '@vkontakte/icons/dist/24/error';
 
 import bridge from '@vkontakte/vk-bridge';
 
+import { redIcon, blueIcon, orangeBackground, blueBackground, redBackground } from './style';
+
 var origin = "https://thingworx.asuscomm.com:10888/"
 var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
 // var main_url = "http://thingworx.asuscomm.com/"
 // var main_url = "http://localhost:8000/"
 
-const App = ({ id, fetchedUser, go, setPopout, login}) => {
-	const redIcon = {
-		color: 'red'
-	};
-	const blueIcon = {
-		color: 'var(--accent)'
-	};
-	const orangeBackground = {
-		backgroundImage: 'linear-gradient(135deg, #ffb73d, #ffa000)'
-	};
-
-	const blueBackground = {
-		backgroundColor: 'var(--accent)'
-	};
-	const redBackground = {
-		backgroundColor: 'var(--field_error_border)'
-	};
+const App = ({
+	id, fetchedUser,
+	go, setPopout, login,
+	snackbar, setSnackbar
+}) => {
 
 	const [categories, setCategories] = useState([]);
 	const [getCategories, setGetCategories] = useState([]);
 	const [showForm, setShowForm] = useState(true);
 	const [submitSuccess, setSubmitSuccess] = useState("Успешно!");
-	const [snackbar, setSnackbar] = useState();
+	// const [snackbar, setSnackbar] = useState();
 
 	const [email, setEmail] = useState();
 	const [phone, setPhone] = useState();
@@ -69,7 +60,7 @@ const App = ({ id, fetchedUser, go, setPopout, login}) => {
 	const [students_login, set_students_login] = useState("");
 
 	useEffect(() => {
-		
+
 		bridge.subscribe(({ detail: { type, data } }) => {
 			if (type === 'VKWebAppGetEmailResult') {
 				document.getElementById('email').value = data.email;
@@ -82,7 +73,7 @@ const App = ({ id, fetchedUser, go, setPopout, login}) => {
 		});
 
 		var url = main_url + "profkom_bot/all_categories/";
-		
+
 		if (categories.length == 0 && showForm == true) {
 			fetch(url, {
 				method: 'POST',
@@ -130,6 +121,8 @@ const App = ({ id, fetchedUser, go, setPopout, login}) => {
 				.then(response => response.json())
 				.then((data) => {
 					if (data != "Error") {
+						if (data.proforg == true)
+							go("Profkom")
 						console.log('get info:', data);
 						setGroup(data.group);
 						set_students_login(data.login);
@@ -142,7 +135,7 @@ const App = ({ id, fetchedUser, go, setPopout, login}) => {
 						setSubmitSuccess("Успешно!");
 					} else {
 						console.error('get info:', data);
-						
+
 						setSnackbar(<Snackbar
 							layout="vertical"
 							onClose={() => setSnackbar(null)}
@@ -173,7 +166,7 @@ const App = ({ id, fetchedUser, go, setPopout, login}) => {
 
 	const [clickEmail, setClickEmail] = useState(true);
 	const [clickPhone, setClickPhone] = useState(true);
-	
+
 	const onEmailClick = e => {
 		if (clickEmail && login == null) {
 			setClickEmail(false);
@@ -259,7 +252,7 @@ const App = ({ id, fetchedUser, go, setPopout, login}) => {
 					setPopout(null);
 					// setSubmitSuccess(<div>Ошибка отправики <br />Попробуйте еще раз или свяжитесь с администратором!</div>);
 				}
-				else{
+				else {
 					setSnackbar(<Snackbar
 						layout="vertical"
 						onClose={() => setSnackbar(null)}
@@ -293,7 +286,11 @@ const App = ({ id, fetchedUser, go, setPopout, login}) => {
 
 	const Home =
 		<Panel id={id}>
-			<PanelHeader>Форма</PanelHeader>
+			<PanelHeader
+				left={<PanelHeaderButton >{/* label={<Counter size="s" mode="prominent">3</Counter>} */}
+					{/* <Icon28SettingsOutline/> */}
+				</PanelHeaderButton>}
+			>Форма</PanelHeader>
 			{showForm
 				? <Group>
 					<Group>
