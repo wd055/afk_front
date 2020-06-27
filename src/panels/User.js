@@ -94,8 +94,9 @@ const App = ({ id, fetchedUser, go, goBack,
 			}
 		});
 
-		if (student.name == "ФИО")
+		if (student.login != login)
 			get_users_info();
+		console.log(student, login)
 	});
 
 	function copy_in_bufer(text) {
@@ -118,6 +119,7 @@ const App = ({ id, fetchedUser, go, goBack,
 			.then((data) => {
 				if (data != "Error") {
 					console.log("users get_users_info", data)
+					data.login = login;
 					setStudent(data)
 					return (data)
 				}
