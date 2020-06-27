@@ -69,7 +69,7 @@ const App = ({ id, fetchedUser,
 	searchPayouts, setSearchPayouts,
 }) => {
 
-	const count_on_page = 7;
+	const count_on_page = 5;
 	const [set_accepted_temp, set_set_accepted_temp] = useState(0);
 	const [list_left_end, set_list_left_end] = useState(0);
 
