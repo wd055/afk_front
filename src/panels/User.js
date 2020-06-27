@@ -62,7 +62,7 @@ var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
 // var main_url = "http://thingworx.asuscomm.com/"
 // var main_url = "http://localhost:8000/"
 
-const App = ({ id, fetchedUser, go, 
+const App = ({ id, fetchedUser, go, goBack,
 	setPopout, setModal, login,
 	snackbar, setSnackbar
 }) => {
@@ -135,7 +135,7 @@ const App = ({ id, fetchedUser, go,
 			.then(response => response.json())
 			.then((data) => {
 				if (data != "Error") {
-					console.log("get_users_info", data)
+					console.log("users get_users_info", data)
 					setStudent(data)
 					return (data)
 				}
@@ -235,7 +235,7 @@ const App = ({ id, fetchedUser, go,
 	const Home =
 		<Panel id={id} style={{ 'max-width': 600, margin: 'auto' }}>
 			<PanelHeader  
-				left={<PanelHeaderBack onClick={() => window.history.back()} />}
+				left={<PanelHeaderBack onClick={goBack} />}
 			>Профком МГТУ</PanelHeader>
 			<Group>
 				<Cell size="l"

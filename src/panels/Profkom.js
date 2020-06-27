@@ -58,11 +58,11 @@ var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
 // var main_url = "http://thingworx.asuscomm.com/"
 // var main_url = "http://localhost:8000/"
 
-const App = ({ id, fetchedUser, 
-	go, setPopout, 
-	setModal,  setLogin, 
+const App = ({ id, fetchedUser,
+	go, setPopout,
+	setModal,  setLogin,
 	students, setStudents,
-	snackbar, setSnackbar 
+	snackbar, setSnackbar
 }) => {
 
 	const [searchPayouts, setSearchPayouts] = useState([]);
@@ -72,20 +72,21 @@ const App = ({ id, fetchedUser,
 	const count_on_page = 7;
 	const [set_accepted_temp, set_set_accepted_temp] = useState(0);
 	const [list_left_end, set_list_left_end] = useState(0);
-	const [list_right_end, set_list_right_end] = useState(count_on_page);
 
 	useEffect(() => {
-		// if (searchPayouts.length == 0)
-		// 	search_payouts("");
+		if (students.length == 0)
+			search_users('', 0);
 	});
 
-	function search_payouts(value) {
+	function search_payouts(value, list_left_end) {
 		var url = main_url + "profkom_bot/search_payouts/";
 		fetch(url, {
 			method: 'POST',
 			body: JSON.stringify({
 				querys: window.location.search,
-				payouts_id: value
+				payouts_id: value,
+				from: list_left_end,
+				to: list_left_end + count_on_page + 1,
 			}),
 			headers: {
 				'Origin': origin
@@ -94,7 +95,6 @@ const App = ({ id, fetchedUser,
 			.then(response => response.json())
 			.then((data) => {
 				if (data != "Error") {
-					console.log(data)
 					setSearchPayouts(data)
 					return (data)
 				}
@@ -122,12 +122,9 @@ const App = ({ id, fetchedUser,
 					return null
 				})
 	}
+
 	function search_users(value, list_left_end) {
-		console.log({
-			from: list_left_end,
-			to: list_left_end + count_on_page + 1,
-			value: value,
-		})
+
 		var url = main_url + "profkom_bot/search_users/";
 		fetch(url, {
 			method: 'POST',
@@ -144,7 +141,6 @@ const App = ({ id, fetchedUser,
 			.then(response => response.json())
 			.then((data) => {
 				if (data != "Error") {
-					console.log(data)
 					setStudents(data)
 					return (data)
 				}
@@ -171,21 +167,6 @@ const App = ({ id, fetchedUser,
 					console.error('search_payouts:', error)
 					return null
 				})
-	}
-
-	function getSearchFilter() {
-		return students.filter(({ name, login }) =>
-			(name.toLowerCase().indexOf(searchValue.toLowerCase()) == 0 ||
-				login.toLowerCase().indexOf(searchValue.toLowerCase()) > -1)
-		)
-	}
-
-	function getPayoutsSearchFilter() {
-		return searchPayouts.filter(({ id }) => (id.toString().toLowerCase().indexOf(searchValue.toLowerCase()) == 0))
-	}
-
-	function getLenghtSearchFilter() {
-		return tabsState == "students" ? getSearchFilter().length : getPayoutsSearchFilter().length;
 	}
 
 	function set_accepted(id) {
@@ -247,14 +228,6 @@ const App = ({ id, fetchedUser,
 		set_set_accepted_temp(set_accepted_temp + 1)
 	}
 
-	function get_payouts() {
-		return getPayoutsSearchFilter().slice(list_left_end, list_right_end);
-	}
-	
-	function get_students() {
-		return getSearchFilter().slice(list_left_end, list_right_end);
-	}
-
 	function get_before_payouts(is_delete, status){
 		var before = <Icon28DoneOutline />;
 		if (is_delete == true) before = <Icon28DeleteOutline style={redIcon} />
@@ -266,8 +239,11 @@ const App = ({ id, fetchedUser,
 
 	function button_list_click(value) {
 		set_list_left_end(list_left_end + value);
-		set_list_right_end(list_right_end + value);
-		search_users(searchValue, list_left_end + value);
+
+		if (tabsState == "payouts")
+			search_payouts(searchValue, list_left_end + value);
+		else if (tabsState == "students")
+			search_users(searchValue, list_left_end + value)
 	}
 
 	const Home =
@@ -276,18 +252,19 @@ const App = ({ id, fetchedUser,
 			<Tabs mode="buttons">
 				<TabsItem
 					onClick={() => {
+						search_users('', 0);
 						setTabsState('students');
 						setSearchValue("");
+						setStudents([]);
 					}}
 					selected={tabsState === 'students'}
 				>Студенты</TabsItem>
 				<TabsItem
 					onClick={() => {
-						if (searchPayouts.length == 0)
-							search_payouts('');
+						search_payouts('', 0);
 						setTabsState('payouts')
 						setSearchValue("");
-						set_list_left_end(0)
+						setSearchPayouts([]);
 					}}
 					selected={tabsState === 'payouts'}
 				>Заявления</TabsItem>
@@ -295,16 +272,15 @@ const App = ({ id, fetchedUser,
 
 			<Search
 				value={searchValue}
-				placeholder={tabsState === 'payouts' ? "Поиск по номеру заявления" : "Поиск по ФИО или студ. билету"}
+				placeholder={tabsState === 'payouts' ? "Поиск по номеру заявления" : "Поиск по фамилии или студ. билету"}
 				onChange={(e) => {
 					const { value } = e.currentTarget;
 					if (tabsState == "payouts")
-						search_payouts(value);
+						search_payouts(value, 0);
 					else if (tabsState == "students")
-						search_users(value, list_left_end)
+						search_users(value, 0)
 					setSearchValue(value);
 					set_list_left_end(0);
-					set_list_right_end(count_on_page);
 				}}
 				// icon={tabsState === 'payouts' && <Icon24Send />}
 				after={null}
@@ -314,8 +290,8 @@ const App = ({ id, fetchedUser,
 				{tabsState == "students" && students.slice(0, count_on_page).map((post) =>
 					(<Group>
 						<Cell multiline key={post.i} size="l" onClick={() => {
-							go("User");
 							setLogin(post.login);
+							go("User");
 						}}
 							asideContent={
 								<Icon28AddOutline style={blueIcon} onClick={() => {console.log("WQWEQWE")}}/>
@@ -353,11 +329,18 @@ const App = ({ id, fetchedUser,
 
 			<Div style={{ display: 'flex' }}>
 				{list_left_end > 0 ?
-					<Button size="l" before={<Icon24BrowserBack />} stretched mode="secondary" style={{ marginRight: 8 }} onClick={() => button_list_click(-count_on_page)}>Назад</Button>
+					<Button size="l" before={<Icon24BrowserBack />}
+						stretched mode="secondary" style={{ marginRight: 8 }}
+						onClick={() => button_list_click(-count_on_page)}
+					>Назад</Button>
 					: <Button size="l" stretched mode="tertiary" style={{ marginRight: 8 }} ></Button>}
 
-				{students.length > count_on_page ?
-					<Button size="l" after={<Icon24BrowserForward />} stretched mode="secondary" onClick={() => button_list_click(count_on_page)}>Вперед</Button>
+				{(students.length > count_on_page && tabsState == "students") ||
+					(searchPayouts.length > count_on_page && tabsState == "payouts") ?
+					<Button size="l" after={<Icon24BrowserForward />}
+						stretched mode="secondary"
+						onClick={() => button_list_click(count_on_page)}
+					>Вперед</Button>
 					: <Button size="l" stretched mode="tertiary"></Button>}
 			</Div>
 

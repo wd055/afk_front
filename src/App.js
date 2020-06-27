@@ -39,6 +39,7 @@ import Profkom from './panels/Profkom';
 import User from './panels/User';
 
 import { redIcon, blueIcon, orangeBackground, blueBackground, redBackground } from './panels/style';
+import { func } from 'prop-types';
 
 var origin = "https://thingworx.asuscomm.com:10888"
 var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
@@ -46,8 +47,8 @@ var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
 // var main_url = "http://localhost:8000/"
 
 const App = () => {
-	const [activePanel, setActivePanel] = useState('Home');
-	const [history, setHistory] = useState(['Home'])
+	const [activePanel, setActivePanel] = useState('spinner');
+	const [history, setHistory] = useState(['spinner'])
 	const [fetchedUser, setUser] = useState(null);
 
 	const [modal, setModal] = useState(null);
@@ -60,12 +61,26 @@ const App = () => {
 	// const [login, setLogin] = useState("19У153");
 	const [students, setStudents] = useState([]);
 	const [snackbar, setSnackbar] = useState();
+	const [categories, setCategories] = useState([]);
 
 	bridge.send("VKWebAppGetUserInfo", {});
 	useEffect(() => {
+		
+		const queryParams = parseQueryString(window.location.search);
+		const hashParams = parseQueryString(window.location.hash);		
+
+		console.log(queryParams)
+		// console.log(hashParams)
+		if (hashParams["activePanel"] && activePanel != hashParams["activePanel"]){
+			setActivePanel(hashParams["activePanel"]);
+			setPopout(null);
+		}else{
+			get_form();
+		}
+
 		window.addEventListener('popstate', () => goBack());
+		get_all_categories();
 		// get_all_users();
-		get_users_info();
 
 		bridge.subscribe(({ detail: { type, data } }) => {
 			if (type === 'VKWebAppUpdateConfig') {
@@ -86,7 +101,7 @@ const App = () => {
 		async function fetchData() {
 			// const user = await bridge.send('VKWebAppGetUserInfo');
 			// setUser(user);
-			setPopout(null);
+			// setPopout(null);
 		}
 		fetchData();
 	}, []);
@@ -105,6 +120,9 @@ const App = () => {
 	function go(name) {
 		console.log('history go 1', history)
 		if (history[history.length - 1] != name) {
+			if (name == "Home"){
+				get_form();
+			}
 			window.history.pushState({ panel: name }, name); // Создаём новую запись в истории браузера
 			setActivePanel(name); // Меняем активную панель
 			history.push(name); // Добавляем панель в историю
@@ -156,13 +174,40 @@ const App = () => {
 		}
 	}
 
-	function get_users_info() {
+	function get_all_categories() {
+
+		var url = main_url + "profkom_bot/all_categories/";
+		fetch(url, {
+			method: 'POST',
+			headers: {
+				'Origin': origin
+			}
+		})
+			.then(response => response.json())
+			.then((data) => {
+				setCategories(data)
+			},
+				(error) => {
+					setSnackbar(<Snackbar
+						layout="vertical"
+						onClose={() => setSnackbar(null)}
+						before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
+					>
+						Ошибка подключения
+						</Snackbar>);
+					console.error('get category:', error)
+				})
+	}
+	function get_form() {
 
 		var url = main_url + "profkom_bot/get_form/";
-
+		
 		var data = {
 			querys: window.location.search,
 		}
+		if (login != null)
+			data.students_login = login
+
 		fetch(url, {
 			method: 'POST',
 			body: JSON.stringify(data),
@@ -172,17 +217,26 @@ const App = () => {
 		})
 			.then(response => response.json())
 			.then((data) => {
+				setPopout(null);
 				if (data != "Error") {
-					console.log('get info:', data);
-					setProforg(data.proforg);
-					if (data.proforg == true){
-						setActivePanel("Profkom");
-						setHistory(["Profkom"])
+					for (var i in data){
+						if(data[i] == null || data[i] == 'none')
+							data[i] = ""
 					}
+					console.log('app get form:', data);
 					setUsersInfo(data);
+					if (login == null) {
+						setProforg(data.proforg);
+						if (data.proforg == true){
+							setActivePanel("Profkom");
+							setHistory(["Profkom"])
+						}else{
+							setActivePanel("Home");
+							setHistory(["Home"])
+						}
+					}
 				} else {
-					console.error('get info:', data);
-
+					console.error('app get form:', data);
 					setSnackbar(<Snackbar
 						layout="vertical"
 						onClose={() => setSnackbar(null)}
@@ -193,6 +247,7 @@ const App = () => {
 				}
 			},
 				(error) => {
+					setPopout(null);
 					setSnackbar(<Snackbar
 						layout="vertical"
 						onClose={() => setSnackbar(null)}
@@ -200,7 +255,7 @@ const App = () => {
 					>
 						Ошибка подключения
 					</Snackbar>);
-					console.error('get info:', error)
+					console.error('app get form:', error)
 				})
 	}
 	const parseQueryString = (string) => {
@@ -214,15 +269,6 @@ const App = () => {
 				return query
 			}, {})
 	};
-
-	const queryParams = parseQueryString(window.location.search);
-	const hashParams = parseQueryString(window.location.hash);
-
-	if (hashParams["activePanel"] && activePanel != hashParams["activePanel"])
-		setActivePanel(hashParams["activePanel"])
-
-	console.log(queryParams)
-	// console.log(hashParams)
 
 	const modals = (
 		<ModalRoot
@@ -269,6 +315,9 @@ const App = () => {
 				popout={popout}
 				modal={modals}
 			>
+				<Panel id="spinner">
+					<PanelHeader>Загрузка</PanelHeader>
+				</Panel>
 				<Panel id="Success">
 					<PanelHeader>Успешная авторизация</PanelHeader>
 					<Placeholder
@@ -293,17 +342,17 @@ const App = () => {
 					setPopout={setPopout} setModal={setModal} setLogin={setLogin}
 					students={students} setStudents={setStudents}
 					snackbar={snackbar} setSnackbar={setSnackbar} />
-				<User id='User' fetchedUser={fetchedUser} go={go}
+				<User id='User' fetchedUser={fetchedUser} go={go} goBack={goBack}
 					setPopout={setPopout} setModal={setModal} login={login}
 					snackbar={snackbar} setSnackbar={setSnackbar}
 				/>
 				<Home id='Home' fetchedUser={fetchedUser} go={go}
 					setPopout={setPopout} login={login}
 					snackbar={snackbar} setSnackbar={setSnackbar}
-					students={students}
+					students={students} categories={categories}
 					setHistory={setHistory} setActivePanel={setActivePanel}
 					proforg={proforg} setProforg={setProforg} 
-					usersInfo={usersInfo}/>
+					usersInfo={usersInfo} setUsersInfo={setUsersInfo}/>
 			</View>
 		</ConfigProvider>
 	);

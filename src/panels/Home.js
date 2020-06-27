@@ -42,29 +42,39 @@ var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
 // var main_url = "http://localhost:8000/"
 
 const App = ({
-	id, fetchedUser,
+	id, fetchedUser, categories,
 	go, setPopout, login,
 	snackbar, setSnackbar,
-	students, usersInfo,
+	students,
 	setActivePanel, setHistory,
-	proforg, setProforg
+	proforg, setProforg,
+	usersInfo, setUsersInfo
 }) => {
 
-	const [categories, setCategories] = useState([]);
 	const [getCategories, setGetCategories] = useState([]);
 	const [showForm, setShowForm] = useState(true);
 	const [submitSuccess, setSubmitSuccess] = useState("Успешно!");
 	// const [snackbar, setSnackbar] = useState();
 
-	const [email, setEmail] = useState();
-	const [phone, setPhone] = useState();
+	const [email, setEmail] = useState("");
+	const [phone, setPhone] = useState("");
 	const [payments_edu, setPayments_edu] = useState();
 	const [name, setName] = useState("");
 	const [group, setGroup] = useState("");
 	const [students_login, set_students_login] = useState("");
 
 	useEffect(() => {
-		get_users_info()
+		if (usersInfo != null && students_login != usersInfo.login){
+			console.log("!!!!!!!!!!!!", usersInfo)
+			setGroup(usersInfo.group);
+			set_students_login(usersInfo.login);
+			setName(usersInfo.name);
+			setEmail(usersInfo.email);
+			setPhone(usersInfo.phone);
+			setGetCategories(usersInfo.categories);
+			setPayments_edu(usersInfo.payments_edu);
+		}
+		// get_users_info()
 		bridge.subscribe(({ detail: { type, data } }) => {
 			if (type === 'VKWebAppGetEmailResult') {
 				document.getElementById('email').value = data.email;
@@ -75,123 +85,94 @@ const App = ({
 				setPhone(data.phone_number);
 			}
 		});
-
-		var url = main_url + "profkom_bot/all_categories/";
-
-		if (categories.length == 0 && showForm == true) {
-			fetch(url, {
-				method: 'POST',
-				headers: {
-					'Origin': origin
-				}
-			})
-				.then(response => response.json())
-				.then((data) => {
-					setCategories(data)
-					setShowForm(true)
-					setSubmitSuccess("Успешно!")
-				},
-					(error) => {
-						setSnackbar(<Snackbar
-							layout="vertical"
-							onClose={() => setSnackbar(null)}
-							before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
-						>
-							Ошибка подключения
-						</Snackbar>);
-						// setShowForm(false)
-						// setSubmitSuccess(<div>Ошибка подключения<br />Пожалуйста, попробуйте через несколько минут!</div>)
-						console.error('get category:', error)
-					})
-		}
 	});
 	function get_users_info(){
-		var url = main_url + "profkom_bot/get_form/";
+		// var url = main_url + "profkom_bot/get_form/";
 
-		var data = {
-			querys: window.location.search,
-		}
+		// var data = {
+		// 	querys: window.location.search,
+		// }
 
-		if (login != null) {
+		// if (login != null) {
 
-			data.students_login = login;
+		// 	data.students_login = login;
 
-			fetch(url, {
-				method: 'POST',
-				body: JSON.stringify(data),
-				headers: {
-					'Origin': origin
-				}
-			})
-				.then(response => response.json())
-				.then((data) => {
-					if (data != "Error") {
-						// if (data.proforg == true && login == null && students.length == 0) {
-						// 	go("Profkom");
-						// }
-						console.log('get info:', data);
-						// if (login == null) setProforg(data.proforg);
-						setGroup(data.group);
-						set_students_login(data.login);
-						setName(data.name);
-						setEmail(data.email);
-						setPhone(data.phone);
-						setGetCategories(data.categories);
-						setPayments_edu(data.payments_edu);
-						setShowForm(true);
-						setSubmitSuccess("Успешно!");
-					} else {
-						console.error('get info:', data);
+		// 	fetch(url, {
+		// 		method: 'POST',
+		// 		body: JSON.stringify(data),
+		// 		headers: {
+		// 			'Origin': origin
+		// 		}
+		// 	})
+		// 		.then(response => response.json())
+		// 		.then((data) => {
+		// 			if (data != "Error") {
+		// 				// if (data.proforg == true && login == null && students.length == 0) {
+		// 				// 	go("Profkom");
+		// 				// }
+		// 				console.log('get info:', data);
+		// 				// if (login == null) setProforg(data.proforg);
+		// 				setGroup(data.group);
+		// 				set_students_login(data.login);
+		// 				setName(data.name);
+		// 				setEmail(data.email);
+		// 				setPhone(data.phone);
+		// 				setGetCategories(data.categories);
+		// 				setPayments_edu(data.payments_edu);
+		// 				setShowForm(true);
+		// 				setSubmitSuccess("Успешно!");
+		// 			} else {
+		// 				console.error('get info:', data);
 
-						setSnackbar(<Snackbar
-							layout="vertical"
-							onClose={() => setSnackbar(null)}
-							before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
-						>
-							Ошибка авторизации
-						</Snackbar>);
-						// setShowForm(false)
-						// setSubmitSuccess(<div>Ошибка авторизации</div>)
-					}
-				},
-					(error) => {
-						if (name == "") {
-							setSnackbar(<Snackbar
-								layout="vertical"
-								onClose={() => setSnackbar(null)}
-								before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
-							>
-								Ошибка подключения
-							</Snackbar>);
-							// setShowForm(false)
-							// setSubmitSuccess(<div>Ошибка подключения<br />Пожалуйста, попробуйте через несколько минут!</div>)
-							console.error('get info:', error)
-						}
-					})
-		}else if (usersInfo != null){
-			setGroup(usersInfo.group);
-			set_students_login(usersInfo.login);
-			setName(usersInfo.name);
-			setEmail(usersInfo.email);
-			setPhone(usersInfo.phone);
-			setGetCategories(usersInfo.categories);
-			setPayments_edu(usersInfo.payments_edu);
-			setShowForm(true);
-			setSubmitSuccess("Успешно!");
-		}
+		// 				setSnackbar(<Snackbar
+		// 					layout="vertical"
+		// 					onClose={() => setSnackbar(null)}
+		// 					before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
+		// 				>
+		// 					Ошибка авторизации
+		// 				</Snackbar>);
+		// 				// setShowForm(false)
+		// 				// setSubmitSuccess(<div>Ошибка авторизации</div>)
+		// 			}
+		// 		},
+		// 			(error) => {
+		// 				if (name == "") {
+		// 					setSnackbar(<Snackbar
+		// 						layout="vertical"
+		// 						onClose={() => setSnackbar(null)}
+		// 						before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
+		// 					>
+		// 						Ошибка подключения
+		// 					</Snackbar>);
+		// 					// setShowForm(false)
+		// 					// setSubmitSuccess(<div>Ошибка подключения<br />Пожалуйста, попробуйте через несколько минут!</div>)
+		// 					console.error('get info:', error)
+		// 				}
+		// 			})
+		// } else if (usersInfo != null) {
+		// 	setGroup(usersInfo.group);
+		// 	set_students_login(usersInfo.login);
+		// 	setName(usersInfo.name);
+		// 	setEmail(usersInfo.email);
+		// 	setPhone(usersInfo.phone);
+		// 	setGetCategories(usersInfo.categories);
+		// 	setPayments_edu(usersInfo.payments_edu);
+		// 	setShowForm(true);
+		// 	setSubmitSuccess("Успешно!");
+		// }
 	}
 	const [clickEmail, setClickEmail] = useState(true);
 	const [clickPhone, setClickPhone] = useState(true);
 
 	const onEmailClick = e => {
-		if (clickEmail && login == null) {
+		if (clickEmail && login == null && email.length == 0) {
 			setClickEmail(false);
 			bridge.send("VKWebAppGetEmail", {});
 		}
 	};
 
 	const onPhoneClick = e => {
-		if (clickPhone && login == null) {
+		if (clickPhone && login == null && phone.length == 0) {
 			setClickPhone(false);
 			bridge.send("VKWebAppGetPhoneNumber", {});
 		}
