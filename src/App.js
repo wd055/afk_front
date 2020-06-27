@@ -175,22 +175,31 @@ const App = () => {
 		if (history.length === 1) {  // Если в массиве одно значение:
 			bridge.send("VKWebAppClose", { "status": "success" }); // Отправляем bridge на закрытие сервиса.
 		} else if (history.length > 1) { // Если в массиве больше одного значения:
+			if (history[history.length - 1] == "modal"){
+				setModal(null) // Изменяем массив с иторией и меняем активную панель.
+			}else{
+				setActivePanel(history[history.length - 2]) // Изменяем массив с иторией и меняем активную панель.
+			}
 			history.pop() // удаляем последний элемент в массиве.
-			setActivePanel(history[history.length - 1]) // Изменяем массив с иторией и меняем активную панель.
 		}
 		console.log('history goBack 2', history)
 	}
 
-	function go(name) {
-		console.log('history go 1', history)
+	function go(name, itsModal) {
+		console.log('history go 1', history, itsModal)
 		if (history[history.length - 1] != name) {
 			if (name == "Home"){
 				get_form();
 			}
-			window.history.pushState({ panel: name }, name); // Создаём новую запись в истории браузера
-			console.error(window.history)
-			setActivePanel(name); // Меняем активную панель
-			history.push(name); // Добавляем панель в историю
+			if (itsModal){
+				setModal(name);
+				history.push("modal"); // Добавляем панель в историю
+				window.history.pushState({ modal: name }, name); // Создаём новую запись в истории браузера
+			}else{
+				setActivePanel(name); // Меняем активную панель
+				history.push(name); // Добавляем панель в историю
+				window.history.pushState({ panel: name }, name); // Создаём новую запись в истории браузера
+			}
 		}
 		console.log('history go 2', history)
 	};

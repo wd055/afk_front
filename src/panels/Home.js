@@ -19,6 +19,7 @@ import Icon16Clear from '@vkontakte/icons/dist/16/clear';
 import Icon16Done from '@vkontakte/icons/dist/16/done';
 import Icon28CheckCircleOutline from '@vkontakte/icons/dist/28/check_circle_outline';
 
+import Div from '@vkontakte/vkui/dist/components/Div/Div';
 import Group from '@vkontakte/vkui/dist/components/Group/Group';
 import SimpleCell from '@vkontakte/vkui/dist/components/SimpleCell/SimpleCell';
 import InfoRow from '@vkontakte/vkui/dist/components/InfoRow/InfoRow';
@@ -36,10 +37,12 @@ import bridge from '@vkontakte/vk-bridge';
 
 import { redIcon, blueIcon, orangeBackground, blueBackground, redBackground } from './style';
 
-var origin = "https://thingworx.asuscomm.com:10888/"
-var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
-// var main_url = "http://thingworx.asuscomm.com/"
-// var main_url = "http://localhost:8000/"
+const check_valid = false;
+const show_valid = true;
+var origin = "https://thingworx.asuscomm.com:10888/";
+var main_url = "https://profkom-bot-bmstu.herokuapp.com/";
+// var main_url = "http://thingworx.asuscomm.com/";
+// var main_url = "http://localhost:8000/";
 
 const App = ({
 	id, fetchedUser, categories,
@@ -190,8 +193,7 @@ const App = ({
 	}
 
 	function onFormClick(e) {
-		if ((!email || !phone || !payments_edu || !validateEmail(email) ||
-			!validatePhone(phone)) && login == null) {
+		if (( check_valid && (!email || !phone || !validatePhone(phone)  || !validateEmail(email)) || !payments_edu) && login == null) {
 			setSnackbar(<Snackbar
 				layout="vertical"
 				onClose={() => setSnackbar(null)}
@@ -303,39 +305,48 @@ const App = ({
 							}>{name}</Cell>
 					</Group>
 					<FormLayout>
-						<Input
-							type="text"
-							top="E-mail"
-							placeholder="E-mail"
-							name="email"
-							id="email"
-							onClick={onEmailClick}
-							onChange={(e) => {
-								const { value } = e.currentTarget;
-								setEmail(value.slice(0, 100));
-							}}
-							value={email}
-							status={validateEmail(email) ? 'valid' : 'error'}
-							bottom={validateEmail(email) ? '' : 'Пожалуйста, корректно введите Вашу электронную почту'}
-							required
-						/>
-						<Input
-							id="phone"
-							type="phone"
-							top="Телефон"
-							placeholder="Телефон"
-							name="phone"
-							onClick={onPhoneClick}
-							onChange={(e) => {
-								const { value } = e.currentTarget;
-								setPhone(value.slice(0, 50));
-							}}
-							value={phone}
-							status={validatePhone(phone) ? 'valid' : 'error'}
-							bottom={validatePhone(phone) ? '' : 'Пожалуйста, корректно введите Ваш номер телефона'}
-							required
-						/>
-
+						<FormLayoutGroup 
+							top="Контактные данные"
+							bottom="
+							Почта и телефон не являются обязательными, 
+							но при наличии оишбок в документах и необходимости связаться с 
+							Вами мы сможем это сделать проще и быстрее, 
+							что упростит получение Вами вышей выплаты"
+						>
+							<Input
+								type="text"
+								top="E-mail"
+								placeholder="E-mail"
+								name="email"
+								id="email"
+								onClick={onEmailClick}
+								onChange={(e) => {
+									const { value } = e.currentTarget;
+									setEmail(value.slice(0, 100));
+								}}
+								value={email}
+								status={(show_valid && login==null) && (validateEmail(email) ? 'valid' : 'error')}
+								bottom={(show_valid && login==null) && (validateEmail(email) ? 
+									'' : 'Пожалуйста, корректно введите Вашу электронную почту')}
+									required = {check_valid}
+									/>
+							<Input
+								id="phone"
+								type="phone"
+								top="Телефон"
+								placeholder="Телефон"
+								name="phone"
+								onClick={onPhoneClick}
+								onChange={(e) => {
+									const { value } = e.currentTarget;
+									setPhone(value.slice(0, 50));
+								}}
+								value={phone}
+								status={(show_valid && login==null) && (validatePhone(phone) ? 'valid' : 'error')}
+								bottom={(show_valid && login==null) && (validatePhone(phone) ? '' : 'Пожалуйста, корректно введите Ваш номер телефона')}
+								required = {check_valid}
+							/>
+						</FormLayoutGroup>
 						<Select
 							top="Форма обучения"
 							placeholder="Форма обучения"
@@ -346,9 +357,9 @@ const App = ({
 								setPayments_edu(value);
 							}}
 							value={String(payments_edu)}
-							status={payments_edu ? 'valid' : 'error'}
-							bottom={payments_edu ? '' : 'Пожалуйста, выберите форму обучения'}
-							required
+							status={login==null && (payments_edu ? 'valid' : 'error')}
+							bottom={login==null && (payments_edu ? '' : 'Пожалуйста, выберите форму обучения')}
+							required = {login==null}
 						>
 							<option value="free" id="select_free">Бюджетная</option>
 							<option value="paid" id="select_paid">Платная</option>

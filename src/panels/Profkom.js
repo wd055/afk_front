@@ -29,6 +29,7 @@ import Search from '@vkontakte/vkui/dist/components/Search/Search';
 import Gallery from '@vkontakte/vkui/dist/components/Gallery/Gallery';
 import Div from '@vkontakte/vkui/dist/components/Div/Div';
 import Separator from '@vkontakte/vkui/dist/components/Separator/Separator';
+import FixedLayout from '@vkontakte/vkui/dist/components/FixedLayout/FixedLayout';
 
 import Placeholder from '@vkontakte/vkui/dist/components/Placeholder/Placeholder';
 import PanelHeaderBack from '@vkontakte/vkui/dist/components/PanelHeaderBack/PanelHeaderBack';
@@ -51,7 +52,7 @@ import TabsItem from '@vkontakte/vkui/dist/components/TabsItem/TabsItem';
 
 import bridge from '@vkontakte/vk-bridge';
 
-import {redIcon, blueIcon, orangeBackground, blueBackground, redBackground} from './style';
+import { redIcon, blueIcon, orangeBackground, blueBackground, redBackground } from './style';
 
 var origin = "https://thingworx.asuscomm.com:10888"
 var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
@@ -60,7 +61,7 @@ var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
 
 const App = ({ id, fetchedUser,
 	go, setPopout,
-	setModal,  setLogin,
+	setModal, setLogin,
 	students, setStudents,
 	snackbar, setSnackbar,
 	searchValue, setSearchValue,
@@ -69,12 +70,12 @@ const App = ({ id, fetchedUser,
 	searchPayouts, setSearchPayouts,
 }) => {
 
-	const count_on_page = 5;
+	const count_on_page = 6;
 	const [set_accepted_temp, set_set_accepted_temp] = useState(0);
 	const [list_left_end, set_list_left_end] = useState(0);
 
 	useEffect(() => {
-		if (students.length == 0)
+		if (students.length == 0 && searchValue.length == 0)
 			search_users('', 0);
 	});
 
@@ -142,6 +143,7 @@ const App = ({ id, fetchedUser,
 			.then(response => response.json())
 			.then((data) => {
 				if (data != "Error") {
+					console.log(data)
 					setStudents(data)
 					return (data)
 				}
@@ -229,7 +231,7 @@ const App = ({ id, fetchedUser,
 		set_set_accepted_temp(set_accepted_temp + 1)
 	}
 
-	function get_before_payouts(is_delete, status){
+	function get_before_payouts(is_delete, status) {
 		var before = <Icon28DoneOutline />;
 		if (is_delete == true) before = <Icon28DeleteOutline style={redIcon} />
 		else if (status == "filed") before = <Icon28HistoryForwardOutline />
@@ -247,12 +249,12 @@ const App = ({ id, fetchedUser,
 			search_users(searchValue, list_left_end + value)
 	}
 
-	function on_students_click (e, post) {
+	function on_students_click(e, post) {
 		if (e.target.getAttribute('class') == "Cell__aside" ||
 			e.target.parentNode.getAttribute('class') == "Cell__aside" ||
 			e.target.parentNode.parentNode.getAttribute('class') == "Cell__aside" ||
 			e.target.parentNode.parentNode.parentNode.getAttribute('class') == "Cell__aside") {
-			
+
 			post.new = true;
 			post.students_group = post.group;
 			post.students_login = post.login;
@@ -260,7 +262,7 @@ const App = ({ id, fetchedUser,
 			post.error = "";
 
 			setModalData(post);
-			setModal('payout');
+			go("payout", true);
 		} else {
 			setLogin(post.login);
 			go("User");
@@ -276,10 +278,10 @@ const App = ({ id, fetchedUser,
 
 			set_accepted(post.id)
 		} else if (e.target.getAttribute('class') &&
-			e.target.getAttribute('class').toLowerCase().indexOf("button") > -1 ) {
+			e.target.getAttribute('class').toLowerCase().indexOf("button") > -1) {
 
 			var obj = e.target
-			for (var i = 0; i < 3; i++){
+			for (var i = 0; i < 3; i++) {
 				if (obj.name && obj.name == "login")
 					break;
 				else
@@ -290,109 +292,119 @@ const App = ({ id, fetchedUser,
 		} else {
 			post.new = false;
 			setModalData(post);
-			setModal('payout');
+			go('payout', true);
 		}
 	}
 
 	const Home =
 		<Panel id={id} style={{ 'max-width': 600, margin: 'auto' }}>
 			<PanelHeader >Профком МГТУ</PanelHeader>
-			<Tabs mode="buttons">
-				<TabsItem
-					onClick={() => {
-						search_users('', 0);
-						setTabsState('students');
-						setSearchValue("");
-						setStudents([]);
-					}}
-					selected={tabsState === 'students'}
-				>Студенты</TabsItem>
-				<TabsItem
-					onClick={() => {
-						search_payouts('', 0);
-						setTabsState('payouts')
-						setSearchValue("");
-						setSearchPayouts([]);
-					}}
-					selected={tabsState === 'payouts'}
-				>Заявления</TabsItem>
-			</Tabs>
 
-			<Search
-				value={searchValue}
-				placeholder={tabsState === 'payouts' ? "Поиск по номеру заявления" : "Поиск по фамилии или студ. билету"}
-				onChange={(e) => {
-					const { value } = e.currentTarget;
-					if (tabsState == "payouts")
-						search_payouts(value, 0);
-					else if (tabsState == "students")
-						search_users(value, 0)
-					setSearchValue(value);
-					set_list_left_end(0);
-				}}
-				// icon={tabsState === 'payouts' && <Icon24Send />}
-				after={null}
-			/>
-			{tabsState == "students" && students.slice(0, count_on_page).map((post) =>
-				(<Group key={post.i}>
-					<Cell size="l" onClick={(e) => {
-						on_students_click(e, post);
+			<FixedLayout vertical="top">
+				<Tabs mode="buttons">
+					<TabsItem
+						onClick={() => {
+							search_users('', 0);
+							setTabsState('students');
+							setSearchValue("");
+							setStudents([]);
+							set_list_left_end(0);
+						}}
+						selected={tabsState === 'students'}
+					>Студенты</TabsItem>
+					<TabsItem
+						onClick={() => {
+							search_payouts('', 0);
+							setTabsState('payouts')
+							setSearchValue("");
+							setSearchPayouts([]);
+							set_list_left_end(0);
+						}}
+						selected={tabsState === 'payouts'}
+					>Заявления</TabsItem>
+				</Tabs>
+
+				<Search
+					value={searchValue}
+					placeholder={tabsState === 'payouts' ? "Поиск по номеру заявления" : "Поиск по фамилии или студ. билету"}
+					onChange={(e) => {
+						const { value } = e.currentTarget;
+						if (tabsState == "payouts")
+							search_payouts(value, 0);
+						else if (tabsState == "students")
+							search_users(value, 0)
+						setSearchValue(value);
+						set_list_left_end(0);
 					}}
-						asideContent={
-							<Icon28AddOutline name="icon" style={blueIcon} />
-						}
-						bottomContent={
-							<HorizontalScroll>
-								<div style={{ display: 'flex' }}>
-									<Button size="m" mode="outline">{post.group}</Button>
-									<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{post.login}</Button>
-								</div>
-							</HorizontalScroll>
-						}>{post.name}</Cell>
-				</Group>))}
-			{/* {tabsState == "payouts" && get_payouts().map((post) => */}
-			{tabsState == "payouts" && searchPayouts.map((post) =>
-				(<Group key={post.i}>
-					<Cell size="l" onClick={(e) => {
-						on_payouts_click(e, post);
-					}}
-						before={get_before_payouts(post.delete, post.status)}
-						asideContent={(post.status == "filed" && post.delete == false) &&
-							// <div style={{ display: 'flex' }}>
-								<Icon28DoneOutline style={blueIcon}/>}
-								// <Icon28CancelCircleOutline style={{ marginLeft: 8, color: 'red' }} />
+					// icon={tabsState === 'payouts' && <Icon24Send />}
+					after={null}
+				/>
+			</FixedLayout>
+			<Div style={{  paddingTop: 80, paddingBottom: 60 }}>
+				{tabsState == "students" && students.slice(0, count_on_page).map((post) =>
+					(<Group key={post.i}>
+						<Cell size="l" onClick={(e) => {
+							on_students_click(e, post);
+						}}
+							asideContent={
+								<Icon28AddOutline name="icon" style={blueIcon} />
+							}
+							bottomContent={
+								<HorizontalScroll>
+									<div style={{ display: 'flex' }}>
+										<Button size="m" mode="outline">{post.group}</Button>
+										<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{post.login}</Button>
+									</div>
+								</HorizontalScroll>
+							}>{post.name}</Cell>
+					</Group>))}
+				{/* {tabsState == "payouts" && get_payouts().map((post) => */}
+				{tabsState == "payouts" && searchPayouts.map((post) =>
+					(<Group key={post.i}>
+						<Cell size="l" onClick={(e) => {
+							on_payouts_click(e, post);
+						}}
+							before={get_before_payouts(post.delete, post.status)}
+							asideContent={(post.status == "filed" && post.delete == false) &&
+								// <div style={{ display: 'flex' }}>
+								<Icon28DoneOutline style={blueIcon} />}
+							// <Icon28CancelCircleOutline style={{ marginLeft: 8, color: 'red' }} />
 							// </div>}
-						bottomContent={
-							<HorizontalScroll>
-								<div style={{ display: 'flex' }}>
-									<Button size="m" mode="outline">{post.id}</Button>
-									<Button size="m" mode="outline" 
-										style={{ marginLeft: 8 }} id={post.students_login} name="login"
-									>{post.students_login}</Button>
-									<Button size="m" mode="outline" 
-										style={{ marginLeft: 8 }} id={post.students_login} name="login"
-									>{post.surname_and_initials}</Button>
-								</div>
-							</HorizontalScroll>
-						}>{post.payouts_type}</Cell>
-				</Group>))}
-
-			<Div style={{ display: 'flex' }}>
-				{list_left_end > 0 ?
-					<Button size="l" before={<Icon24BrowserBack />}
-						stretched mode="secondary" style={{ marginRight: 8 }}
-						onClick={() => button_list_click(-count_on_page)}
-					>Назад</Button>
-					: <Button size="l" stretched mode="tertiary" style={{ marginRight: 8 }} ></Button>}
-
-				{(students.length > count_on_page && tabsState == "students") ||
-					(searchPayouts.length > count_on_page && tabsState == "payouts") ?
-					<Button size="l" after={<Icon24BrowserForward />}
-						stretched mode="secondary"
-						onClick={() => button_list_click(count_on_page)}
-					>Вперед</Button>
-					: <Button size="l" stretched mode="tertiary"></Button>}
+							bottomContent={
+								<HorizontalScroll>
+									<div style={{ display: 'flex' }}>
+										<Button size="m" mode="outline">{post.id}</Button>
+										<Button size="m" mode="outline"
+											style={{ marginLeft: 8 }} id={post.students_login} name="login"
+										>{post.students_login}</Button>
+										<Button size="m" mode="outline"
+											style={{ marginLeft: 8 }} id={post.students_login} name="login"
+										>{post.surname_and_initials}</Button>
+									</div>
+								</HorizontalScroll>
+							}>{post.payouts_type}</Cell>
+					</Group>))}
 			</Div>
+
+			<FixedLayout vertical="bottom" filled>
+				<Separator wide />
+				<Div style={{ display: 'flex' }}>
+					{list_left_end > 0 ?
+						<Button size="l" before={<Icon24BrowserBack />}
+							stretched mode="secondary" style={{ marginRight: 8 }}
+							onClick={() => button_list_click(-count_on_page)}
+						>Назад</Button>
+						: <Button size="l" stretched mode="tertiary" style={{ marginRight: 8 }} ></Button>}
+
+					{(students.length > count_on_page && tabsState == "students") ||
+						(searchPayouts.length > count_on_page && tabsState == "payouts") ?
+						<Button size="l" after={<Icon24BrowserForward />}
+							stretched mode="secondary"
+							onClick={() => button_list_click(count_on_page)}
+						>Вперед</Button>
+						: <Button size="l" stretched mode="tertiary"></Button>}
+				</Div>
+			</FixedLayout>
 
 			{snackbar}
 		</Panel>

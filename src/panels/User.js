@@ -232,7 +232,7 @@ const App = ({ id, fetchedUser, go, goBack,
 			post.students_name = student.name;
 
 			setModalData(post);
-			setModal('payout');
+			go('payout', true);
 		}
 	}
 
@@ -302,7 +302,7 @@ const App = ({ id, fetchedUser, go, goBack,
 					// </Link>
 				} */}
 				
-				{student.phone != null &&
+				{(student.phone != null && student.phone.length > 0) &&
 					<SimpleCell
 						before={<Icon28PhoneOutline />}
 						onClick={() => copy_in_bufer(student.phone)}
@@ -312,7 +312,7 @@ const App = ({ id, fetchedUser, go, goBack,
 						</InfoRow>
 					</SimpleCell>}
 
-				{student.email != null &&
+				{(student.email != null && student.email.length > 0) &&
 					<SimpleCell
 						before={<Icon28MailOutline />}
 						onClick={() => copy_in_bufer(student.email)}
@@ -338,7 +338,7 @@ const App = ({ id, fetchedUser, go, goBack,
 								error : "",
 							}
 							setModalData(data);
-							setModal('payout');
+							go('payout', true);
 						}}	
 					>Добавить заявление</Button>
 				</Div>
