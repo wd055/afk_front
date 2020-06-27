@@ -43,11 +43,11 @@ var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
 
 const App = ({
 	id, fetchedUser, categories,
-	go, setPopout, login,
+	setPopout, login,
 	snackbar, setSnackbar,
-	students,
+	students, go, goBack,
 	setActivePanel, setHistory,
-	proforg, setProforg,
+	proforg,
 	usersInfo, setUsersInfo
 }) => {
 
@@ -86,6 +86,7 @@ const App = ({
 			}
 		});
 	});
+
 	function get_users_info(){
 		// var url = main_url + "profkom_bot/get_form/";
 
@@ -275,6 +276,7 @@ const App = ({
 					console.error('send form:', error);
 				})
 	};
+
 	function onLoadCategory() {
 		var categorys = document.getElementsByName("category");
 		for (var i = 0; i < categorys.length; i++) {
@@ -286,7 +288,7 @@ const App = ({
 	const Home =
 		<Panel id={id}>
 			<PanelHeader 
-				left={proforg == true && <PanelHeaderClose onClick={() => window.history.back()} />}
+				left={proforg == true && <PanelHeaderBack onClick={goBack} />}
 			>Форма</PanelHeader>
 			{showForm
 				? <Group>
@@ -298,11 +300,6 @@ const App = ({
 									<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{students_login}</Button>
 								</div>
 							}>{name}</Cell>
-						{/* <SimpleCell>
-							<InfoRow header="ФИО">
-								{name}
-							</InfoRow>
-						</SimpleCell> */}
 					</Group>
 					<FormLayout>
 						<Input
@@ -356,7 +353,7 @@ const App = ({
 							<option value="paid" id="select_paid">Платная</option>
 						</Select>
 
-						<FormLayoutGroup top="Выберите подходящие категории:" onLoad={onLoadCategory()}>
+						<FormLayoutGroup top="Выберите подходящие категории" onLoad={onLoadCategory()}>
 							{/* <Radio name="type">Паспорт</Radio>
 				<Radio name="type">Загран</Radio> */}
 							{categories.map((category, i) => (

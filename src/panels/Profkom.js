@@ -62,12 +62,13 @@ const App = ({ id, fetchedUser,
 	go, setPopout,
 	setModal,  setLogin,
 	students, setStudents,
-	snackbar, setSnackbar
+	snackbar, setSnackbar,
+	searchValue, setSearchValue,
+	setModalData,
 }) => {
 
 	const [searchPayouts, setSearchPayouts] = useState([]);
 	const [tabsState, setTabsState] = useState('students');
-	const [searchValue, setSearchValue] = useState("");
 
 	const count_on_page = 7;
 	const [set_accepted_temp, set_set_accepted_temp] = useState(0);
@@ -96,6 +97,7 @@ const App = ({ id, fetchedUser,
 			.then((data) => {
 				if (data != "Error") {
 					setSearchPayouts(data)
+					console.log(data)
 					return (data)
 				}
 				else {
@@ -246,6 +248,32 @@ const App = ({ id, fetchedUser,
 			search_users(searchValue, list_left_end + value)
 	}
 
+	function on_students_click (e, post) {
+		if (e.target.getAttribute('class') == "Cell__aside" ||
+			e.target.parentNode.getAttribute('class') == "Cell__aside" ||
+			e.target.parentNode.parentNode.getAttribute('class') == "Cell__aside" ||
+			e.target.parentNode.parentNode.parentNode.getAttribute('class') == "Cell__aside") {
+			
+			post.new = true;
+			post.students_group = post.group;
+			post.students_login = post.login;
+			post.students_name = post.name;
+			post.error = "";
+
+			setModalData(post);
+			setModal('payout');
+		} else {
+			setLogin(post.login);
+			go("User");
+		}
+	}
+
+	function on_payouts_click (post) {			
+		post.new = false;
+		setModalData(post);
+		setModal('payout');
+	}
+
 	const Home =
 		<Panel id={id} style={{ 'max-width': 600, margin: 'auto' }}>
 			<PanelHeader >Профком МГТУ</PanelHeader>
@@ -285,47 +313,45 @@ const App = ({ id, fetchedUser,
 				// icon={tabsState === 'payouts' && <Icon24Send />}
 				after={null}
 			/>
-			<List>
-				{/* {tabsState == "students" && get_students().map((post) => */}
-				{tabsState == "students" && students.slice(0, count_on_page).map((post) =>
-					(<Group>
-						<Cell multiline key={post.i} size="l" onClick={() => {
-							setLogin(post.login);
-							go("User");
-						}}
-							asideContent={
-								<Icon28AddOutline style={blueIcon} onClick={() => {console.log("WQWEQWE")}}/>
-							}
-							bottomContent={
-								<HorizontalScroll>
-									<div style={{ display: 'flex' }}>
-										<Button size="m" mode="outline">{post.group}</Button>
-										<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{post.login}</Button>
-									</div>
-								</HorizontalScroll>
-							}>{post.name}</Cell>
-					</Group>))}
-				{/* {tabsState == "payouts" && get_payouts().map((post) => */}
-				{tabsState == "payouts" && searchPayouts.map((post) =>
-					(<Group key={post.i}>
-						<Cell multiline size="l"
-							before={get_before_payouts(post.delete, post.status)}
-							asideContent={post.status == "filed" &&
+			{tabsState == "students" && students.slice(0, count_on_page).map((post) =>
+				(<Group key={post.i}>
+					<Cell multiline size="l" onClick={(e) => {
+						on_students_click(e, post);
+					}}
+						asideContent={
+							<Icon28AddOutline name="icon" style={blueIcon} />
+						}
+						bottomContent={
+							<HorizontalScroll>
 								<div style={{ display: 'flex' }}>
-									<Icon28DoneOutline style={blueIcon} onClick={() => set_accepted(post.id)} />
-									<Icon28CancelCircleOutline style={{ marginLeft: 8, color: 'red' }} />
-								</div>}
-							bottomContent={
-								<HorizontalScroll>
-									<div style={{ display: 'flex' }}>
-										<Button size="m" mode="outline">{post.id}</Button>
-										<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{post.students_login}</Button>
-										<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{post.surname_and_initials}</Button>
-									</div>
-								</HorizontalScroll>
-							}>{post.payouts_type}</Cell>
-					</Group>))}
-			</List>
+									<Button size="m" mode="outline">{post.group}</Button>
+									<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{post.login}</Button>
+								</div>
+							</HorizontalScroll>
+						}>{post.name}</Cell>
+				</Group>))}
+			{/* {tabsState == "payouts" && get_payouts().map((post) => */}
+			{tabsState == "payouts" && searchPayouts.map((post) =>
+				(<Group key={post.i}>
+					<Cell multiline size="l" onClick={(e) => {
+						on_payouts_click(post);
+					}}
+						before={get_before_payouts(post.delete, post.status)}
+						asideContent={(post.status == "filed" && post.delete == false) &&
+							<div style={{ display: 'flex' }}>
+								<Icon28DoneOutline style={blueIcon} onClick={() => set_accepted(post.id)} />
+								<Icon28CancelCircleOutline style={{ marginLeft: 8, color: 'red' }} />
+							</div>}
+						bottomContent={
+							<HorizontalScroll>
+								<div style={{ display: 'flex' }}>
+									<Button size="m" mode="outline">{post.id}</Button>
+									<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{post.students_login}</Button>
+									<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{post.surname_and_initials}</Button>
+								</div>
+							</HorizontalScroll>
+						}>{post.payouts_type}</Cell>
+				</Group>))}
 
 			<Div style={{ display: 'flex' }}>
 				{list_left_end > 0 ?

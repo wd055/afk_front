@@ -64,7 +64,8 @@ var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
 
 const App = ({ id, fetchedUser, go, goBack,
 	setPopout, setModal, login,
-	snackbar, setSnackbar
+	snackbar, setSnackbar,
+	setModalData
 }) => {
 
 	const [searchPayouts, setSearchPayouts] = useState([]);
@@ -232,6 +233,17 @@ const App = ({ id, fetchedUser, go, goBack,
 		return before;
 	}
 
+	function on_payouts_click (post) {			
+		post.new = false;
+		console.log(student.users_payouts)
+		post.students_group = student.group;
+		post.students_login = login;
+		post.students_name = student.name;
+
+		setModalData(post);
+		setModal('payout');
+	}
+
 	const Home =
 		<Panel id={id} style={{ 'max-width': 600, margin: 'auto' }}>
 			<PanelHeader  
@@ -250,6 +262,14 @@ const App = ({ id, fetchedUser, go, goBack,
 					}>{student.name}</Cell>
 			</Group>
 
+			<Header 
+				mode="secondary" 
+				aside={<Icon16Chevron />}
+				onClick={() => go("Home")}
+			>
+				Подробнее
+			</Header>
+			
 			<Group separator={"hide"}>
 
 				{/* {(student.domain && student.domain.length > 0) &&
@@ -308,13 +328,6 @@ const App = ({ id, fetchedUser, go, goBack,
 
 			</Group>
 
-			<Header 
-				mode="secondary" 
-				aside={<Icon16Chevron />}
-				onClick={() => go("Home")}
-			>
-				Подробнее
-			</Header>
 
 			<Group separator={"hide"}>
 				<Div>
@@ -323,21 +336,21 @@ const App = ({ id, fetchedUser, go, goBack,
 			</Group>
 
 			<Group header={<Header mode="secondary">Актуальные заявления</Header>}>
-				<List>
-					{student.users_payouts.map((post) =>
-						(<Group key={post.i} separator={"show"}>
-							<Cell size="l"
-								before={get_before_payouts(post.delete, post.status)}
-								asideContent={post.status == "filed" &&
-									<div style={{ display: 'flex' }}>
-										<Icon28DoneOutline style={blueIcon} onClick={() => set_accepted(post.id)} />
-										<Icon28CancelCircleOutline style={{ marginLeft: 8, color: 'red' }} />
-									</div>}
-								// bottomContent={<Button size="m" mode="outline">{post.id}</Button>}
-								description={post.id}
-							>{post.payouts_type}</Cell>
-						</Group>))}
-				</List>
+				{student.users_payouts.map((post) =>
+					(<Group key={post.i} separator={"show"}>
+						<Cell multiline size="l" onClick={(e) => {
+							on_payouts_click(post);
+						}}
+							before={get_before_payouts(post.delete, post.status)}
+							asideContent={post.status == "filed" &&
+								<div style={{ display: 'flex' }}>
+									<Icon28DoneOutline style={blueIcon} onClick={() => set_accepted(post.id)} />
+									<Icon28CancelCircleOutline style={{ marginLeft: 8, color: 'red' }} />
+								</div>}
+							// bottomContent={<Button size="m" mode="outline">{post.id}</Button>}
+							description={post.id}
+						>{post.payouts_type}</Cell>
+					</Group>))}
 			</Group>
 			{snackbar}
 		</Panel>
