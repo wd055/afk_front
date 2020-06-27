@@ -65,49 +65,14 @@ var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
 const App = ({ id, fetchedUser, go, goBack,
 	setPopout, setModal, login,
 	snackbar, setSnackbar,
-	setModalData
+	setModalData,
+	student, setStudent
 }) => {
 
-	const [searchPayouts, setSearchPayouts] = useState([]);
-
-	const [student, setStudent] = useState({
-		birthday: "2001-01-01",
-		categories: [],
-		domain: null,
-		email: null,
-		group: "",
-		name: "ФИО",
-		payments_edu: "free",
-		phone: null,
-		photo_100: "",
-		users_payouts: [],
-		proforg: false
-	});
-
-	const [tabsState, setTabsState] = useState('students');
-	const [searchValue, setSearchValue] = useState("");
-
-	const count_on_page = 7;
 	const [set_accepted_temp, set_set_accepted_temp] = useState(0);
 
 
-	const parseQueryString = (string) => {
-		return string.slice(1).split('&')
-			.map((queryParam) => {
-				let kvp = queryParam.split('=');
-				return { key: kvp[0], value: kvp[1] }
-			})
-			.reduce((query, kvp) => {
-				query[kvp.key] = kvp.value;
-				return query
-			}, {})
-	};
-
 	useEffect(() => {
-		
-		const queryParams = parseQueryString(window.location.search);
-		const hashParams = parseQueryString(window.location.hash);	
-
 		bridge.subscribe(({ detail: { type, data } }) => {
 			if (type === 'VKWebAppCopyTextResult') {
 				setSnackbar(<Snackbar
@@ -201,7 +166,6 @@ const App = ({ id, fetchedUser, go, goBack,
 					.then((data) => {
 						if (data != "Error") {
 							console.log("edit_payout", data)							
-							setSearchPayouts(temp_arr);
 							setSnackbar(<Snackbar
 								layout="vertical"
 								onClose={() => setSnackbar(null)}
@@ -249,15 +213,25 @@ const App = ({ id, fetchedUser, go, goBack,
 		return before;
 	}
 
-	function on_payouts_click (post) {			
-		post.new = false;
-		
-		post.students_group = student.group;
-		post.students_login = login;
-		post.students_name = student.name;
+	function on_payouts_click(e, post) {
 
-		setModalData(post);
-		setModal('payout');
+		if (e.target.getAttribute('class') == "Cell__aside" ||
+			e.target.parentNode.getAttribute('class') == "Cell__aside" ||
+			e.target.parentNode.parentNode.getAttribute('class') == "Cell__aside" ||
+			e.target.parentNode.parentNode.parentNode.getAttribute('class') == "Cell__aside") {
+
+			set_accepted(post.id)
+		}
+		else {
+			post.new = false;
+
+			post.students_group = student.group;
+			post.students_login = login;
+			post.students_name = student.name;
+
+			setModalData(post);
+			setModal('payout');
+		}
 	}
 
 	const Home =
@@ -267,7 +241,7 @@ const App = ({ id, fetchedUser, go, goBack,
 				left={<PanelHeaderBack onClick={goBack} />}
 			>Профком МГТУ</PanelHeader>
 			<Group>
-				<Cell size="l"
+				<Cell size="l" onClick={() => get_users_info()}
 				 	before={(student.photo_100 && student.photo_100.length > 0) && <Avatar size={40} src={student.photo_100} /> }
 					bottomContent={
 						<HorizontalScroll>
@@ -350,7 +324,21 @@ const App = ({ id, fetchedUser, go, goBack,
 
 			<Group separator={"hide"}>
 				<Div>
-					<Button stretched size="xl">Добавить заявление</Button>
+					<Button 
+						stretched
+						size="xl"
+						onClick={() => {
+							var data = {
+								new : true,
+								students_group : student.group,
+								students_login : login,
+								students_name : student.name,
+								error : "",
+							}
+							setModalData(data);
+							setModal('payout');
+						}}	
+					>Добавить заявление</Button>
 				</Div>
 			</Group>
 
@@ -358,12 +346,12 @@ const App = ({ id, fetchedUser, go, goBack,
 				{student.users_payouts.map((post) =>
 					(<Group key={post.i} separator={"show"}>
 						<Cell size="l" onClick={(e) => {
-							on_payouts_click(post);
+							on_payouts_click(e, post);
 						}}
 							before={get_before_payouts(post.delete, post.status)}
 							asideContent={post.status == "filed" &&
 								<div style={{ display: 'flex' }}>
-									<Icon28DoneOutline style={blueIcon} onClick={() => set_accepted(post.id)} />
+									<Icon28DoneOutline style={blueIcon} />
 									<Icon28CancelCircleOutline style={{ marginLeft: 8, color: 'red' }} />
 								</div>}
 							// bottomContent={<Button size="m" mode="outline">{post.id}</Button>}

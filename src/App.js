@@ -78,6 +78,21 @@ const App = () => {
         students_name: "Власов Денис Владимирович",
 		new:false,
 	});
+	
+	const [student, setStudent] = useState({
+		birthday: "2001-01-01",
+		categories: [],
+		domain: null,
+		email: null,
+		group: "",
+		name: "ФИО",
+		payments_edu: "free",
+		phone: null,
+		photo_100: "",
+		users_payouts: [],
+		proforg: false
+	});
+
 	const [popout, setPopout] = useState(<ScreenSpinner size='large' />);
 
 	const [proforg, setProforg] = useState(false);
@@ -89,6 +104,8 @@ const App = () => {
 	const [categories, setCategories] = useState([]);
 	const [payouts_types, setPayouts_type] = useState([]);
 	const [searchValue, setSearchValue] = useState("");
+	const [tabsState, setTabsState] = useState('students');
+	const [searchPayouts, setSearchPayouts] = useState([]);
 
 	const PERIODICITY = {
         calendar_year: 'Раз в календарный год',
@@ -364,6 +381,8 @@ const App = () => {
 			.then(response => response.json())
 			.then((data) => {
 				if (data != "Error") {
+					if (student.users_payouts)
+						student.users_payouts.push(data)
 					setModal(null)
 				}
 				else {
@@ -600,11 +619,14 @@ const App = () => {
 					snackbar={snackbar} setSnackbar={setSnackbar}
 					searchValue={searchValue} setSearchValue={setSearchValue} 
 					setModalData={setModalData}
+					tabsState={tabsState} setTabsState={setTabsState}
+					searchPayouts={searchPayouts} setSearchPayouts={setSearchPayouts}
 				/>
 				<User id='User' fetchedUser={fetchedUser} go={go} goBack={goBack}
 					setPopout={setPopout} setModal={setModal} login={login}
 					snackbar={snackbar} setSnackbar={setSnackbar}
 					setModalData={setModalData}
+					student={student} setStudent={setStudent}
 				/>
 				<Home id='Home' fetchedUser={fetchedUser} go={go} goBack={goBack}
 					setPopout={setPopout} login={login}

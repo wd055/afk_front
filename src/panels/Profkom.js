@@ -65,10 +65,9 @@ const App = ({ id, fetchedUser,
 	snackbar, setSnackbar,
 	searchValue, setSearchValue,
 	setModalData,
+	tabsState, setTabsState,
+	searchPayouts, setSearchPayouts,
 }) => {
-
-	const [searchPayouts, setSearchPayouts] = useState([]);
-	const [tabsState, setTabsState] = useState('students');
 
 	const count_on_page = 7;
 	const [set_accepted_temp, set_set_accepted_temp] = useState(0);
@@ -268,18 +267,31 @@ const App = ({ id, fetchedUser,
 		}
 	}
 
-	function on_payouts_click (e, post) {
+	function on_payouts_click(e, post) {
+
 		if (e.target.getAttribute('class') == "Cell__aside" ||
 			e.target.parentNode.getAttribute('class') == "Cell__aside" ||
 			e.target.parentNode.parentNode.getAttribute('class') == "Cell__aside" ||
 			e.target.parentNode.parentNode.parentNode.getAttribute('class') == "Cell__aside") {
 
 			set_accepted(post.id)
+		} else if (e.target.getAttribute('class') &&
+			e.target.getAttribute('class').toLowerCase().indexOf("button") > -1 ) {
+
+			var obj = e.target
+			for (var i = 0; i < 3; i++){
+				if (obj.name && obj.name == "login")
+					break;
+				else
+					obj = obj.parentNode;
+			}
+			setLogin(post.students_login);
+			go("User");
 		} else {
 			post.new = false;
 			setModalData(post);
 			setModal('payout');
-		}			
+		}
 	}
 
 	const Home =
@@ -354,8 +366,12 @@ const App = ({ id, fetchedUser,
 							<HorizontalScroll>
 								<div style={{ display: 'flex' }}>
 									<Button size="m" mode="outline">{post.id}</Button>
-									<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{post.students_login}</Button>
-									<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{post.surname_and_initials}</Button>
+									<Button size="m" mode="outline" 
+										style={{ marginLeft: 8 }} id={post.students_login} name="login"
+									>{post.students_login}</Button>
+									<Button size="m" mode="outline" 
+										style={{ marginLeft: 8 }} id={post.students_login} name="login"
+									>{post.surname_and_initials}</Button>
 								</div>
 							</HorizontalScroll>
 						}>{post.payouts_type}</Cell>
