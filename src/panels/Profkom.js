@@ -268,10 +268,18 @@ const App = ({ id, fetchedUser,
 		}
 	}
 
-	function on_payouts_click (post) {			
-		post.new = false;
-		setModalData(post);
-		setModal('payout');
+	function on_payouts_click (e, post) {
+		if (e.target.getAttribute('class') == "Cell__aside" ||
+			e.target.parentNode.getAttribute('class') == "Cell__aside" ||
+			e.target.parentNode.parentNode.getAttribute('class') == "Cell__aside" ||
+			e.target.parentNode.parentNode.parentNode.getAttribute('class') == "Cell__aside") {
+
+			set_accepted(post.id)
+		} else {
+			post.new = false;
+			setModalData(post);
+			setModal('payout');
+		}			
 	}
 
 	const Home =
@@ -315,7 +323,7 @@ const App = ({ id, fetchedUser,
 			/>
 			{tabsState == "students" && students.slice(0, count_on_page).map((post) =>
 				(<Group key={post.i}>
-					<Cell multiline size="l" onClick={(e) => {
+					<Cell size="l" onClick={(e) => {
 						on_students_click(e, post);
 					}}
 						asideContent={
@@ -333,15 +341,15 @@ const App = ({ id, fetchedUser,
 			{/* {tabsState == "payouts" && get_payouts().map((post) => */}
 			{tabsState == "payouts" && searchPayouts.map((post) =>
 				(<Group key={post.i}>
-					<Cell multiline size="l" onClick={(e) => {
-						on_payouts_click(post);
+					<Cell size="l" onClick={(e) => {
+						on_payouts_click(e, post);
 					}}
 						before={get_before_payouts(post.delete, post.status)}
 						asideContent={(post.status == "filed" && post.delete == false) &&
-							<div style={{ display: 'flex' }}>
-								<Icon28DoneOutline style={blueIcon} onClick={() => set_accepted(post.id)} />
-								<Icon28CancelCircleOutline style={{ marginLeft: 8, color: 'red' }} />
-							</div>}
+							// <div style={{ display: 'flex' }}>
+								<Icon28DoneOutline style={blueIcon}/>}
+								// <Icon28CancelCircleOutline style={{ marginLeft: 8, color: 'red' }} />
+							// </div>}
 						bottomContent={
 							<HorizontalScroll>
 								<div style={{ display: 'flex' }}>

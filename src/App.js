@@ -61,7 +61,7 @@ var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
 
 const App = () => {
 	const [activePanel, setActivePanel] = useState('spinner');
-	const [history, setHistory] = useState(['spinner'])
+	const [history, setHistory] = useState([])
 	const [fetchedUser, setUser] = useState(null);
 
 	const [modal, setModal] = useState();
@@ -122,6 +122,7 @@ const App = () => {
 		}else{
 			get_form();
 		}
+		console.log("qwe")
 
 		window.addEventListener('popstate', () => goBack());
 		get_all_categories();
@@ -170,6 +171,7 @@ const App = () => {
 				get_form();
 			}
 			window.history.pushState({ panel: name }, name); // Создаём новую запись в истории браузера
+			console.error(window.history)
 			setActivePanel(name); // Меняем активную панель
 			history.push(name); // Добавляем панель в историю
 		}
@@ -278,7 +280,7 @@ const App = () => {
 		}
 		if (login != null)
 			data.students_login = login
-
+		console.log(data)
 		fetch(url, {
 			method: 'POST',
 			body: JSON.stringify(data),
@@ -288,6 +290,7 @@ const App = () => {
 		})
 			.then(response => response.json())
 			.then((data) => {
+				console.log("end req")
 				setPopout(null);
 				if (data != "Error") {
 					for (var i in data){
@@ -299,11 +302,13 @@ const App = () => {
 					if (login == null) {
 						setProforg(data.proforg);
 						if (data.proforg == true){
-							setActivePanel("Profkom");
-							setHistory(["Profkom"])
+							go("Profkom");
+							// setActivePanel("Profkom");
+							// setHistory(["Profkom"])
 						}else{
-							setActivePanel("Home");
-							setHistory(["Home"])
+							go("Home");
+							// setActivePanel("Home");
+							// setHistory(["Home"])
 						}
 					}
 				} else {
@@ -318,6 +323,7 @@ const App = () => {
 				}
 			},
 				(error) => {
+					console.log("end req")
 					setPopout(null);
 					setSnackbar(<Snackbar
 						layout="vertical"
@@ -473,16 +479,17 @@ const App = () => {
 							</HorizontalScroll>
 						}>{modalData.students_name}</Cell>
 				</Group>
-				<Group header={!modalData.new && <Header>{modalData.payouts_type}</Header>}>
+				<Group>
 					{!modalData.new && <Cell>
 						<InfoRow header="Дата">
 							{modalData.date}
 						</InfoRow>
 					</Cell>}
 					<FormLayout>
-						{modalData.new && <Select
+						<Select
 							top="Тип заявление"
 							placeholder="Выберите тип заявление"
+							defaultValue={modalData.payouts_type}
 							onChange={(e) => {
 								const { value } = e.currentTarget;
 								modalData.payouts_type = value;
@@ -493,7 +500,7 @@ const App = () => {
 									id={payouts_type.payout_type}
 								>{payouts_type.payout_type}</option>
 							))}
-						</Select>}
+						</Select>
 						<FormLayoutGroup top="Статус">
 							<Radio
 								name="status" value="filed"

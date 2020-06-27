@@ -288,7 +288,8 @@ const App = ({
 	const Home =
 		<Panel id={id}>
 			<PanelHeader 
-				left={proforg == true && <PanelHeaderBack onClick={goBack} />}
+				// left={proforg == true && <PanelHeaderBack onClick={goBack} />}
+				left={proforg == true && <PanelHeaderBack onClick={() => window.history.back()} />}
 			>Форма</PanelHeader>
 			{showForm
 				? <Group>

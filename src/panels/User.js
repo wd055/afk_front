@@ -91,7 +91,23 @@ const App = ({ id, fetchedUser, go, goBack,
 	const [set_accepted_temp, set_set_accepted_temp] = useState(0);
 
 
+	const parseQueryString = (string) => {
+		return string.slice(1).split('&')
+			.map((queryParam) => {
+				let kvp = queryParam.split('=');
+				return { key: kvp[0], value: kvp[1] }
+			})
+			.reduce((query, kvp) => {
+				query[kvp.key] = kvp.value;
+				return query
+			}, {})
+	};
+
 	useEffect(() => {
+		
+		const queryParams = parseQueryString(window.location.search);
+		const hashParams = parseQueryString(window.location.hash);	
+
 		bridge.subscribe(({ detail: { type, data } }) => {
 			if (type === 'VKWebAppCopyTextResult') {
 				setSnackbar(<Snackbar
@@ -235,7 +251,7 @@ const App = ({ id, fetchedUser, go, goBack,
 
 	function on_payouts_click (post) {			
 		post.new = false;
-		console.log(student.users_payouts)
+		
 		post.students_group = student.group;
 		post.students_login = login;
 		post.students_name = student.name;
@@ -247,6 +263,7 @@ const App = ({ id, fetchedUser, go, goBack,
 	const Home =
 		<Panel id={id} style={{ 'max-width': 600, margin: 'auto' }}>
 			<PanelHeader  
+				// left={<PanelHeaderBack onClick={goBack} />}
 				left={<PanelHeaderBack onClick={goBack} />}
 			>Профком МГТУ</PanelHeader>
 			<Group>
@@ -280,7 +297,35 @@ const App = ({ id, fetchedUser, go, goBack,
 						<InfoRow>
 							{student.domain}
 						</InfoRow>
-					</SimpleCell>}
+					</SimpleCell>}*/}
+
+
+				{(student.domain && student.domain.length > 0) &&
+					<Link href={"https://vk.com/" + student.domain} target="_blank">
+						<CellButton
+							before={<Icon28LogoVkOutline />}
+						// onClick={() => copy_in_bufer(student.domain)}
+						>{student.domain}</CellButton>
+					</Link>}
+
+				{/* {(student.phone != null && student.phone.length > 0) &&
+					// <Link href={"tel:" + student.phone} target="_blank">
+					<CellButton
+						before={<Icon28PhoneOutline />}
+						onClick={() => copy_in_bufer(student.phone)}
+					>{student.phone}</CellButton>
+					// </Link>
+				}
+
+				{(student.email != null && student.email.length > 0) &&
+					// <Link href={"mailto:" + student.email} target="_blank">
+					<CellButton
+						before={<Icon28MailOutline />}
+						onClick={() => copy_in_bufer(student.email)}
+					>{student.email}</CellButton>
+					// </Link>
+				} */}
+				
 				{student.phone != null &&
 					<SimpleCell
 						before={<Icon28PhoneOutline />}
@@ -299,33 +344,7 @@ const App = ({ id, fetchedUser, go, goBack,
 						<InfoRow>
 							{student.email}
 						</InfoRow>
-					</SimpleCell>} */}
-
-
-				{(student.domain && student.domain.length > 0) &&
-					<Link href={"https://vk.com/" + student.domain} target="_blank">
-						<CellButton
-							before={<Icon28LogoVkOutline />}
-							// onClick={() => copy_in_bufer(student.domain)}
-						>{student.domain}</CellButton>
-					</Link>}
-
-				{(student.phone != null && student.phone.length > 0) &&
-					<Link href={"tel:" + student.phone} target="_blank">
-						<CellButton
-							before={<Icon28PhoneOutline />}
-							// onClick={() => copy_in_bufer(student.phone)}
-						>{student.phone}</CellButton>
-					</Link>}
-
-				{(student.email != null && student.email.length > 0) &&
-					<Link href={"mailto:" + student.email} target="_blank">
-						<CellButton
-							before={<Icon28MailOutline />}
-							// onClick={() => copy_in_bufer(student.email)}
-						>{student.email}</CellButton>
-					</Link>}
-
+					</SimpleCell>} 
 			</Group>
 
 
@@ -338,7 +357,7 @@ const App = ({ id, fetchedUser, go, goBack,
 			<Group header={<Header mode="secondary">Актуальные заявления</Header>}>
 				{student.users_payouts.map((post) =>
 					(<Group key={post.i} separator={"show"}>
-						<Cell multiline size="l" onClick={(e) => {
+						<Cell size="l" onClick={(e) => {
 							on_payouts_click(post);
 						}}
 							before={get_before_payouts(post.delete, post.status)}
