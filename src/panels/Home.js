@@ -1,3 +1,4 @@
+import { parsePhoneNumberFromString } from 'libphonenumber-js'
 import React, { useState, useEffect } from 'react';
 import PropTypes, { func } from 'prop-types';
 import Panel from '@vkontakte/vkui/dist/components/Panel/Panel';
@@ -39,6 +40,9 @@ import { redIcon, blueIcon, orangeBackground, blueBackground, redBackground } fr
 
 const check_valid = false;
 const show_valid = true;
+
+const contacts_bottom = "Почта и телефон не являются обязательными, но при наличии ошибок в документах и необходимости связаться с Вами мы сможем это сделать проще и быстрее, что упростит получение Вами вышей выплаты";
+
 var origin = "https://thingworx.asuscomm.com:10888/";
 var main_url = "https://profkom-bot-bmstu.herokuapp.com/";
 // var main_url = "http://thingworx.asuscomm.com/";
@@ -48,7 +52,8 @@ const App = ({
 	id, fetchedUser, categories,
 	setPopout, login,
 	snackbar, setSnackbar,
-	students, go, goBack,
+	student, setStudent,
+	go, goBack,
 	setActivePanel, setHistory,
 	proforg,
 	usersInfo, setUsersInfo
@@ -188,8 +193,14 @@ const App = ({
 	}
 
 	function validatePhone(phone) {
-		const re = /^(\s*)?(\+)?([- _():=+]?\d[- _():=+]?){10,14}(\s*)?$/;
-		return re.test(String(phone).toLowerCase());
+		// const re = /^(\s*)?(\+)?([- _():=+]?\d[- _():=+]?){10,14}(\s*)?$/;
+		// return re.test(String(phone).toLowerCase());
+		const phoneNumber = parsePhoneNumberFromString(phone, 'RU')
+		if (phoneNumber) {
+			return phoneNumber.isValid();
+		}
+		return false;
+
 	}
 
 	function onFormClick(e) {
@@ -207,14 +218,22 @@ const App = ({
 		var data = {
 			// token: params['token'],
 			querys: window.location.search,
-			email: document.getElementById("email").value,
-			phone: document.getElementById("phone").value,
+			email: email,
+			phone: phone,
 			payments_edu: document.getElementById("payments_edu").value,
 			categories: []
 		}
+		
+		const phoneNumber = parsePhoneNumberFromString(phone, 'RU')
+		if (phoneNumber) {
+			data.phone = phoneNumber.number;
+		}
 
-		if (login != null)
+		if (login != null){
 			data.students_login = login;
+			student.phone = phone;
+			student.email = email;
+		}
 
 		for (var i = 0; i < categorys.length; i++) {
 			if (categorys[i].checked) {
@@ -307,11 +326,7 @@ const App = ({
 					<FormLayout>
 						<FormLayoutGroup 
 							top="Контактные данные"
-							bottom="
-							Почта и телефон не являются обязательными, 
-							но при наличии оишбок в документах и необходимости связаться с 
-							Вами мы сможем это сделать проще и быстрее, 
-							что упростит получение Вами вышей выплаты"
+							bottom={login == null && contacts_bottom}
 						>
 							<Input
 								type="text"
@@ -325,11 +340,11 @@ const App = ({
 									setEmail(value.slice(0, 100));
 								}}
 								value={email}
-								status={(show_valid && login==null) && (validateEmail(email) ? 'valid' : 'error')}
-								bottom={(show_valid && login==null) && (validateEmail(email) ? 
+								status={(show_valid && login == null) && (validateEmail(email) ? 'valid' : 'error')}
+								bottom={(show_valid && login == null) && (validateEmail(email) ?
 									'' : 'Пожалуйста, корректно введите Вашу электронную почту')}
-									required = {check_valid}
-									/>
+								required={check_valid}
+							/>
 							<Input
 								id="phone"
 								type="phone"

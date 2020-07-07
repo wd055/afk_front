@@ -1,3 +1,4 @@
+import { parsePhoneNumberFromString } from 'libphonenumber-js'
 import React, { useState, useEffect } from 'react';
 import PropTypes, { func } from 'prop-types';
 import Panel from '@vkontakte/vkui/dist/components/Panel/Panel';
@@ -55,7 +56,7 @@ import Icon24Copy from '@vkontakte/icons/dist/24/copy';
 
 import bridge from '@vkontakte/vk-bridge';
 
-import {redIcon, blueIcon, orangeBackground, blueBackground, redBackground} from './style';
+import { redIcon, blueIcon, orangeBackground, blueBackground, redBackground } from './style';
 
 var origin = "https://thingworx.asuscomm.com:10888"
 var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
@@ -70,6 +71,8 @@ const App = ({ id, fetchedUser, go, goBack,
 }) => {
 
 	const [set_accepted_temp, set_set_accepted_temp] = useState(0);
+	const [tabsState, setTabsState] = useState("actual");
+	const [payoutsShow, setPayoutsShow] = useState("users_payouts");
 
 
 	useEffect(() => {
@@ -120,6 +123,15 @@ const App = ({ id, fetchedUser, go, goBack,
 				if (data != "Error") {
 					console.log("users get_users_info", data)
 					data.login = login;
+
+					if (data.phone) {
+						const phoneNumber = parsePhoneNumberFromString(data.phone, 'RU')
+						if (phoneNumber) {
+							console.log(phoneNumber.formatNational());
+							data.phone = phoneNumber.formatNational();
+						}
+					}
+
 					setStudent(data)
 					return (data)
 				}
@@ -167,7 +179,16 @@ const App = ({ id, fetchedUser, go, goBack,
 					.then(response => response.json())
 					.then((data) => {
 						if (data != "Error") {
-							console.log("edit_payout", data)							
+							
+							var temp_all_arr = student.users_all_payouts;
+							for (var i in temp_all_arr) {
+								if (temp_all_arr[i].id == id) {
+									console.log(temp_all_arr[i])
+									temp_all_arr[i].status = "accepted";
+								}
+							}
+
+							console.log("edit_payout", data)
 							setSnackbar(<Snackbar
 								layout="vertical"
 								onClose={() => setSnackbar(null)}
@@ -238,13 +259,13 @@ const App = ({ id, fetchedUser, go, goBack,
 
 	const Home =
 		<Panel id={id} style={{ 'max-width': 600, margin: 'auto' }}>
-			<PanelHeader  
+			<PanelHeader
 				// left={<PanelHeaderBack onClick={goBack} />}
 				left={<PanelHeaderBack onClick={goBack} />}
 			>Профком МГТУ</PanelHeader>
 			<Group>
 				<Cell size="l" onClick={() => get_users_info()}
-				 	before={(student.photo_100 && student.photo_100.length > 0) && <Avatar size={40} src={student.photo_100} /> }
+					before={(student.photo_100 && student.photo_100.length > 0) && <Avatar size={40} src={student.photo_100} />}
 					bottomContent={
 						<HorizontalScroll>
 							<div style={{ display: 'flex' }}>
@@ -255,14 +276,14 @@ const App = ({ id, fetchedUser, go, goBack,
 					}>{student.name}</Cell>
 			</Group>
 
-			<Header 
-				mode="secondary" 
+			<Header
+				mode="secondary"
 				aside={<Icon16Chevron />}
 				onClick={() => go("Home")}
 			>
 				Подробнее
 			</Header>
-			
+
 			<Group separator={"hide"}>
 
 				{/* {(student.domain && student.domain.length > 0) &&
@@ -301,7 +322,7 @@ const App = ({ id, fetchedUser, go, goBack,
 					>{student.email}</CellButton>
 					// </Link>
 				} */}
-				
+
 				{(student.phone != null && student.phone.length > 0) &&
 					<SimpleCell
 						before={<Icon28PhoneOutline />}
@@ -320,42 +341,56 @@ const App = ({ id, fetchedUser, go, goBack,
 						<InfoRow>
 							{student.email}
 						</InfoRow>
-					</SimpleCell>} 
+					</SimpleCell>}
 			</Group>
 
 
 			<Group separator={"hide"}>
 				<Div>
-					<Button 
+					<Button
 						stretched
 						size="xl"
 						onClick={() => {
 							var data = {
-								new : true,
-								students_group : student.group,
-								students_login : login,
-								students_name : student.name,
-								error : "",
+								new: true,
+								students_group: student.group,
+								students_login: login,
+								students_name: student.name,
+								error: "",
 							}
 							setModalData(data);
 							go('payout', true);
-						}}	
+						}}
 					>Добавить заявление</Button>
 				</Div>
 			</Group>
 
-			<Group header={<Header mode="secondary">Актуальные заявления</Header>}>
-				{student.users_payouts.map((post) =>
+			<Group>
+				<Tabs mode="buttons">
+					<TabsItem
+						onClick={() => {
+							setTabsState('actual');
+							setPayoutsShow("users_payouts");
+						}}
+						selected={tabsState === 'actual'}
+					>Актуальные заявления</TabsItem>
+					<TabsItem
+						onClick={() => {
+							setTabsState('all');
+							setPayoutsShow("users_all_payouts");
+						}}
+						selected={tabsState === 'all'}
+					>Неактуальные заявления</TabsItem>
+				</Tabs>
+
+				{student[payoutsShow].map((post) => post.delete == false &&
 					(<Group key={post.i} separator={"show"}>
 						<Cell size="l" onClick={(e) => {
 							on_payouts_click(e, post);
 						}}
 							before={get_before_payouts(post.delete, post.status)}
 							asideContent={post.status == "filed" &&
-								<div style={{ display: 'flex' }}>
-									<Icon28DoneOutline style={blueIcon} />
-									<Icon28CancelCircleOutline style={{ marginLeft: 8, color: 'red' }} />
-								</div>}
+								<Icon28DoneOutline style={blueIcon} />}
 							// bottomContent={<Button size="m" mode="outline">{post.id}</Button>}
 							description={post.id}
 						>{post.payouts_type}</Cell>

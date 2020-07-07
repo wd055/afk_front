@@ -1,3 +1,4 @@
+import { parsePhoneNumberFromString } from 'libphonenumber-js'
 import React, { useState, useEffect } from 'react';
 import bridge from '@vkontakte/vk-bridge';
 import View from '@vkontakte/vkui/dist/components/View/View';
@@ -28,6 +29,7 @@ import Alert from '@vkontakte/vkui/dist/components/Alert/Alert';
 import Header from '@vkontakte/vkui/dist/components/Header/Header';
 
 import Icon28DeleteOutline from '@vkontakte/icons/dist/28/delete_outline';
+import Icon28Send from '@vkontakte/icons/dist/28/send';
 
 import Snackbar from '@vkontakte/vkui/dist/components/Snackbar/Snackbar';
 import Avatar from '@vkontakte/vkui/dist/components/Avatar/Avatar';
@@ -48,6 +50,8 @@ import {
 import Home from './panels/Home';
 import Profkom from './panels/Profkom';
 import User from './panels/User';
+import Settings from './panels/Settings';
+import Mailing_Users from './panels/Mailing_Users';
 
 import { redIcon, blueIcon, orangeBackground, blueBackground, redBackground } from './panels/style';
 import { func } from 'prop-types';
@@ -78,8 +82,8 @@ const App = () => {
         students_name: "Власов Денис Владимирович",
 		new:false,
 	});
-	
-	const [student, setStudent] = useState({
+
+	const student_default_value = {
 		birthday: "2001-01-01",
 		categories: [],
 		domain: null,
@@ -91,7 +95,8 @@ const App = () => {
 		photo_100: "",
 		users_payouts: [],
 		proforg: false
-	});
+	}
+	const [student, setStudent] = useState(student_default_value);
 
 	const [popout, setPopout] = useState(<ScreenSpinner size='large' />);
 
@@ -107,12 +112,17 @@ const App = () => {
 	const [tabsState, setTabsState] = useState('students');
 	const [searchPayouts, setSearchPayouts] = useState([]);
 
+	const [list_of_users, set_list_of_users] = useState([]);
+
+
 	const PERIODICITY = {
         calendar_year: 'Раз в календарный год',
         academic_year: 'Раз в учебный год',
         semester: 'Раз в семестр',
 	}
-	
+	const modals_const = [
+		'payout'
+	]
 	const parseQueryString = (string) => {
 		return string.slice(1).split('&')
 			.map((queryParam) => {
@@ -171,37 +181,39 @@ const App = () => {
 	}, []);
 
 	function goBack() {
-		console.log('history goBack 1', history)
-		if (history.length === 1) {  // Если в массиве одно значение:
-			bridge.send("VKWebAppClose", { "status": "success" }); // Отправляем bridge на закрытие сервиса.
-		} else if (history.length > 1) { // Если в массиве больше одного значения:
-			if (history[history.length - 1] == "modal"){
-				setModal(null) // Изменяем массив с иторией и меняем активную панель.
+		// console.log('history goBack 1', history)
+		if (history.length === 1) {
+			bridge.send("VKWebAppClose", { "status": "success" });
+		} else if (history.length > 1) {
+			if (modals_const.indexOf(history[history.length - 1]) > -1){
+				setSearchPayouts([]);
+				setModal(null);
+			}else if (modals_const.indexOf(history[history.length - 2]) == -1){
+				setActivePanel(history[history.length - 2]);
 			}else{
-				setActivePanel(history[history.length - 2]) // Изменяем массив с иторией и меняем активную панель.
+				setModal(history[history.length - 2]);
 			}
-			history.pop() // удаляем последний элемент в массиве.
+			history.pop();
 		}
-		console.log('history goBack 2', history)
+		// console.log('history goBack 2', history)
 	}
 
 	function go(name, itsModal) {
-		console.log('history go 1', history, itsModal)
+		// console.log('history go 1', history, itsModal)
 		if (history[history.length - 1] != name) {
 			if (name == "Home"){
 				get_form();
 			}
 			if (itsModal){
 				setModal(name);
-				history.push("modal"); // Добавляем панель в историю
-				window.history.pushState({ modal: name }, name); // Создаём новую запись в истории браузера
 			}else{
-				setActivePanel(name); // Меняем активную панель
-				history.push(name); // Добавляем панель в историю
-				window.history.pushState({ panel: name }, name); // Создаём новую запись в истории браузера
+				setStudent(student_default_value);
+				setActivePanel(name);
 			}
+			history.push(name);
+			window.history.pushState({ panel: name }, name);
 		}
-		console.log('history go 2', history)
+		// console.log('history go 2', history)
 	};
 
 	function get_all_users() {
@@ -324,17 +336,22 @@ const App = () => {
 							data[i] = ""
 					}
 					console.log('app get form:', data);
+					
+					if (data.phone) {
+						const phoneNumber = parsePhoneNumberFromString(data.phone, 'RU')
+						if (phoneNumber) {
+							console.log(phoneNumber.formatNational());
+							data.phone = phoneNumber.formatNational();
+						}
+					}
+
 					setUsersInfo(data);
 					if (login == null) {
 						setProforg(data.proforg);
 						if (data.proforg == true){
 							go("Profkom");
-							// setActivePanel("Profkom");
-							// setHistory(["Profkom"])
 						}else{
 							go("Home");
-							// setActivePanel("Home");
-							// setHistory(["Home"])
 						}
 					}
 				} else {
@@ -368,7 +385,7 @@ const App = () => {
 		if (modalData.new == true){
 			add_payout();
 		}else{
-			edit_payout()
+			edit_payout();
 		}
 	}
 
@@ -390,9 +407,11 @@ const App = () => {
 			.then(response => response.json())
 			.then((data) => {
 				if (data != "Error") {
-					if (student.users_payouts)
-						student.users_payouts.push(data)
-					setModal(null)
+					if (student.users_payouts){
+						student.users_payouts.push(data);
+					}
+					// setModal(null)
+					goBack();
 				}
 				else {
 					setSnackbar(<Snackbar
@@ -438,7 +457,7 @@ const App = () => {
 			.then(response => response.json())
 			.then((data) => {
 				if (data != "Error") {
-					setModal(null)
+					goBack();
 				}
 				else {
 					setSnackbar(<Snackbar
@@ -482,10 +501,12 @@ const App = () => {
 		}
 	}
 
+	const [countAttachments, setCountAttachments] = useState(1);
+
 	const modals = (
 		<ModalRoot
 			activeModal={modal}
-			onClose={() => setModal(null)}>
+			onClose={goBack}>
 			<ModalPage
 				id={'payout'}
 				header={
@@ -499,8 +520,11 @@ const App = () => {
 						bottomContent={
 							<HorizontalScroll>
 								<div style={{ display: 'flex' }}>
-									{!modalData.new && <Button size="m" mode="outline">{modalData.id}</Button>}
-									{!modalData.new && <Button size="m" mode="outline" style={{ marginLeft: 8 }}>{modalData.students_group}</Button>}
+									{!modalData.new &&<React.Fragment>
+										<Button size="m" mode="outline">{modalData.id}</Button>
+										<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{modalData.date}</Button>
+										<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{modalData.students_group}</Button>
+									</React.Fragment>}
 									{modalData.new && <Button size="m" mode="outline">{modalData.students_group}</Button>}
 									<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{modalData.students_login}</Button>
 								</div>
@@ -508,11 +532,11 @@ const App = () => {
 						}>{modalData.students_name}</Cell>
 				</Group>
 				<Group>
-					{!modalData.new && <Cell>
+					{/* {!modalData.new && <Cell>
 						<InfoRow header="Дата">
 							{modalData.date}
 						</InfoRow>
-					</Cell>}
+					</Cell>} */}
 					<FormLayout>
 						<Select
 							top="Тип заявление"
@@ -521,7 +545,9 @@ const App = () => {
 							onChange={(e) => {
 								const { value } = e.currentTarget;
 								modalData.payouts_type = value;
-							}}>
+							}}
+							required
+						>
 							{payouts_types.map((payouts_type, i) => (
 								<option
 									value={payouts_type.payout_type}
@@ -587,6 +613,50 @@ const App = () => {
 					</FormLayout>
 				</Group>
 			</ModalPage>
+			<ModalPage
+				id={'mass_mailing'}
+				header={
+					<ModalPageHeader
+					//   left={IS_PLATFORM_ANDROID && <PanelHeaderButton onClick={this.modalBack}><Icon24Cancel /></PanelHeaderButton>}
+					//   right={IS_PLATFORM_IOS && <PanelHeaderButton onClick={this.modalBack}><Icon24Dismiss /></PanelHeaderButton>}
+					>Рассылка</ModalPageHeader>}
+			>
+				<FormLayout>
+					<Textarea
+						top="Сообщение"
+						placeholder="Сообщение"
+						id="text"
+						// value={modalData.error} 
+						// onChange={(e) => {
+						// 	const { value } = e.currentTarget;
+						// 	modalData.error = value;
+						// }}
+					/>
+					<CellButton
+						mode="danger"
+						before={<Icon28Send />}
+						onClick={() => setPopout(<Alert
+							actionsLayout="vertical"
+							actions={[{
+								title: 'Разослать',
+								autoclose: true,
+								mode: 'destructive',
+								action: () => {
+									on_modals_dutton_click();
+								},
+							}, {
+								title: 'Отмена',
+								autoclose: true,
+								mode: 'cancel'
+							}]}
+							onClose={() => setPopout(null)}
+						>
+							<h2>Подтвердите действие</h2>
+							<p>Вы уверены, что хотите разослать это сообщение?</p>
+						</Alert>)}
+					>Разослать</CellButton>
+				</FormLayout>
+			</ModalPage>
 		</ModalRoot>
 	);
 
@@ -622,6 +692,15 @@ const App = () => {
 						Ошибка авторизации<br />Попробуйте позже или свяжитесь с администратором группы!
 								</Placeholder>
 				</Panel>
+				<Settings id='Settings' fetchedUser={fetchedUser} go={go} goBack={goBack}
+					setPopout={setPopout} setModal={setModal} setLogin={setLogin}
+					students={students} setStudents={setStudents}
+					snackbar={snackbar} setSnackbar={setSnackbar}
+					searchValue={searchValue} setSearchValue={setSearchValue} 
+					setModalData={setModalData}
+					tabsState={tabsState} setTabsState={setTabsState}
+					searchPayouts={searchPayouts} setSearchPayouts={setSearchPayouts}
+				/>
 				<Profkom id='Profkom' fetchedUser={fetchedUser} go={go}
 					setPopout={setPopout} setModal={setModal} setLogin={setLogin}
 					students={students} setStudents={setStudents}
@@ -630,6 +709,17 @@ const App = () => {
 					setModalData={setModalData}
 					tabsState={tabsState} setTabsState={setTabsState}
 					searchPayouts={searchPayouts} setSearchPayouts={setSearchPayouts}
+				/>
+				<Mailing_Users id='Mailing_Users' fetchedUser={fetchedUser} go={go}
+					setPopout={setPopout} setModal={setModal} setLogin={setLogin}
+					students={students} setStudents={setStudents}
+					snackbar={snackbar} setSnackbar={setSnackbar}
+					searchValue={searchValue} setSearchValue={setSearchValue} 
+					setModalData={setModalData}
+					tabsState={tabsState} setTabsState={setTabsState}
+					searchPayouts={searchPayouts} setSearchPayouts={setSearchPayouts}
+					list_of_users={list_of_users} set_list_of_users={set_list_of_users}
+
 				/>
 				<User id='User' fetchedUser={fetchedUser} go={go} goBack={goBack}
 					setPopout={setPopout} setModal={setModal} login={login}
@@ -641,6 +731,7 @@ const App = () => {
 					setPopout={setPopout} login={login}
 					snackbar={snackbar} setSnackbar={setSnackbar}
 					students={students} categories={categories}
+					setStudent={setStudent} student={student}					
 					setHistory={setHistory} setActivePanel={setActivePanel}
 					proforg={proforg}
 					usersInfo={usersInfo} setUsersInfo={setUsersInfo}/>
