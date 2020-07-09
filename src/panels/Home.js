@@ -384,7 +384,7 @@ const App = ({
 							{/* <Radio name="type">Паспорт</Radio>
 				<Radio name="type">Загран</Radio> */}
 							{categories.map((category, i) => (
-								<Checkbox name="category" id={i.toString()}>{category}</Checkbox>
+								<Checkbox name="category" key={i} id={i.toString()}>{category}</Checkbox>
 								// <Checkbox name="category" id={i.toString()} defaultChecked={getCategories.indexOf(categories) != -1}>{category}</Checkbox>
 							))}
 						</FormLayoutGroup>

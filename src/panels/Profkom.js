@@ -147,7 +147,6 @@ const App = ({ id, fetchedUser,
 			.then(response => response.json())
 			.then((data) => {
 				if (data != "Error") {
-					console.log(data)
 					setStudents(data)
 					return (data)
 				}
@@ -301,8 +300,8 @@ const App = ({ id, fetchedUser,
 	}
 
 	const Home =
-		<Panel id={id} style={{ 'max-width': 600, margin: 'auto' }}>
-			<PanelHeader 
+		<Panel id={id} style={{ 'maxWidth': 630, margin: 'auto' }}>
+			<PanelHeader
 				left={<PanelHeaderButton><Icon28SettingsOutline onClick={() => go("Settings")}/></PanelHeaderButton>}
 			>Профком МГТУ</PanelHeader>
 
@@ -332,7 +331,7 @@ const App = ({ id, fetchedUser,
 
 				<Search
 					value={searchValue}
-					placeholder={tabsState === 'payouts' ? "Поиск по номеру заявления" : "Поиск по фамилии или студ. билету"}
+					placeholder={tabsState === 'payouts' ? "Поиск по номеру заявления" : "Поиск по фамилии, группе или студ. билету"}
 					onChange={(e) => {
 						const { value } = e.currentTarget;
 						if (tabsState == "payouts")
@@ -347,8 +346,8 @@ const App = ({ id, fetchedUser,
 				/>
 			</FixedLayout>
 			<Div style={{  paddingTop: 80, paddingBottom: 60 }}>
-				{tabsState == "students" && students.slice(0, count_on_page).map((post) =>
-					(<Group key={post.i}>
+				{tabsState == "students" && students.slice(0, count_on_page).map((post, i) =>
+					(<Group key={i}>
 						<Cell size="l" onClick={(e) => {
 							on_students_click(e, post);
 						}}
@@ -365,8 +364,8 @@ const App = ({ id, fetchedUser,
 							}>{post.name}</Cell>
 					</Group>))}
 				{/* {tabsState == "payouts" && get_payouts().map((post) => */}
-				{tabsState == "payouts" && searchPayouts.slice(0, count_on_page).map((post) =>
-					(<Group key={post.i}>
+				{tabsState == "payouts" && searchPayouts.slice(0, count_on_page).map((post, i) =>
+					(<Group key={i}>
 						<Cell size="l" onClick={(e) => {
 							on_payouts_click(e, post);
 						}}

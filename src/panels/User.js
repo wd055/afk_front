@@ -258,7 +258,7 @@ const App = ({ id, fetchedUser, go, goBack,
 	}
 
 	const Home =
-		<Panel id={id} style={{ 'max-width': 600, margin: 'auto' }}>
+		<Panel id={id} style={{ 'maxWidth': 630, margin: 'auto' }}>
 			<PanelHeader
 				// left={<PanelHeaderBack onClick={goBack} />}
 				left={<PanelHeaderBack onClick={goBack} />}
@@ -383,8 +383,8 @@ const App = ({ id, fetchedUser, go, goBack,
 					>Неактуальные заявления</TabsItem>
 				</Tabs>
 
-				{student[payoutsShow].map((post) => post.delete == false &&
-					(<Group key={post.i} separator={"show"}>
+				{student[payoutsShow].map((post, i) => post.delete == false &&
+					(<Group key={i} separator={"show"}>
 						<Cell size="l" onClick={(e) => {
 							on_payouts_click(e, post);
 						}}
