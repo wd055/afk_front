@@ -1,5 +1,6 @@
 export const redIcon = {
-    color: 'red'
+    color: 'var(--field_error_border)'
+    // color: 'red'
 };
 export const blueIcon = {
     color: 'var(--accent)'

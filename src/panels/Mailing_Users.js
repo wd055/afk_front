@@ -20,7 +20,7 @@ import Icon24Error from '@vkontakte/icons/dist/24/error';
 import Icon24BrowserBack from '@vkontakte/icons/dist/24/browser_back';
 import Icon24BrowserForward from '@vkontakte/icons/dist/24/browser_forward';
 
-import { redIcon, blueIcon, orangeBackground, blueBackground, redBackground } from './style';
+import { redBackground } from './style';
 
 var origin = "https://thingworx.asuscomm.com:10888"
 var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
@@ -36,11 +36,11 @@ const App = ({ id, 	go, goBack,
 
 	const count_on_page = 6;
 	const [list_left_end, set_list_left_end] = useState(0);
-	const [list_of_login, set_list_of_login] = useState([]);
+	const [list_of_login] = useState([]);
 	const [searchValue, setSearchValue] = useState("");
 
 	useEffect(() => {
-		if (students.length == 0 && searchValue.length == 0)
+		if (students.length === 0 && searchValue.length === 0)
 			search_users('', 0);
 		set_selected();
 	});
@@ -63,7 +63,7 @@ const App = ({ id, 	go, goBack,
 		})
 			.then(response => response.json())
 			.then((data) => {
-				if (data != "Error") {
+				if (data !== "Error") {
 					console.log(data)
 					setStudents(data)
 					return (data)
@@ -107,7 +107,7 @@ const App = ({ id, 	go, goBack,
 	function check_selected(){
 		var arr = document.getElementsByName('users');
 		for (var i = 0; i < arr.length; i++) {
-			if (arr[i].checked && list_of_login.indexOf(arr[i].id) == -1){
+			if (arr[i].checked && list_of_login.indexOf(arr[i].id) === -1){
 				list_of_login.push(arr[i].id);
 				list_of_users.push({
 					login:arr[i].dataset.login,
@@ -118,12 +118,9 @@ const App = ({ id, 	go, goBack,
 			}else if (!arr[i].checked && list_of_login.indexOf(arr[i].id) > -1){
 				var p = list_of_login.indexOf(arr[i].id);
 				list_of_login.splice(p, 1);
-				list_of_users.push(p, 1);
+				list_of_users.splice(p, 1);
 			}
 		}
-		console.log(arr[0].dataset.boo)
-		console.log(list_of_login)
-		console.log(list_of_users)
 	}
 
 	function set_selected() {
@@ -147,7 +144,7 @@ const App = ({ id, 	go, goBack,
 			<FixedLayout vertical="top">
 				<Search
 					value={searchValue}
-					placeholder={"Поиск по фамилии или студ. билету"}
+					placeholder={"Поиск по фамилии, группе или студ. билету"}
 					onChange={(e) => {
 						const { value } = e.currentTarget;
 						search_users(value, 0)

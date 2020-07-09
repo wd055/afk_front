@@ -24,11 +24,11 @@ var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
 const App = ({ id, go, goBack, 
 	snackbar,
 	mailingCategories, setMailingCategories,
-	textValue, setTextValue,
+	messageValue, setMessageValue,
 	payments_edu, setPayments_edu,
 }) => {
-
-	const [set_accepted_temp, set_set_accepted_temp] = useState(0);
+	
+	const [countAttachments, setCountAttachments] = useState(1);
 
 	useEffect(() => {
 	});
@@ -45,9 +45,9 @@ const App = ({ id, go, goBack,
 					id="text"
 					onChange={(e) => {
 						const { value } = e.currentTarget;
-						setTextValue(value);
+						setMessageValue(value);
 					}}
-					defaultValue={textValue}
+					defaultValue={messageValue}
 				/>
 
 				{/* <Separator /> */}
@@ -93,7 +93,7 @@ const App = ({ id, go, goBack,
 			<FixedLayout vertical="bottom" filled>
 				<Button 
 					size="xl" 
-					disabled={!textValue}
+					disabled={!messageValue}
 				>Отправить</Button>
 			</FixedLayout>
 			{snackbar}

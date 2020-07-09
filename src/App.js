@@ -8,16 +8,13 @@ import '@vkontakte/vkui/dist/vkui.css';
 import Panel from '@vkontakte/vkui/dist/components/Panel/Panel';
 import PanelHeader from '@vkontakte/vkui/dist/components/PanelHeader/PanelHeader';
 import Placeholder from '@vkontakte/vkui/dist/components/Placeholder/Placeholder';
-import PanelHeaderBack from '@vkontakte/vkui/dist/components/PanelHeaderBack/PanelHeaderBack';
 import Icon56CheckCircleOutline from '@vkontakte/icons/dist/56/check_circle_outline';
 import Icon56ErrorOutline from '@vkontakte/icons/dist/56/error_outline';
 
 import ModalRoot from '@vkontakte/vkui/dist/components/ModalRoot/ModalRoot';
 import ModalPage from '@vkontakte/vkui/dist/components/ModalPage/ModalPage';
 import ModalPageHeader from '@vkontakte/vkui/dist/components/ModalPageHeader/ModalPageHeader';
-import List from '@vkontakte/vkui/dist/components/List/List';
 import Cell from '@vkontakte/vkui/dist/components/Cell/Cell';
-import InfoRow from '@vkontakte/vkui/dist/components/InfoRow/InfoRow';
 import Radio from '@vkontakte/vkui/dist/components/Radio/Radio';
 import Select from '@vkontakte/vkui/dist/components/Select/Select';
 import Textarea from '@vkontakte/vkui/dist/components/Textarea/Textarea';
@@ -26,7 +23,6 @@ import Group from '@vkontakte/vkui/dist/components/Group/Group';
 import HorizontalScroll from '@vkontakte/vkui/dist/components/HorizontalScroll/HorizontalScroll';
 import CellButton from '@vkontakte/vkui/dist/components/CellButton/CellButton';
 import Alert from '@vkontakte/vkui/dist/components/Alert/Alert';
-import Header from '@vkontakte/vkui/dist/components/Header/Header';
 
 import Icon28DeleteOutline from '@vkontakte/icons/dist/28/delete_outline';
 import Icon28Send from '@vkontakte/icons/dist/28/send';
@@ -37,16 +33,6 @@ import ConfigProvider from '@vkontakte/vkui/dist/components/ConfigProvider/Confi
 
 import Icon24Error from '@vkontakte/icons/dist/24/error';
 
-
-import {
-	BrowserRouter as Router,
-	Switch,
-	Route,
-	Link,
-	useRouteMatch,
-	useParams
-} from "react-router-dom";
-
 import Home from './panels/Home';
 import Profkom from './panels/Profkom';
 import User from './panels/User';
@@ -56,8 +42,7 @@ import Individual_mailing from './panels/Individual_mailing';
 import Mailing_Users from './panels/Mailing_Users';
 import Set_cats_mass_mailing from './panels/Set_cats_mass_mailing';
 
-import { redIcon, blueIcon, orangeBackground, blueBackground, redBackground } from './panels/style';
-import { func } from 'prop-types';
+import { redIcon, blueIcon, redBackground } from './panels/style';
 import FormLayout from '@vkontakte/vkui/dist/components/FormLayout/FormLayout';
 import FormLayoutGroup from '@vkontakte/vkui/dist/components/FormLayoutGroup/FormLayoutGroup';
 
@@ -69,7 +54,6 @@ var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
 const App = () => {
 	const [activePanel, setActivePanel] = useState('spinner');
 	const [history, setHistory] = useState([])
-	const [fetchedUser, setUser] = useState(null);
 
 	const [modal, setModal] = useState();
 	const [modalData, setModalData] = useState({		
@@ -117,14 +101,9 @@ const App = () => {
 
 	const [list_of_users, set_list_of_users] = useState([]);
 	const [mailingCategories, setMailingCategories] = useState([]);
-	const [textValue, setTextValue] = useState();
+	const [messageValue, setMessageValue] = useState();
 	const [payments_edu, setPayments_edu] = useState();
 
-	const PERIODICITY = {
-        calendar_year: 'Раз в календарный год',
-        academic_year: 'Раз в учебный год',
-        semester: 'Раз в семестр',
-	}
 	const modals_const = [
 		'payout'
 	]
@@ -148,7 +127,7 @@ const App = () => {
 
 		console.log(queryParams)
 		// console.log(hashParams)
-		if (hashParams["activePanel"] && activePanel != hashParams["activePanel"]){
+		if (hashParams["activePanel"] && activePanel !== hashParams["activePanel"]){
 			setActivePanel(hashParams["activePanel"]);
 			setPopout(null);
 		}else{
@@ -174,12 +153,10 @@ const App = () => {
 				console.error("VKWebAppCloseFailed")
 			}
 			if (type === 'VKWebAppGetUserInfoResult') {
-				setUser(data.id)
 			}
 		});
 		async function fetchData() {
 			// const user = await bridge.send('VKWebAppGetUserInfo');
-			// setUser(user);
 			// setPopout(null);
 		}
 		fetchData();
@@ -193,7 +170,7 @@ const App = () => {
 			if (modals_const.indexOf(history[history.length - 1]) > -1){
 				setSearchPayouts([]);
 				setModal(null);
-			}else if (modals_const.indexOf(history[history.length - 2]) == -1){
+			}else if (modals_const.indexOf(history[history.length - 2]) === -1){
 				setActivePanel(history[history.length - 2]);
 			}else{
 				setModal(history[history.length - 2]);
@@ -205,8 +182,8 @@ const App = () => {
 
 	function go(name, itsModal) {
 		// console.log('history go 1', history, itsModal)
-		if (history[history.length - 1] != name) {
-			if (name == "Home"){
+		if (history[history.length - 1] !== name) {
+			if (name === "Home"){
 				get_form();
 			}
 			if (itsModal){
@@ -220,50 +197,6 @@ const App = () => {
 		}
 		// console.log('history go 2', history)
 	};
-
-	function get_all_users() {
-		var url = main_url + "profkom_bot/get_all_users/";
-		if (students.length == 0 && students != null) {
-			fetch(url, {
-				method: 'POST',
-				body: JSON.stringify({
-					querys: window.location.search,
-				}),
-				headers: {
-					'Origin': origin
-				}
-			})
-				.then(response => response.json())
-				.then((data) => {
-					if (data != "Error") {
-						console.log(data)
-						setStudents(data)
-						return (data)
-					}
-					else {
-						// setSnackbar(<Snackbar
-						// 	layout="vertical"
-						// 	onClose={() => setSnackbar(null)}
-						// 	before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
-						// >
-						// 	Ошибка подключения
-						// </Snackbar>);
-						return null
-					}
-				},
-					(error) => {
-						// setSnackbar(<Snackbar
-						// 	layout="vertical"
-						// 	onClose={() => setSnackbar(null)}
-						// 	before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
-						// >
-						// 	Ошибка подключения
-						// </Snackbar>);
-						console.error('get_all_users:', error)
-						return null
-					})
-		}
-	}
 
 	function get_all_categories() {
 
@@ -320,7 +253,7 @@ const App = () => {
 		var data = {
 			querys: window.location.search,
 		}
-		if (login != null)
+		if (login !== null)
 			data.students_login = login
 		console.log(data)
 		fetch(url, {
@@ -334,9 +267,9 @@ const App = () => {
 			.then((data) => {
 				console.log("end req")
 				setPopout(null);
-				if (data != "Error") {
+				if (data !== "Error") {
 					for (var i in data){
-						if(data[i] == null || data[i] == 'none')
+						if(data[i] === null || data[i] === 'none')
 							data[i] = ""
 					}
 					console.log('app get form:', data);
@@ -350,9 +283,9 @@ const App = () => {
 					}
 
 					setUsersInfo(data);
-					if (login == null) {
+					if (login === null) {
 						setProforg(data.proforg);
-						if (data.proforg == true){
+						if (data.proforg === true){
 							go("Profkom");
 						}else{
 							go("Home");
@@ -386,7 +319,7 @@ const App = () => {
 	function on_modals_dutton_click(){
 		check_radio_buttons();
 		console.log(modalData)
-		if (modalData.new == true){
+		if (modalData.new === true){
 			add_payout();
 		}else{
 			edit_payout();
@@ -410,7 +343,7 @@ const App = () => {
 		})
 			.then(response => response.json())
 			.then((data) => {
-				if (data != "Error") {
+				if (data !== "Error") {
 					if (student.users_payouts){
 						student.users_payouts.push(data);
 					}
@@ -460,7 +393,7 @@ const App = () => {
 		})
 			.then(response => response.json())
 			.then((data) => {
-				if (data != "Error") {
+				if (data !== "Error") {
 					goBack();
 				}
 				else {
@@ -496,16 +429,15 @@ const App = () => {
 				status_id = i;
 			}
 		}
-		if (status_id == 0){
+		if (status_id === 0){
 			modalData.status = "filed";
-		}else if (status_id == 1){
+		}else if (status_id === 1){
 			modalData.status = "accepted";
-		}else if (status_id == 2){
+		}else if (status_id === 2){
 			modalData.status = "err";
 		}
 	}
 
-	const [countAttachments, setCountAttachments] = useState(1);
 
 	const modals = (
 		<ModalRoot
@@ -565,18 +497,18 @@ const App = () => {
 								name="status" value="filed"
 								id="status_filed"
 								defaultChecked={
-									(modalData.status && modalData.status == "filed") ||
-									modalData.new == true}
+									(modalData.status && modalData.status === "filed") ||
+									modalData.new === true}
 							>Подано</Radio>
 							<Radio
 								name="status" value="accepted"
 								id="status_accepted"
-								defaultChecked={modalData.status && modalData.status == "accepted"}
+								defaultChecked={modalData.status && modalData.status === "accepted"}
 							>Принято</Radio>
 							<Radio
 								name="status" value="err"
 								id="status_err"
-								defaultChecked={modalData.status && modalData.status == "err"}
+								defaultChecked={modalData.status && modalData.status === "err"}
 							>Ошибка в документах</Radio>
 						</FormLayoutGroup>
 						<Textarea
@@ -710,7 +642,7 @@ const App = () => {
 					setPopout={setPopout} setModal={setModal}
 					snackbar={snackbar} setSnackbar={setSnackbar}
 					setModalData={setModalData}
-					textValue={textValue} setTextValue={setTextValue}
+					messageValue={messageValue} setMessageValue={setMessageValue}
 					list_of_users={list_of_users} set_list_of_users={set_list_of_users}
 					payments_edu={payments_edu} setPayments_edu={setPayments_edu}
 					mailingCategories={mailingCategories} setMailingCategories={setMailingCategories}
@@ -719,14 +651,14 @@ const App = () => {
 					snackbar={snackbar}
 					searchValue={searchValue} setSearchValue={setSearchValue} 
 					mailingCategories={mailingCategories} setMailingCategories={setMailingCategories} 
-					textValue={textValue} setTextValue={setTextValue}
+					messageValue={messageValue} setMessageValue={setMessageValue}
 					payments_edu={payments_edu} setPayments_edu={setPayments_edu}
 				/>
 				<Individual_mailing id='Individual_mailing' go={go} goBack={goBack}
 					setPopout={setPopout} setLogin={setLogin}
 					snackbar={snackbar} setSnackbar={setSnackbar}
 					list_of_users={list_of_users} set_list_of_users={set_list_of_users}
-					textValue={textValue} setTextValue={setTextValue}
+					messageValue={messageValue} setMessageValue={setMessageValue}
 				/>
 				<Mailing_Users id='Mailing_Users' go={go} goBack={goBack}
 					setLogin={setLogin}

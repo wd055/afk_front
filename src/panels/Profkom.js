@@ -29,9 +29,7 @@ import Icon28SettingsOutline from '@vkontakte/icons/dist/28/settings_outline';
 import Tabs from '@vkontakte/vkui/dist/components/Tabs/Tabs';
 import TabsItem from '@vkontakte/vkui/dist/components/TabsItem/TabsItem';
 
-import bridge from '@vkontakte/vk-bridge';
-
-import { redIcon, blueIcon, orangeBackground, blueBackground, redBackground } from './style';
+import { redIcon, blueIcon, blueBackground, redBackground } from './style';
 
 var origin = "https://thingworx.asuscomm.com:10888"
 var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
@@ -53,9 +51,9 @@ const App = ({ id, go, setPopout,
 	const [list_left_end, set_list_left_end] = useState(0);
 
 	useEffect(() => {
-		if (tabsState == "students" && students.length == 0 && searchValue.length == 0)
+		if (tabsState === "students" && students.length === 0 && searchValue.length === 0)
 			search_users('', 0);
-		else if (tabsState == "payouts" && searchPayouts.length == 0 && searchValue.length == 0)
+		else if (tabsState === "payouts" && searchPayouts.length === 0 && searchValue.length === 0)
 			search_payouts('', 0);
 		});
 
@@ -75,7 +73,7 @@ const App = ({ id, go, setPopout,
 		})
 			.then(response => response.json())
 			.then((data) => {
-				if (data != "Error") {
+				if (data !== "Error") {
 					setSearchPayouts(data)
 					console.log(data)
 					return (data)
@@ -122,7 +120,7 @@ const App = ({ id, go, setPopout,
 		})
 			.then(response => response.json())
 			.then((data) => {
-				if (data != "Error") {
+				if (data !== "Error") {
 					setStudents(data)
 					return (data)
 				}
@@ -154,7 +152,7 @@ const App = ({ id, go, setPopout,
 	function set_accepted(id) {
 		var temp_arr = searchPayouts;
 		for (var i in temp_arr) {
-			if (temp_arr[i].id == id) {
+			if (temp_arr[i].id === id) {
 				temp_arr[i].status = "accepted";
 
 				var url = main_url + "profkom_bot/edit_payout/";
@@ -169,7 +167,7 @@ const App = ({ id, go, setPopout,
 				})
 					.then(response => response.json())
 					.then((data) => {
-						if (data != "Error") {
+						if (data !== "Error") {
 							console.log("edit_payout", data)
 							setSnackbar(<Snackbar
 								layout="vertical"
@@ -212,27 +210,27 @@ const App = ({ id, go, setPopout,
 
 	function get_before_payouts(is_delete, status) {
 		var before = <Icon28DoneOutline />;
-		if (is_delete == true) before = <Icon28DeleteOutline style={redIcon} />
-		else if (status == "filed") before = <Icon28HistoryForwardOutline />
-		else if (status == "accepted") before = <Icon28DoneOutline />
-		else if (status == "err") before = <Icon28ErrorOutline style={redIcon} />
+		if (is_delete === true) before = <Icon28DeleteOutline style={redIcon} />
+		else if (status === "filed") before = <Icon28HistoryForwardOutline />
+		else if (status === "accepted") before = <Icon28DoneOutline />
+		else if (status === "err") before = <Icon28ErrorOutline style={redIcon} />
 		return before;
 	}
 
 	function button_list_click(value) {
 		set_list_left_end(list_left_end + value);
 
-		if (tabsState == "payouts")
+		if (tabsState === "payouts")
 			search_payouts(searchValue, list_left_end + value);
-		else if (tabsState == "students")
+		else if (tabsState === "students")
 			search_users(searchValue, list_left_end + value)
 	}
 
 	function on_students_click(e, post) {
-		if (e.target.getAttribute('class') == "Cell__aside" ||
-			e.target.parentNode.getAttribute('class') == "Cell__aside" ||
-			e.target.parentNode.parentNode.getAttribute('class') == "Cell__aside" ||
-			e.target.parentNode.parentNode.parentNode.getAttribute('class') == "Cell__aside") {
+		if (e.target.getAttribute('class') === "Cell__aside" ||
+			e.target.parentNode.getAttribute('class') === "Cell__aside" ||
+			e.target.parentNode.parentNode.getAttribute('class') === "Cell__aside" ||
+			e.target.parentNode.parentNode.parentNode.getAttribute('class') === "Cell__aside") {
 
 			post.new = true;
 			post.students_group = post.group;
@@ -250,10 +248,10 @@ const App = ({ id, go, setPopout,
 
 	function on_payouts_click(e, post) {
 
-		if (e.target.getAttribute('class') == "Cell__aside" ||
-			e.target.parentNode.getAttribute('class') == "Cell__aside" ||
-			e.target.parentNode.parentNode.getAttribute('class') == "Cell__aside" ||
-			e.target.parentNode.parentNode.parentNode.getAttribute('class') == "Cell__aside") {
+		if (e.target.getAttribute('class') === "Cell__aside" ||
+			e.target.parentNode.getAttribute('class') === "Cell__aside" ||
+			e.target.parentNode.parentNode.getAttribute('class') === "Cell__aside" ||
+			e.target.parentNode.parentNode.parentNode.getAttribute('class') === "Cell__aside") {
 
 			set_accepted(post.id)
 		} else if (e.target.getAttribute('class') &&
@@ -261,7 +259,7 @@ const App = ({ id, go, setPopout,
 
 			var obj = e.target
 			for (var i = 0; i < 3; i++) {
-				if (obj.name && obj.name == "login")
+				if (obj.name && obj.name === "login")
 					break;
 				else
 					obj = obj.parentNode;
@@ -310,9 +308,9 @@ const App = ({ id, go, setPopout,
 					placeholder={tabsState === 'payouts' ? "Поиск по номеру заявления" : "Поиск по фамилии, группе или студ. билету"}
 					onChange={(e) => {
 						const { value } = e.currentTarget;
-						if (tabsState == "payouts")
+						if (tabsState === "payouts")
 							search_payouts(value, 0);
-						else if (tabsState == "students")
+						else if (tabsState === "students")
 							search_users(value, 0)
 						setSearchValue(value);
 						set_list_left_end(0);
@@ -322,7 +320,7 @@ const App = ({ id, go, setPopout,
 				/>
 			</FixedLayout>
 			<Div style={{  paddingTop: 80, paddingBottom: 60 }}>
-				{tabsState == "students" && students.slice(0, count_on_page).map((post, i) =>
+				{tabsState === "students" && students.slice(0, count_on_page).map((post, i) =>
 					(<Group key={i}>
 						<Cell size="l" onClick={(e) => {
 							on_students_click(e, post);
@@ -339,14 +337,14 @@ const App = ({ id, go, setPopout,
 								</HorizontalScroll>
 							}>{post.name}</Cell>
 					</Group>))}
-				{/* {tabsState == "payouts" && get_payouts().map((post) => */}
-				{tabsState == "payouts" && searchPayouts.slice(0, count_on_page).map((post, i) =>
+				{/* {tabsState === "payouts" && get_payouts().map((post) => */}
+				{tabsState === "payouts" && searchPayouts.slice(0, count_on_page).map((post, i) =>
 					(<Group key={i}>
 						<Cell size="l" onClick={(e) => {
 							on_payouts_click(e, post);
 						}}
 							before={get_before_payouts(post.delete, post.status)}
-							asideContent={(post.status == "filed" && post.delete == false) &&
+							asideContent={(post.status === "filed" && post.delete === false) &&
 								// <div style={{ display: 'flex' }}>
 								<Icon28DoneOutline style={blueIcon} />}
 							// <Icon28CancelCircleOutline style={{ marginLeft: 8, color: 'red' }} />
@@ -377,8 +375,8 @@ const App = ({ id, go, setPopout,
 						>Назад</Button>
 						: <Button size="l" stretched mode="tertiary" style={{ marginRight: 8 }} ></Button>}
 
-					{(students.length > count_on_page && tabsState == "students") ||
-						(searchPayouts.length > count_on_page && tabsState == "payouts") ?
+					{(students.length > count_on_page && tabsState === "students") ||
+						(searchPayouts.length > count_on_page && tabsState === "payouts") ?
 						<Button size="l" after={<Icon24BrowserForward />}
 							stretched mode="secondary"
 							onClick={() => button_list_click(count_on_page)}

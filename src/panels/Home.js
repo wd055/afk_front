@@ -58,7 +58,7 @@ const App = ({
 	const [students_login, set_students_login] = useState("");
 
 	useEffect(() => {
-		if (usersInfo != null && students_login != usersInfo.login){
+		if (usersInfo !== null && students_login !== usersInfo.login){
 			console.log("!!!!!!!!!!!!", usersInfo)
 			setGroup(usersInfo.group);
 			set_students_login(usersInfo.login);
@@ -81,93 +81,18 @@ const App = ({
 		});
 	});
 
-	function get_users_info(){
-		// var url = main_url + "profkom_bot/get_form/";
-
-		// var data = {
-		// 	querys: window.location.search,
-		// }
-
-		// if (login != null) {
-
-		// 	data.students_login = login;
-
-		// 	fetch(url, {
-		// 		method: 'POST',
-		// 		body: JSON.stringify(data),
-		// 		headers: {
-		// 			'Origin': origin
-		// 		}
-		// 	})
-		// 		.then(response => response.json())
-		// 		.then((data) => {
-		// 			if (data != "Error") {
-		// 				// if (data.proforg == true && login == null && students.length == 0) {
-		// 				// 	go("Profkom");
-		// 				// }
-		// 				console.log('get info:', data);
-		// 				// if (login == null) setProforg(data.proforg);
-		// 				setGroup(data.group);
-		// 				set_students_login(data.login);
-		// 				setName(data.name);
-		// 				setEmail(data.email);
-		// 				setPhone(data.phone);
-		// 				setGetCategories(data.categories);
-		// 				setPayments_edu(data.payments_edu);
-		// 				setShowForm(true);
-		// 				setSubmitSuccess("Успешно!");
-		// 			} else {
-		// 				console.error('get info:', data);
-
-		// 				setSnackbar(<Snackbar
-		// 					layout="vertical"
-		// 					onClose={() => setSnackbar(null)}
-		// 					before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
-		// 				>
-		// 					Ошибка авторизации
-		// 				</Snackbar>);
-		// 				// setShowForm(false)
-		// 				// setSubmitSuccess(<div>Ошибка авторизации</div>)
-		// 			}
-		// 		},
-		// 			(error) => {
-		// 				if (name == "") {
-		// 					setSnackbar(<Snackbar
-		// 						layout="vertical"
-		// 						onClose={() => setSnackbar(null)}
-		// 						before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
-		// 					>
-		// 						Ошибка подключения
-		// 					</Snackbar>);
-		// 					// setShowForm(false)
-		// 					// setSubmitSuccess(<div>Ошибка подключения<br />Пожалуйста, попробуйте через несколько минут!</div>)
-		// 					console.error('get info:', error)
-		// 				}
-		// 			})
-		// } else if (usersInfo != null) {
-		// 	setGroup(usersInfo.group);
-		// 	set_students_login(usersInfo.login);
-		// 	setName(usersInfo.name);
-		// 	setEmail(usersInfo.email);
-		// 	setPhone(usersInfo.phone);
-		// 	setGetCategories(usersInfo.categories);
-		// 	setPayments_edu(usersInfo.payments_edu);
-		// 	setShowForm(true);
-		// 	setSubmitSuccess("Успешно!");
-		// }
-	}
 	const [clickEmail, setClickEmail] = useState(true);
 	const [clickPhone, setClickPhone] = useState(true);
 
 	const onEmailClick = e => {
-		if (clickEmail && login == null && email.length == 0) {
+		if (clickEmail && login === null && email.length === 0) {
 			setClickEmail(false);
 			bridge.send("VKWebAppGetEmail", {});
 		}
 	};
 
 	const onPhoneClick = e => {
-		if (clickPhone && login == null && phone.length == 0) {
+		if (clickPhone && login === null && phone.length === 0) {
 			setClickPhone(false);
 			bridge.send("VKWebAppGetPhoneNumber", {});
 		}
@@ -190,7 +115,7 @@ const App = ({
 	}
 
 	function onFormClick(e) {
-		if (( check_valid && (!email || !phone || !validatePhone(phone)  || !validateEmail(email)) || !payments_edu) && login == null) {
+		if (login === null && (( check_valid && (!email || !phone || !validatePhone(phone)  || !validateEmail(email) ) ) || !payments_edu)) {
 			setSnackbar(<Snackbar
 				layout="vertical"
 				onClose={() => setSnackbar(null)}
@@ -215,7 +140,7 @@ const App = ({
 			data.phone = phoneNumber.number;
 		}
 
-		if (login != null){
+		if (login !== null){
 			data.students_login = login;
 			student.phone = phone;
 			student.email = email;
@@ -246,7 +171,7 @@ const App = ({
 			.then((data) => {
 				setPopout(null);
 				// setShowForm(false);
-				if (data != 'Success') {
+				if (data !== 'Success') {
 					setSnackbar(<Snackbar
 						layout="vertical"
 						onClose={() => setSnackbar(null)}
@@ -266,7 +191,7 @@ const App = ({
 						Успешно!
 					  </Snackbar>);
 					setPopout(null);
-					if (proforg == true)
+					if (proforg === true)
 						window.history.back();
 				}
 				console.log("set form:", data)
@@ -287,7 +212,7 @@ const App = ({
 	function onLoadCategory() {
 		var categorys = document.getElementsByName("category");
 		for (var i = 0; i < categorys.length; i++) {
-			categorys[i].checked = getCategories.indexOf(categories[i]) != -1
+			categorys[i].checked = getCategories.indexOf(categories[i]) !== -1
 		}
 	}
 	// console.log('token', params['token'])
@@ -295,8 +220,8 @@ const App = ({
 	const Home =
 		<Panel id={id}>
 			<PanelHeader 
-				// left={proforg == true && <PanelHeaderBack onClick={goBack} />}
-				left={proforg == true && <PanelHeaderBack onClick={goBack} />}
+				// left={proforg === true && <PanelHeaderBack onClick={goBack} />}
+				left={proforg === true && <PanelHeaderBack onClick={goBack} />}
 			>Форма</PanelHeader>
 			{showForm
 				? <Group>
@@ -312,7 +237,7 @@ const App = ({
 					<FormLayout>
 						<FormLayoutGroup 
 							top="Контактные данные"
-							bottom={login == null && contacts_bottom}
+							bottom={login === null && contacts_bottom}
 						>
 							<Input
 								type="text"
@@ -326,8 +251,8 @@ const App = ({
 									setEmail(value.slice(0, 100));
 								}}
 								value={email}
-								status={(show_valid && login == null) && (validateEmail(email) ? 'valid' : 'error')}
-								bottom={(show_valid && login == null) && (validateEmail(email) ?
+								status={(show_valid && login === null) && (validateEmail(email) ? 'valid' : 'error')}
+								bottom={(show_valid && login === null) && (validateEmail(email) ?
 									'' : 'Пожалуйста, корректно введите Вашу электронную почту')}
 								required={check_valid}
 							/>
@@ -343,8 +268,8 @@ const App = ({
 									setPhone(value.slice(0, 50));
 								}}
 								value={phone}
-								status={(show_valid && login==null) && (validatePhone(phone) ? 'valid' : 'error')}
-								bottom={(show_valid && login==null) && (validatePhone(phone) ? '' : 'Пожалуйста, корректно введите Ваш номер телефона')}
+								status={(show_valid && login===null) && (validatePhone(phone) ? 'valid' : 'error')}
+								bottom={(show_valid && login===null) && (validatePhone(phone) ? '' : 'Пожалуйста, корректно введите Ваш номер телефона')}
 								required = {check_valid}
 							/>
 						</FormLayoutGroup>
@@ -358,9 +283,9 @@ const App = ({
 								setPayments_edu(value);
 							}}
 							value={String(payments_edu)}
-							status={login==null && (payments_edu ? 'valid' : 'error')}
-							bottom={login==null && (payments_edu ? '' : 'Пожалуйста, выберите форму обучения')}
-							required = {login==null}
+							status={login===null && (payments_edu ? 'valid' : 'error')}
+							bottom={login===null && (payments_edu ? '' : 'Пожалуйста, выберите форму обучения')}
+							required = {login===null}
 						>
 							<option value="free" id="select_free">Бюджетная</option>
 							<option value="paid" id="select_paid">Платная</option>
@@ -371,7 +296,7 @@ const App = ({
 				<Radio name="type">Загран</Radio> */}
 							{categories.map((category, i) => (
 								<Checkbox name="category" key={i} id={i.toString()}>{category}</Checkbox>
-								// <Checkbox name="category" id={i.toString()} defaultChecked={getCategories.indexOf(categories) != -1}>{category}</Checkbox>
+								// <Checkbox name="category" id={i.toString()} defaultChecked={getCategories.indexOf(categories) !== -1}>{category}</Checkbox>
 							))}
 						</FormLayoutGroup>
 						{/* <Checkbox>Согласен со всем <Link>этим</Link></Checkbox> */}
@@ -381,7 +306,7 @@ const App = ({
 					</FormLayout>
 				</Group>
 				: <Placeholder
-					icon={submitSuccess == 'Успешно!' ? <Icon56CheckCircleOutline style={blueIcon} /> : <Icon56ErrorOutline style={redIcon} />}
+					icon={submitSuccess === 'Успешно!' ? <Icon56CheckCircleOutline style={blueIcon} /> : <Icon56ErrorOutline style={redIcon} />}
 					// action={<Button size="l" mode="tertiary">Показать все сообщения</Button>}
 					stretched
 					id="Placeholder"

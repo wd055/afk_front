@@ -25,32 +25,34 @@ import Icon28CheckCircleOutline from '@vkontakte/icons/dist/28/check_circle_outl
 import { redIcon, blueIcon, orangeBackground, blueBackground, redBackground } from './style';
 
 var origin = "https://thingworx.asuscomm.com:10888"
-var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
-// var main_url = "http://thingworx.asuscomm.com/"
+// var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
+var main_url = "http://thingworx.asuscomm.com/"
 // var main_url = "http://localhost:8000/"
 
 const App = ({ id, go, goBack, 
 	setPopout, setLogin,
 	snackbar, setSnackbar,
 	list_of_users, set_list_of_users,
-	textValue, setTextValue,
+	messageValue, setMessageValue,
 }) => {
 
+	const [countAttachments, setCountAttachments] = useState(1);
 
 	useEffect(() => {
 	});
 
 	function send_individiual_mailing() {
-		var url = main_url + "profkom_bot/send_individiual_mailing/";
+		var url = main_url + "profkom_bot/individiual_mailing/";
 		
 		var data = {
 			querys: window.location.search,
-			text: textValue,
+			message: messageValue,
 			users: list_of_users,
+			attachment:"",
 		}
 		
 		console.log(data)
-		return;
+
 		fetch(url, {
 			method: 'POST',
 			body: JSON.stringify(data),
@@ -62,7 +64,7 @@ const App = ({ id, go, goBack,
 			.then((data) => {
 				console.log("end req")
 				setPopout(null);
-				if (data != "Error") {
+				if (data !== "Error") {
 					setSnackbar(<Snackbar
 						layout="vertical"
 						onClose={() => setSnackbar(null)}
@@ -107,12 +109,12 @@ const App = ({ id, go, goBack,
 			<FormLayout>
 				<Textarea
 					top="Текст сообщения"
-					id="text"
+					id="message"
 					onChange={(e) => {
 						const { value } = e.currentTarget;
-						setTextValue(value);
+						setMessageValue(value);
 					}}
-					defaultValue={textValue}
+					defaultValue={messageValue}
 				/>
 			</FormLayout>
 
@@ -168,7 +170,7 @@ const App = ({ id, go, goBack,
 			<FixedLayout vertical="bottom" filled>
 				<Button 
 					size="xl" 
-					disabled={list_of_users.length == 0 || !textValue}
+					disabled={list_of_users.length === 0 || !messageValue}
 					onClick={send_individiual_mailing}
 				>Отправить</Button>
 			</FixedLayout>

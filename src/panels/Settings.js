@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes, { func } from 'prop-types';
 
 import Panel from '@vkontakte/vkui/dist/components/Panel/Panel';
 import PanelHeader from '@vkontakte/vkui/dist/components/PanelHeader/PanelHeader';
@@ -23,8 +22,6 @@ const App = ({ id, go, goBack,
 	payments_edu, setPayments_edu,
 	mailingCategories, setMailingCategories,
 }) => {
-
-	const [set_accepted_temp, set_set_accepted_temp] = useState(0);
 
 	useEffect(() => {
 		if (textValue && textValue.length > 0)

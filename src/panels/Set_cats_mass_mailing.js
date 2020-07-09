@@ -11,11 +11,6 @@ import FormLayoutGroup from '@vkontakte/vkui/dist/components/FormLayoutGroup/For
 import Checkbox from '@vkontakte/vkui/dist/components/Checkbox/Checkbox';
 import Button from '@vkontakte/vkui/dist/components/Button/Button';
 
-var origin = "https://thingworx.asuscomm.com:10888/";
-var main_url = "https://profkom-bot-bmstu.herokuapp.com/";
-// var main_url = "http://thingworx.asuscomm.com/";
-// var main_url = "http://localhost:8000/";
-
 const App = ({id, go, goBack,
 	categories, snackbar,
 	setMailingCategories, mailingCategories,
@@ -43,12 +38,12 @@ const App = ({id, go, goBack,
 		var temp = getChecked();
 		var categorys = document.getElementsByName("category");
 
-		if (temp.length == categories.length) {
+		if (temp.length === categories.length) {
 			for (var i = 0; i < categorys.length; i++) {
 				categorys[i].checked = false;
 			}
 		}else{
-			for (var i = 0; i < categorys.length; i++) {
+			for (i = 0; i < categorys.length; i++) {
 				categorys[i].checked = true;
 			}
 		}
@@ -60,7 +55,7 @@ const App = ({id, go, goBack,
 
 		var categorys = document.getElementsByName("category");
 		for (var i = 0; i < categorys.length; i++) {
-			categorys[i].checked = mailingCategories.indexOf(categories[i]) != -1
+			categorys[i].checked = mailingCategories.indexOf(categories[i]) !== -1
 		}
 		if (mailingCategories.indexOf("Студентам без категорий") > -1){
 			document.getElementById("without").checked = true;

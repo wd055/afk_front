@@ -34,7 +34,7 @@ import Icon24Copy from '@vkontakte/icons/dist/24/copy';
 
 import bridge from '@vkontakte/vk-bridge';
 
-import { redIcon, blueIcon, orangeBackground, blueBackground, redBackground } from './style';
+import { redIcon, blueIcon, blueBackground, redBackground } from './style';
 
 var origin = "https://thingworx.asuscomm.com:10888"
 var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
@@ -75,7 +75,7 @@ const App = ({ id, go, goBack,
 			}
 		});
 
-		if (student.login != login)
+		if (student.login !== login)
 			get_users_info();
 		console.log(student, login)
 	});
@@ -98,7 +98,7 @@ const App = ({ id, go, goBack,
 		})
 			.then(response => response.json())
 			.then((data) => {
-				if (data != "Error") {
+				if (data !== "Error") {
 					console.log("users get_users_info", data)
 					data.login = login;
 
@@ -140,7 +140,7 @@ const App = ({ id, go, goBack,
 	function set_accepted(id) {
 		var temp_arr = student.users_payouts;
 		for (var i in temp_arr) {
-			if (temp_arr[i].id == id) {
+			if (temp_arr[i].id === id) {
 				temp_arr[i].status = "accepted";
 
 				var url = main_url + "profkom_bot/edit_payout/";
@@ -156,11 +156,11 @@ const App = ({ id, go, goBack,
 				})
 					.then(response => response.json())
 					.then((data) => {
-						if (data != "Error") {
+						if (data !== "Error") {
 							
 							var temp_all_arr = student.users_all_payouts;
 							for (var i in temp_all_arr) {
-								if (temp_all_arr[i].id == id) {
+								if (temp_all_arr[i].id === id) {
 									console.log(temp_all_arr[i])
 									temp_all_arr[i].status = "accepted";
 								}
@@ -207,19 +207,19 @@ const App = ({ id, go, goBack,
 
 	function get_before_payouts(is_delete, status) {
 		var before = <Icon28DoneOutline />;
-		if (is_delete == true) before = <Icon28DeleteOutline style={redIcon} />
-		else if (status == "filed") before = <Icon28HistoryForwardOutline />
-		else if (status == "accepted") before = <Icon28DoneOutline />
-		else if (status == "err") before = <Icon28ErrorOutline style={redIcon} />
+		if (is_delete === true) before = <Icon28DeleteOutline style={redIcon} />
+		else if (status === "filed") before = <Icon28HistoryForwardOutline />
+		else if (status === "accepted") before = <Icon28DoneOutline />
+		else if (status === "err") before = <Icon28ErrorOutline style={redIcon} />
 		return before;
 	}
 
 	function on_payouts_click(e, post) {
 
-		if (e.target.getAttribute('class') == "Cell__aside" ||
-			e.target.parentNode.getAttribute('class') == "Cell__aside" ||
-			e.target.parentNode.parentNode.getAttribute('class') == "Cell__aside" ||
-			e.target.parentNode.parentNode.parentNode.getAttribute('class') == "Cell__aside") {
+		if (e.target.getAttribute('class') === "Cell__aside" ||
+			e.target.parentNode.getAttribute('class') === "Cell__aside" ||
+			e.target.parentNode.parentNode.getAttribute('class') === "Cell__aside" ||
+			e.target.parentNode.parentNode.parentNode.getAttribute('class') === "Cell__aside") {
 
 			set_accepted(post.id)
 		}
@@ -283,7 +283,7 @@ const App = ({ id, go, goBack,
 						>{student.domain}</CellButton>
 					</Link>}
 
-				{/* {(student.phone != null && student.phone.length > 0) &&
+				{/* {(student.phone !== null && student.phone.length > 0) &&
 					// <Link href={"tel:" + student.phone} target="_blank">
 					<CellButton
 						before={<Icon28PhoneOutline />}
@@ -292,7 +292,7 @@ const App = ({ id, go, goBack,
 					// </Link>
 				}
 
-				{(student.email != null && student.email.length > 0) &&
+				{(student.email !== null && student.email.length > 0) &&
 					// <Link href={"mailto:" + student.email} target="_blank">
 					<CellButton
 						before={<Icon28MailOutline />}
@@ -301,7 +301,7 @@ const App = ({ id, go, goBack,
 					// </Link>
 				} */}
 
-				{(student.phone != null && student.phone.length > 0) &&
+				{(student.phone !== null && student.phone.length > 0) &&
 					<SimpleCell
 						before={<Icon28PhoneOutline />}
 						onClick={() => copy_in_bufer(student.phone)}
@@ -311,7 +311,7 @@ const App = ({ id, go, goBack,
 						</InfoRow>
 					</SimpleCell>}
 
-				{(student.email != null && student.email.length > 0) &&
+				{(student.email !== null && student.email.length > 0) &&
 					<SimpleCell
 						before={<Icon28MailOutline />}
 						onClick={() => copy_in_bufer(student.email)}
@@ -361,13 +361,13 @@ const App = ({ id, go, goBack,
 					>Неактуальные заявления</TabsItem>
 				</Tabs>
 
-				{student[payoutsShow].map((post, i) => post.delete == false &&
+				{student[payoutsShow].map((post, i) => post.delete === false &&
 					(<Group key={i} separator={"show"}>
 						<Cell size="l" onClick={(e) => {
 							on_payouts_click(e, post);
 						}}
 							before={get_before_payouts(post.delete, post.status)}
-							asideContent={post.status == "filed" &&
+							asideContent={post.status === "filed" &&
 								<Icon28DoneOutline style={blueIcon} />}
 							// bottomContent={<Button size="m" mode="outline">{post.id}</Button>}
 							description={post.id}
