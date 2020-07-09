@@ -30,6 +30,7 @@ import Gallery from '@vkontakte/vkui/dist/components/Gallery/Gallery';
 import Div from '@vkontakte/vkui/dist/components/Div/Div';
 import Separator from '@vkontakte/vkui/dist/components/Separator/Separator';
 import FixedLayout from '@vkontakte/vkui/dist/components/FixedLayout/FixedLayout';
+import PanelHeaderButton from '@vkontakte/vkui/dist/components/PanelHeaderButton/PanelHeaderButton';
 
 import Placeholder from '@vkontakte/vkui/dist/components/Placeholder/Placeholder';
 import PanelHeaderBack from '@vkontakte/vkui/dist/components/PanelHeaderBack/PanelHeaderBack';
@@ -46,6 +47,7 @@ import Icon28DoneOutline from '@vkontakte/icons/dist/28/done_outline';
 import Icon28CancelCircleOutline from '@vkontakte/icons/dist/28/cancel_circle_outline';
 import Icon28ErrorOutline from '@vkontakte/icons/dist/28/error_outline';
 import Icon28CheckCircleOutline from '@vkontakte/icons/dist/28/check_circle_outline';
+import Icon28SettingsOutline from '@vkontakte/icons/dist/28/settings_outline';
 
 import Tabs from '@vkontakte/vkui/dist/components/Tabs/Tabs';
 import TabsItem from '@vkontakte/vkui/dist/components/TabsItem/TabsItem';
@@ -75,9 +77,11 @@ const App = ({ id, fetchedUser,
 	const [list_left_end, set_list_left_end] = useState(0);
 
 	useEffect(() => {
-		if (students.length == 0 && searchValue.length == 0)
+		if (tabsState == "students" && students.length == 0 && searchValue.length == 0)
 			search_users('', 0);
-	});
+		else if (tabsState == "payouts" && searchPayouts.length == 0 && searchValue.length == 0)
+			search_payouts('', 0);
+		});
 
 	function search_payouts(value, list_left_end) {
 		var url = main_url + "profkom_bot/search_payouts/";
@@ -298,7 +302,9 @@ const App = ({ id, fetchedUser,
 
 	const Home =
 		<Panel id={id} style={{ 'max-width': 600, margin: 'auto' }}>
-			<PanelHeader >Профком МГТУ</PanelHeader>
+			<PanelHeader 
+				left={<PanelHeaderButton><Icon28SettingsOutline onClick={() => go("Settings")}/></PanelHeaderButton>}
+			>Профком МГТУ</PanelHeader>
 
 			<FixedLayout vertical="top">
 				<Tabs mode="buttons">
@@ -359,7 +365,7 @@ const App = ({ id, fetchedUser,
 							}>{post.name}</Cell>
 					</Group>))}
 				{/* {tabsState == "payouts" && get_payouts().map((post) => */}
-				{tabsState == "payouts" && searchPayouts.map((post) =>
+				{tabsState == "payouts" && searchPayouts.slice(0, count_on_page).map((post) =>
 					(<Group key={post.i}>
 						<Cell size="l" onClick={(e) => {
 							on_payouts_click(e, post);
