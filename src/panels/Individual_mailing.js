@@ -54,8 +54,6 @@ import Icon28SettingsOutline from '@vkontakte/icons/dist/28/settings_outline';
 import Tabs from '@vkontakte/vkui/dist/components/Tabs/Tabs';
 import TabsItem from '@vkontakte/vkui/dist/components/TabsItem/TabsItem';
 
-import bridge from '@vkontakte/vk-bridge';
-
 import { redIcon, blueIcon, orangeBackground, blueBackground, redBackground } from './style';
 
 var origin = "https://thingworx.asuscomm.com:10888"
@@ -63,15 +61,9 @@ var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
 // var main_url = "http://thingworx.asuscomm.com/"
 // var main_url = "http://localhost:8000/"
 
-const App = ({ id, fetchedUser,
-	go, goBack, setPopout,
-	setModal, setLogin,
-	students, setStudents,
+const App = ({ id, go, goBack, 
+	setPopout, setLogin,
 	snackbar, setSnackbar,
-	searchValue, setSearchValue,
-	setModalData,
-	tabsState, setTabsState,
-	searchPayouts, setSearchPayouts,
 	list_of_users, set_list_of_users,
 	textValue, setTextValue,
 }) => {
@@ -90,7 +82,7 @@ const App = ({ id, fetchedUser,
 		}
 		
 		console.log(data)
-
+		return;
 		fetch(url, {
 			method: 'POST',
 			body: JSON.stringify(data),
@@ -209,6 +201,7 @@ const App = ({ id, fetchedUser,
 				<Button 
 					size="xl" 
 					disabled={list_of_users.length == 0 || !textValue}
+					onClick={send_individiual_mailing}
 				>Отправить</Button>
 			</FixedLayout>
 

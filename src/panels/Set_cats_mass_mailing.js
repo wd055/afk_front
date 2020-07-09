@@ -50,15 +50,8 @@ var main_url = "https://profkom-bot-bmstu.herokuapp.com/";
 // var main_url = "http://thingworx.asuscomm.com/";
 // var main_url = "http://localhost:8000/";
 
-const App = ({
-	id, fetchedUser, categories,
-	setPopout, login,
-	snackbar, setSnackbar,
-	student, setStudent,
-	go, goBack,
-	setActivePanel, setHistory,
-	proforg, 
-	usersInfo, setUsersInfo,
+const App = ({id, go, goBack,
+	categories, snackbar,
 	setMailingCategories, mailingCategories,
 }) => {
 

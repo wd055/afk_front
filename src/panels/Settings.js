@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import PropTypes, { func } from 'prop-types';
 import Panel from '@vkontakte/vkui/dist/components/Panel/Panel';
 import PanelHeader from '@vkontakte/vkui/dist/components/PanelHeader/PanelHeader';
-import Button from '@vkontakte/vkui/dist/components/Button/Button';
 import Input from '@vkontakte/vkui/dist/components/Input/Input';
 import FormLayoutGroup from '@vkontakte/vkui/dist/components/FormLayoutGroup/FormLayoutGroup';
 import FormLayout from '@vkontakte/vkui/dist/components/FormLayout/FormLayout';
@@ -48,7 +47,7 @@ import Icon28DoneOutline from '@vkontakte/icons/dist/28/done_outline';
 import Icon28CancelCircleOutline from '@vkontakte/icons/dist/28/cancel_circle_outline';
 import Icon28ErrorOutline from '@vkontakte/icons/dist/28/error_outline';
 import Icon28CheckCircleOutline from '@vkontakte/icons/dist/28/check_circle_outline';
-import Icon28SettingsOutline from '@vkontakte/icons/dist/28/settings_outline';
+// import Icon28SettingsOutline from '@vkontakte/icons/dist/28/settings_outline';
 
 import Tabs from '@vkontakte/vkui/dist/components/Tabs/Tabs';
 import TabsItem from '@vkontakte/vkui/dist/components/TabsItem/TabsItem';
@@ -56,25 +55,21 @@ import TabsItem from '@vkontakte/vkui/dist/components/TabsItem/TabsItem';
 import bridge from '@vkontakte/vk-bridge';
 
 import { redIcon, blueIcon, orangeBackground, blueBackground, redBackground } from './style';
+import Button from '@vkontakte/vkui/dist/components/Button/Button';
 
 var origin = "https://thingworx.asuscomm.com:10888"
 var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
 // var main_url = "http://thingworx.asuscomm.com/"
 // var main_url = "http://localhost:8000/"
 
-const App = ({ id, fetchedUser,
-	go, setPopout, goBack,
-	setModal, setLogin,
-	students, setStudents,
+const App = ({ id, go, goBack,
+	setPopout, setModal,
 	snackbar, setSnackbar,
-	searchValue, setSearchValue,
 	setModalData,
-	tabsState, setTabsState,
-	searchPayouts, setSearchPayouts,
-	setTextValue, setPayments_edu,
-	set_list_of_users, setMailingCategories,
-	textValue, payments_edu, 
-	list_of_users, mailingCategories
+	textValue, setTextValue,
+	list_of_users, set_list_of_users, 
+	payments_edu, setPayments_edu,
+	mailingCategories, setMailingCategories,
 }) => {
 
 	const [set_accepted_temp, set_set_accepted_temp] = useState(0);
@@ -84,7 +79,6 @@ const App = ({ id, fetchedUser,
 			setTextValue();
 		if (payments_edu && payments_edu.length > 0)
 			setPayments_edu();
-		console.log(payments_edu)
 		if (list_of_users && list_of_users.length > 0)
 			set_list_of_users([]);
 		if (mailingCategories && mailingCategories.length > 0)

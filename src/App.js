@@ -697,8 +697,8 @@ const App = () => {
 						Ошибка авторизации<br />Попробуйте позже или свяжитесь с администратором группы!
 								</Placeholder>
 				</Panel>
-				<Profkom id='Profkom' fetchedUser={fetchedUser} go={go}
-					setPopout={setPopout} setModal={setModal} setLogin={setLogin}
+				<Profkom id='Profkom' go={go} setPopout={setPopout}
+					setModal={setModal} setLogin={setLogin}
 					students={students} setStudents={setStudents}
 					snackbar={snackbar} setSnackbar={setSnackbar}
 					searchValue={searchValue} setSearchValue={setSearchValue} 
@@ -706,78 +706,51 @@ const App = () => {
 					tabsState={tabsState} setTabsState={setTabsState}
 					searchPayouts={searchPayouts} setSearchPayouts={setSearchPayouts}
 				/>
-				<Settings id='Settings' fetchedUser={fetchedUser} go={go} goBack={goBack}
-					setPopout={setPopout} setModal={setModal} setLogin={setLogin}
-					students={students} setStudents={setStudents}
+				<Settings id='Settings' go={go} goBack={goBack}
+					setPopout={setPopout} setModal={setModal}
 					snackbar={snackbar} setSnackbar={setSnackbar}
-					searchValue={searchValue} setSearchValue={setSearchValue} 
 					setModalData={setModalData}
-					tabsState={tabsState} setTabsState={setTabsState}
-					set_list_of_users={set_list_of_users} setTextValue={setTextValue}
-					setPayments_edu={setPayments_edu}
-					list_of_users={list_of_users}  textValue={textValue}
-					payments_edu={payments_edu} 
-					setMailingCategories={setMailingCategories} mailingCategories={mailingCategories}
-				/>
-				<Mass_mailing id='Mass_mailing' fetchedUser={fetchedUser} go={go} goBack={goBack}
-					setPopout={setPopout} setModal={setModal} setLogin={setLogin}
-					students={students} setStudents={setStudents}
-					snackbar={snackbar} setSnackbar={setSnackbar}
-					searchValue={searchValue} setSearchValue={setSearchValue} 
-					setModalData={setModalData} categories={categories}
-					tabsState={tabsState} setTabsState={setTabsState}
-					searchPayouts={searchPayouts} setSearchPayouts={setSearchPayouts}
+					textValue={textValue} setTextValue={setTextValue}
 					list_of_users={list_of_users} set_list_of_users={set_list_of_users}
-					setMailingCategories={setMailingCategories} mailingCategories={mailingCategories}
+					payments_edu={payments_edu} setPayments_edu={setPayments_edu}
+					mailingCategories={mailingCategories} setMailingCategories={setMailingCategories}
+				/>
+				<Mass_mailing id='Mass_mailing' go={go} goBack={goBack}
+					snackbar={snackbar}
+					searchValue={searchValue} setSearchValue={setSearchValue} 
+					mailingCategories={mailingCategories} setMailingCategories={setMailingCategories} 
 					textValue={textValue} setTextValue={setTextValue}
 					payments_edu={payments_edu} setPayments_edu={setPayments_edu}
 				/>
-				<Individual_mailing id='Individual_mailing' fetchedUser={fetchedUser} go={go} goBack={goBack}
-					setPopout={setPopout} setModal={setModal} setLogin={setLogin}
-					students={students} setStudents={setStudents}
+				<Individual_mailing id='Individual_mailing' go={go} goBack={goBack}
+					setPopout={setPopout} setLogin={setLogin}
 					snackbar={snackbar} setSnackbar={setSnackbar}
-					searchValue={searchValue} setSearchValue={setSearchValue} 
-					setModalData={setModalData}
-					tabsState={tabsState} setTabsState={setTabsState}
-					searchPayouts={searchPayouts} setSearchPayouts={setSearchPayouts}
 					list_of_users={list_of_users} set_list_of_users={set_list_of_users}
 					textValue={textValue} setTextValue={setTextValue}
 				/>
-				<Mailing_Users id='Mailing_Users' fetchedUser={fetchedUser} go={go} goBack={goBack}
-					setPopout={setPopout} setModal={setModal} setLogin={setLogin}
+				<Mailing_Users id='Mailing_Users' go={go} goBack={goBack}
+					setLogin={setLogin}
 					students={students} setStudents={setStudents}
 					snackbar={snackbar} setSnackbar={setSnackbar}
-					searchValue={searchValue} setSearchValue={setSearchValue} 
-					setModalData={setModalData}
-					tabsState={tabsState} setTabsState={setTabsState}
-					searchPayouts={searchPayouts} setSearchPayouts={setSearchPayouts}
-					list_of_users={list_of_users} set_list_of_users={set_list_of_users}
+					list_of_users={list_of_users}
 				/>
 				<Set_cats_mass_mailing id='Set_cats_mass_mailing' 
-					fetchedUser={fetchedUser} go={go} goBack={goBack}
-					setPopout={setPopout} login={login}
-					snackbar={snackbar} setSnackbar={setSnackbar}
-					students={students} categories={categories}
-					setStudent={setStudent} student={student}					
-					setHistory={setHistory} setActivePanel={setActivePanel}
-					proforg={proforg}
-					usersInfo={usersInfo} setUsersInfo={setUsersInfo}
+					go={go} goBack={goBack}
+					snackbar={snackbar} categories={categories}
 					setMailingCategories={setMailingCategories} mailingCategories={mailingCategories}
 				/>
-				<User id='User' fetchedUser={fetchedUser} go={go} goBack={goBack}
-					setPopout={setPopout} setModal={setModal} login={login}
+				<User id='User' go={go} goBack={goBack}
+					login={login}
 					snackbar={snackbar} setSnackbar={setSnackbar}
 					setModalData={setModalData}
 					student={student} setStudent={setStudent}
 				/>
-				<Home id='Home' fetchedUser={fetchedUser} go={go} goBack={goBack}
+				<Home id='Home' go={go} goBack={goBack}
 					setPopout={setPopout} login={login}
 					snackbar={snackbar} setSnackbar={setSnackbar}
-					students={students} categories={categories}
-					setStudent={setStudent} student={student}					
-					setHistory={setHistory} setActivePanel={setActivePanel}
-					proforg={proforg}
-					usersInfo={usersInfo} setUsersInfo={setUsersInfo}/>
+					student={student} categories={categories}
+					proforg={proforg} usersInfo={usersInfo}
+				/>
 			</View>
 		</ConfigProvider>
 	);

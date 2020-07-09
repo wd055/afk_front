@@ -61,22 +61,17 @@ var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
 // var main_url = "http://thingworx.asuscomm.com/"
 // var main_url = "http://localhost:8000/"
 
-const App = ({ id, fetchedUser,
-	go, goBack, setPopout,
-	setModal, setLogin,
+const App = ({ id, 	go, goBack, 
+	setLogin,
 	students, setStudents,
 	snackbar, setSnackbar,
-	searchValue, setSearchValue,
-	setModalData,
-	tabsState, setTabsState,
-	searchPayouts, setSearchPayouts,
-	list_of_users, set_list_of_users,
+	list_of_users,
 }) => {
 
 	const count_on_page = 6;
-	const [set_accepted_temp, set_set_accepted_temp] = useState(0);
 	const [list_left_end, set_list_left_end] = useState(0);
 	const [list_of_login, set_list_of_login] = useState([]);
+	const [searchValue, setSearchValue] = useState("");
 
 	useEffect(() => {
 		if (students.length == 0 && searchValue.length == 0)
@@ -253,7 +248,7 @@ const App = ({ id, fetchedUser,
 						>Назад</Button>
 						: <Button size="l" stretched mode="tertiary" style={{ marginRight: 8 }} ></Button>}
 
-					{(students.length > count_on_page && tabsState == "students") ?
+					{students.length > count_on_page ?
 						<Button size="l" after={<Icon24BrowserForward />}
 							stretched mode="secondary"
 							onClick={() => button_list_click(count_on_page)}
