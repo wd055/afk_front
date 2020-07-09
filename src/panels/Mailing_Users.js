@@ -62,7 +62,7 @@ var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
 // var main_url = "http://localhost:8000/"
 
 const App = ({ id, fetchedUser,
-	go, setPopout,
+	go, goBack, setPopout,
 	setModal, setLogin,
 	students, setStudents,
 	snackbar, setSnackbar,
@@ -70,12 +70,13 @@ const App = ({ id, fetchedUser,
 	setModalData,
 	tabsState, setTabsState,
 	searchPayouts, setSearchPayouts,
+	list_of_users, set_list_of_users,
 }) => {
 
 	const count_on_page = 6;
 	const [set_accepted_temp, set_set_accepted_temp] = useState(0);
 	const [list_left_end, set_list_left_end] = useState(0);
-	const [list_of_users, set_list_of_users] = useState([]);
+	const [list_of_login, set_list_of_login] = useState([]);
 
 	useEffect(() => {
 		if (students.length == 0 && searchValue.length == 0)
@@ -84,7 +85,7 @@ const App = ({ id, fetchedUser,
 	});
 
 	function search_users(value, list_left_end) {
-		check_selectat();
+		check_selected();
 
 		var url = main_url + "profkom_bot/search_users/";
 		fetch(url, {
@@ -142,31 +143,44 @@ const App = ({ id, fetchedUser,
 		go("User");
 	}
 	
-	function check_selectat(){
+	function check_selected(){
 		var arr = document.getElementsByName('users');
 		for (var i = 0; i < arr.length; i++) {
-			if (arr[i].checked && list_of_users.indexOf(arr[i].id) == -1){
-				list_of_users.push(arr[i].id);
-			}else if (!arr[i].checked && list_of_users.indexOf(arr[i].id) > -1){
-				console.log("@@@@", list_of_users, arr[i].id)
-				list_of_users.splice(arr[i].id, 1);
+			if (arr[i].checked && list_of_login.indexOf(arr[i].id) == -1){
+				list_of_login.push(arr[i].id);
+				list_of_users.push({
+					login:arr[i].dataset.login,
+					vk_id:arr[i].dataset.vk_id,
+					name:arr[i].dataset.name,
+					group:arr[i].dataset.group,
+				});
+			}else if (!arr[i].checked && list_of_login.indexOf(arr[i].id) > -1){
+				var p = list_of_login.indexOf(arr[i].id);
+				list_of_login.splice(p, 1);
+				list_of_users.push(p, 1);
 			}
 		}
+		console.log(arr[0].dataset.boo)
+		console.log(list_of_login)
 		console.log(list_of_users)
 	}
 
 	function set_selected() {
 		var arr = document.getElementsByName("users");
 		for (var i = 0; i < arr.length; i++) {
-				console.log("!!!!!!", list_of_users, arr[i].id)
-				arr[i].checked = list_of_users.indexOf(arr[i].id) > -1;
+				arr[i].checked = list_of_login.indexOf(arr[i].id) > -1;
 		}
 	}
 
 	const Home =
-		<Panel id={id} style={{ 'max-width': 600, margin: 'auto' }}>
+		<Panel id={id} style={{ 'maxWidth': 630, margin: 'auto' }}>
 			<PanelHeader 
-				// left={<PanelHeaderButton><Icon28SettingsOutline onClick={() => check_radio()}/></PanelHeaderButton>}
+				left={<PanelHeaderBack onClick={() => {
+					search_users('', 0)
+					setSearchValue('');
+					set_list_left_end(0);
+					goBack();
+				}} />}
 			>Выбор студентов для рассылки</PanelHeader>
 
 			<FixedLayout vertical="top">
@@ -183,14 +197,20 @@ const App = ({ id, fetchedUser,
 				/>
 			</FixedLayout>
 			<Div style={{  paddingTop: 40, paddingBottom: 60 }}>
-				{students.slice(0, count_on_page).map((post) =>
-					(<Group key={post.i}>
+				{students.slice(0, count_on_page).map((post, i) =>
+					(<Group key={i}>
 						<Cell 
-							selectable 
 							size="l" 
 							name="users"
 							id={post.login}
-							// defaultChecked={list_of_users.indexOf(post.login) > -1}
+							selectable={post.vk_id.length > 0}
+							
+							data-login={post.login}
+							data-vk_id={post.vk_id}
+							data-name={post.name}
+							data-group={post.group}
+
+							// defaultChecked={list_of_login.indexOf(post.login) > -1}
 							// onClick={(e) => {
 							// 	on_students_click(post);
 							// }}

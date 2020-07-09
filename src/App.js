@@ -51,7 +51,10 @@ import Home from './panels/Home';
 import Profkom from './panels/Profkom';
 import User from './panels/User';
 import Settings from './panels/Settings';
+import Mass_mailing from './panels/Mass_mailing';
+import Individual_mailing from './panels/Individual_mailing';
 import Mailing_Users from './panels/Mailing_Users';
+import Set_cats_mass_mailing from './panels/Set_cats_mass_mailing';
 
 import { redIcon, blueIcon, orangeBackground, blueBackground, redBackground } from './panels/style';
 import { func } from 'prop-types';
@@ -113,7 +116,9 @@ const App = () => {
 	const [searchPayouts, setSearchPayouts] = useState([]);
 
 	const [list_of_users, set_list_of_users] = useState([]);
-
+	const [mailingCategories, setMailingCategories] = useState([]);
+	const [textValue, setTextValue] = useState();
+	const [payments_edu, setPayments_edu] = useState();
 
 	const PERIODICITY = {
         calendar_year: 'Раз в календарный год',
@@ -297,7 +302,6 @@ const App = () => {
 			.then(response => response.json())
 			.then((data) => {
 				setPayouts_type(data)
-				console.log(data)
 			},
 				(error) => {
 					setSnackbar(<Snackbar
@@ -550,6 +554,7 @@ const App = () => {
 						>
 							{payouts_types.map((payouts_type, i) => (
 								<option
+									key={payouts_type.payout_type}
 									value={payouts_type.payout_type}
 									id={payouts_type.payout_type}
 								>{payouts_type.payout_type}</option>
@@ -692,15 +697,6 @@ const App = () => {
 						Ошибка авторизации<br />Попробуйте позже или свяжитесь с администратором группы!
 								</Placeholder>
 				</Panel>
-				<Settings id='Settings' fetchedUser={fetchedUser} go={go} goBack={goBack}
-					setPopout={setPopout} setModal={setModal} setLogin={setLogin}
-					students={students} setStudents={setStudents}
-					snackbar={snackbar} setSnackbar={setSnackbar}
-					searchValue={searchValue} setSearchValue={setSearchValue} 
-					setModalData={setModalData}
-					tabsState={tabsState} setTabsState={setTabsState}
-					searchPayouts={searchPayouts} setSearchPayouts={setSearchPayouts}
-				/>
 				<Profkom id='Profkom' fetchedUser={fetchedUser} go={go}
 					setPopout={setPopout} setModal={setModal} setLogin={setLogin}
 					students={students} setStudents={setStudents}
@@ -710,7 +706,33 @@ const App = () => {
 					tabsState={tabsState} setTabsState={setTabsState}
 					searchPayouts={searchPayouts} setSearchPayouts={setSearchPayouts}
 				/>
-				<Mailing_Users id='Mailing_Users' fetchedUser={fetchedUser} go={go}
+				<Settings id='Settings' fetchedUser={fetchedUser} go={go} goBack={goBack}
+					setPopout={setPopout} setModal={setModal} setLogin={setLogin}
+					students={students} setStudents={setStudents}
+					snackbar={snackbar} setSnackbar={setSnackbar}
+					searchValue={searchValue} setSearchValue={setSearchValue} 
+					setModalData={setModalData}
+					tabsState={tabsState} setTabsState={setTabsState}
+					set_list_of_users={set_list_of_users} setTextValue={setTextValue}
+					setPayments_edu={setPayments_edu}
+					list_of_users={list_of_users}  textValue={textValue}
+					payments_edu={payments_edu} 
+					setMailingCategories={setMailingCategories} mailingCategories={mailingCategories}
+				/>
+				<Mass_mailing id='Mass_mailing' fetchedUser={fetchedUser} go={go} goBack={goBack}
+					setPopout={setPopout} setModal={setModal} setLogin={setLogin}
+					students={students} setStudents={setStudents}
+					snackbar={snackbar} setSnackbar={setSnackbar}
+					searchValue={searchValue} setSearchValue={setSearchValue} 
+					setModalData={setModalData} categories={categories}
+					tabsState={tabsState} setTabsState={setTabsState}
+					searchPayouts={searchPayouts} setSearchPayouts={setSearchPayouts}
+					list_of_users={list_of_users} set_list_of_users={set_list_of_users}
+					setMailingCategories={setMailingCategories} mailingCategories={mailingCategories}
+					textValue={textValue} setTextValue={setTextValue}
+					payments_edu={payments_edu} setPayments_edu={setPayments_edu}
+				/>
+				<Individual_mailing id='Individual_mailing' fetchedUser={fetchedUser} go={go} goBack={goBack}
 					setPopout={setPopout} setModal={setModal} setLogin={setLogin}
 					students={students} setStudents={setStudents}
 					snackbar={snackbar} setSnackbar={setSnackbar}
@@ -719,7 +741,28 @@ const App = () => {
 					tabsState={tabsState} setTabsState={setTabsState}
 					searchPayouts={searchPayouts} setSearchPayouts={setSearchPayouts}
 					list_of_users={list_of_users} set_list_of_users={set_list_of_users}
-
+					textValue={textValue} setTextValue={setTextValue}
+				/>
+				<Mailing_Users id='Mailing_Users' fetchedUser={fetchedUser} go={go} goBack={goBack}
+					setPopout={setPopout} setModal={setModal} setLogin={setLogin}
+					students={students} setStudents={setStudents}
+					snackbar={snackbar} setSnackbar={setSnackbar}
+					searchValue={searchValue} setSearchValue={setSearchValue} 
+					setModalData={setModalData}
+					tabsState={tabsState} setTabsState={setTabsState}
+					searchPayouts={searchPayouts} setSearchPayouts={setSearchPayouts}
+					list_of_users={list_of_users} set_list_of_users={set_list_of_users}
+				/>
+				<Set_cats_mass_mailing id='Set_cats_mass_mailing' 
+					fetchedUser={fetchedUser} go={go} goBack={goBack}
+					setPopout={setPopout} login={login}
+					snackbar={snackbar} setSnackbar={setSnackbar}
+					students={students} categories={categories}
+					setStudent={setStudent} student={student}					
+					setHistory={setHistory} setActivePanel={setActivePanel}
+					proforg={proforg}
+					usersInfo={usersInfo} setUsersInfo={setUsersInfo}
+					setMailingCategories={setMailingCategories} mailingCategories={mailingCategories}
 				/>
 				<User id='User' fetchedUser={fetchedUser} go={go} goBack={goBack}
 					setPopout={setPopout} setModal={setModal} login={login}
