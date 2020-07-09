@@ -51,6 +51,10 @@ import Home from './panels/Home';
 import Profkom from './panels/Profkom';
 import User from './panels/User';
 import Settings from './panels/Settings';
+import Mass_mailing from './panels/Mass_mailing';
+import Individual_mailing from './panels/Individual_mailing';
+import Mailing_Users from './panels/Mailing_Users';
+import Set_cats_mass_mailing from './panels/Set_cats_mass_mailing';
 
 import { redIcon, blueIcon, orangeBackground, blueBackground, redBackground } from './panels/style';
 import { func } from 'prop-types';
@@ -111,12 +115,19 @@ const App = () => {
 	const [tabsState, setTabsState] = useState('students');
 	const [searchPayouts, setSearchPayouts] = useState([]);
 
+	const [list_of_users, set_list_of_users] = useState([]);
+	const [mailingCategories, setMailingCategories] = useState([]);
+	const [textValue, setTextValue] = useState();
+	const [payments_edu, setPayments_edu] = useState();
+
 	const PERIODICITY = {
         calendar_year: 'Раз в календарный год',
         academic_year: 'Раз в учебный год',
         semester: 'Раз в семестр',
 	}
-	
+	const modals_const = [
+		'payout'
+	]
 	const parseQueryString = (string) => {
 		return string.slice(1).split('&')
 			.map((queryParam) => {
@@ -179,11 +190,13 @@ const App = () => {
 		if (history.length === 1) {
 			bridge.send("VKWebAppClose", { "status": "success" });
 		} else if (history.length > 1) {
-			if (history[history.length - 1] == "modal"){
+			if (modals_const.indexOf(history[history.length - 1]) > -1){
 				setSearchPayouts([]);
 				setModal(null);
-			}else{
+			}else if (modals_const.indexOf(history[history.length - 2]) == -1){
 				setActivePanel(history[history.length - 2]);
+			}else{
+				setModal(history[history.length - 2]);
 			}
 			history.pop();
 		}
@@ -198,14 +211,12 @@ const App = () => {
 			}
 			if (itsModal){
 				setModal(name);
-				history.push("modal");
-				window.history.pushState({ modal: name }, name);
 			}else{
 				setStudent(student_default_value);
 				setActivePanel(name);
-				history.push(name);
-				window.history.pushState({ panel: name }, name);
 			}
+			history.push(name);
+			window.history.pushState({ panel: name }, name);
 		}
 		// console.log('history go 2', history)
 	};
@@ -291,7 +302,6 @@ const App = () => {
 			.then(response => response.json())
 			.then((data) => {
 				setPayouts_type(data)
-				console.log(data)
 			},
 				(error) => {
 					setSnackbar(<Snackbar
@@ -344,12 +354,8 @@ const App = () => {
 						setProforg(data.proforg);
 						if (data.proforg == true){
 							go("Profkom");
-							// setActivePanel("Profkom");
-							// setHistory(["Profkom"])
 						}else{
 							go("Home");
-							// setActivePanel("Home");
-							// setHistory(["Home"])
 						}
 					}
 				} else {
@@ -383,7 +389,7 @@ const App = () => {
 		if (modalData.new == true){
 			add_payout();
 		}else{
-			edit_payout()
+			edit_payout();
 		}
 	}
 
@@ -407,9 +413,6 @@ const App = () => {
 				if (data != "Error") {
 					if (student.users_payouts){
 						student.users_payouts.push(data);
-					}
-					if (student.users_all_payouts){
-						student.users_all_payouts.push(data);
 					}
 					// setModal(null)
 					goBack();
@@ -521,8 +524,11 @@ const App = () => {
 						bottomContent={
 							<HorizontalScroll>
 								<div style={{ display: 'flex' }}>
-									{!modalData.new && <Button size="m" mode="outline">{modalData.id}</Button>}
-									{!modalData.new && <Button size="m" mode="outline" style={{ marginLeft: 8 }}>{modalData.students_group}</Button>}
+									{!modalData.new &&<React.Fragment>
+										<Button size="m" mode="outline">{modalData.id}</Button>
+										<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{modalData.date}</Button>
+										<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{modalData.students_group}</Button>
+									</React.Fragment>}
 									{modalData.new && <Button size="m" mode="outline">{modalData.students_group}</Button>}
 									<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{modalData.students_login}</Button>
 								</div>
@@ -530,11 +536,11 @@ const App = () => {
 						}>{modalData.students_name}</Cell>
 				</Group>
 				<Group>
-					{!modalData.new && <Cell>
+					{/* {!modalData.new && <Cell>
 						<InfoRow header="Дата">
 							{modalData.date}
 						</InfoRow>
-					</Cell>}
+					</Cell>} */}
 					<FormLayout>
 						<Select
 							top="Тип заявление"
@@ -548,6 +554,7 @@ const App = () => {
 						>
 							{payouts_types.map((payouts_type, i) => (
 								<option
+									key={payouts_type.payout_type}
 									value={payouts_type.payout_type}
 									id={payouts_type.payout_type}
 								>{payouts_type.payout_type}</option>
@@ -690,8 +697,8 @@ const App = () => {
 						Ошибка авторизации<br />Попробуйте позже или свяжитесь с администратором группы!
 								</Placeholder>
 				</Panel>
-				<Settings id='Settings' fetchedUser={fetchedUser} go={go} goBack={goBack}
-					setPopout={setPopout} setModal={setModal} setLogin={setLogin}
+				<Profkom id='Profkom' go={go} setPopout={setPopout}
+					setModal={setModal} setLogin={setLogin}
 					students={students} setStudents={setStudents}
 					snackbar={snackbar} setSnackbar={setSnackbar}
 					searchValue={searchValue} setSearchValue={setSearchValue} 
@@ -699,29 +706,51 @@ const App = () => {
 					tabsState={tabsState} setTabsState={setTabsState}
 					searchPayouts={searchPayouts} setSearchPayouts={setSearchPayouts}
 				/>
-				<Profkom id='Profkom' fetchedUser={fetchedUser} go={go}
-					setPopout={setPopout} setModal={setModal} setLogin={setLogin}
+				<Settings id='Settings' go={go} goBack={goBack}
+					setPopout={setPopout} setModal={setModal}
+					snackbar={snackbar} setSnackbar={setSnackbar}
+					setModalData={setModalData}
+					textValue={textValue} setTextValue={setTextValue}
+					list_of_users={list_of_users} set_list_of_users={set_list_of_users}
+					payments_edu={payments_edu} setPayments_edu={setPayments_edu}
+					mailingCategories={mailingCategories} setMailingCategories={setMailingCategories}
+				/>
+				<Mass_mailing id='Mass_mailing' go={go} goBack={goBack}
+					snackbar={snackbar}
+					searchValue={searchValue} setSearchValue={setSearchValue} 
+					mailingCategories={mailingCategories} setMailingCategories={setMailingCategories} 
+					textValue={textValue} setTextValue={setTextValue}
+					payments_edu={payments_edu} setPayments_edu={setPayments_edu}
+				/>
+				<Individual_mailing id='Individual_mailing' go={go} goBack={goBack}
+					setPopout={setPopout} setLogin={setLogin}
+					snackbar={snackbar} setSnackbar={setSnackbar}
+					list_of_users={list_of_users} set_list_of_users={set_list_of_users}
+					textValue={textValue} setTextValue={setTextValue}
+				/>
+				<Mailing_Users id='Mailing_Users' go={go} goBack={goBack}
+					setLogin={setLogin}
 					students={students} setStudents={setStudents}
 					snackbar={snackbar} setSnackbar={setSnackbar}
-					searchValue={searchValue} setSearchValue={setSearchValue} 
-					setModalData={setModalData}
-					tabsState={tabsState} setTabsState={setTabsState}
-					searchPayouts={searchPayouts} setSearchPayouts={setSearchPayouts}
+					list_of_users={list_of_users}
 				/>
-				<User id='User' fetchedUser={fetchedUser} go={go} goBack={goBack}
-					setPopout={setPopout} setModal={setModal} login={login}
+				<Set_cats_mass_mailing id='Set_cats_mass_mailing' 
+					go={go} goBack={goBack}
+					snackbar={snackbar} categories={categories}
+					setMailingCategories={setMailingCategories} mailingCategories={mailingCategories}
+				/>
+				<User id='User' go={go} goBack={goBack}
+					login={login}
 					snackbar={snackbar} setSnackbar={setSnackbar}
 					setModalData={setModalData}
 					student={student} setStudent={setStudent}
 				/>
-				<Home id='Home' fetchedUser={fetchedUser} go={go} goBack={goBack}
+				<Home id='Home' go={go} goBack={goBack}
 					setPopout={setPopout} login={login}
 					snackbar={snackbar} setSnackbar={setSnackbar}
-					students={students} categories={categories}
-					setStudent={setStudent} student={student}					
-					setHistory={setHistory} setActivePanel={setActivePanel}
-					proforg={proforg}
-					usersInfo={usersInfo} setUsersInfo={setUsersInfo}/>
+					student={student} categories={categories}
+					proforg={proforg} usersInfo={usersInfo}
+				/>
 			</View>
 		</ConfigProvider>
 	);

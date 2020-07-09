@@ -1,50 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes, { func } from 'prop-types';
 import Panel from '@vkontakte/vkui/dist/components/Panel/Panel';
 import PanelHeader from '@vkontakte/vkui/dist/components/PanelHeader/PanelHeader';
 import Button from '@vkontakte/vkui/dist/components/Button/Button';
-import Input from '@vkontakte/vkui/dist/components/Input/Input';
-import FormLayoutGroup from '@vkontakte/vkui/dist/components/FormLayoutGroup/FormLayoutGroup';
-import FormLayout from '@vkontakte/vkui/dist/components/FormLayout/FormLayout';
-
-import Select from '@vkontakte/vkui/dist/components/Select/Select';
-import Radio from '@vkontakte/vkui/dist/components/Radio/Radio';
-import Textarea from '@vkontakte/vkui/dist/components/Textarea/Textarea';
-import Checkbox from '@vkontakte/vkui/dist/components/Checkbox/Checkbox';
-import Link from '@vkontakte/vkui/dist/components/Link/Link';
-import ScreenSpinner from '@vkontakte/vkui/dist/components/ScreenSpinner/ScreenSpinner';
 import Snackbar from '@vkontakte/vkui/dist/components/Snackbar/Snackbar';
 import Avatar from '@vkontakte/vkui/dist/components/Avatar/Avatar';
-import Icon16Clear from '@vkontakte/icons/dist/16/clear';
-import Icon16Done from '@vkontakte/icons/dist/16/done';
-
 import Group from '@vkontakte/vkui/dist/components/Group/Group';
-import SimpleCell from '@vkontakte/vkui/dist/components/SimpleCell/SimpleCell';
-import InfoRow from '@vkontakte/vkui/dist/components/InfoRow/InfoRow';
-import RichCell from '@vkontakte/vkui/dist/components/RichCell/RichCell';
 import Cell from '@vkontakte/vkui/dist/components/Cell/Cell';
 import HorizontalScroll from '@vkontakte/vkui/dist/components/HorizontalScroll/HorizontalScroll';
-import List from '@vkontakte/vkui/dist/components/List/List';
 import Search from '@vkontakte/vkui/dist/components/Search/Search';
-import Gallery from '@vkontakte/vkui/dist/components/Gallery/Gallery';
 import Div from '@vkontakte/vkui/dist/components/Div/Div';
 import Separator from '@vkontakte/vkui/dist/components/Separator/Separator';
 import FixedLayout from '@vkontakte/vkui/dist/components/FixedLayout/FixedLayout';
 import PanelHeaderButton from '@vkontakte/vkui/dist/components/PanelHeaderButton/PanelHeaderButton';
 
-import Placeholder from '@vkontakte/vkui/dist/components/Placeholder/Placeholder';
-import PanelHeaderBack from '@vkontakte/vkui/dist/components/PanelHeaderBack/PanelHeaderBack';
-import Icon56CheckCircleOutline from '@vkontakte/icons/dist/56/check_circle_outline';
-import Icon56ErrorOutline from '@vkontakte/icons/dist/56/error_outline';
 import Icon24Error from '@vkontakte/icons/dist/24/error';
 import Icon28AddOutline from '@vkontakte/icons/dist/28/add_outline';
-import Icon24Send from '@vkontakte/icons/dist/24/send';
 import Icon24BrowserBack from '@vkontakte/icons/dist/24/browser_back';
 import Icon24BrowserForward from '@vkontakte/icons/dist/24/browser_forward';
 import Icon28DeleteOutline from '@vkontakte/icons/dist/28/delete_outline';
 import Icon28HistoryForwardOutline from '@vkontakte/icons/dist/28/history_forward_outline';
 import Icon28DoneOutline from '@vkontakte/icons/dist/28/done_outline';
-import Icon28CancelCircleOutline from '@vkontakte/icons/dist/28/cancel_circle_outline';
 import Icon28ErrorOutline from '@vkontakte/icons/dist/28/error_outline';
 import Icon28CheckCircleOutline from '@vkontakte/icons/dist/28/check_circle_outline';
 import Icon28SettingsOutline from '@vkontakte/icons/dist/28/settings_outline';
@@ -61,8 +36,7 @@ var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
 // var main_url = "http://thingworx.asuscomm.com/"
 // var main_url = "http://localhost:8000/"
 
-const App = ({ id, fetchedUser,
-	go, setPopout,
+const App = ({ id, go, setPopout,
 	setModal, setLogin,
 	students, setStudents,
 	snackbar, setSnackbar,
@@ -147,7 +121,6 @@ const App = ({ id, fetchedUser,
 			.then(response => response.json())
 			.then((data) => {
 				if (data != "Error") {
-					console.log(data)
 					setStudents(data)
 					return (data)
 				}
@@ -301,8 +274,8 @@ const App = ({ id, fetchedUser,
 	}
 
 	const Home =
-		<Panel id={id} style={{ 'max-width': 600, margin: 'auto' }}>
-			<PanelHeader 
+		<Panel id={id} style={{ 'maxWidth': 630, margin: 'auto' }}>
+			<PanelHeader
 				left={<PanelHeaderButton><Icon28SettingsOutline onClick={() => go("Settings")}/></PanelHeaderButton>}
 			>Профком МГТУ</PanelHeader>
 
@@ -332,7 +305,7 @@ const App = ({ id, fetchedUser,
 
 				<Search
 					value={searchValue}
-					placeholder={tabsState === 'payouts' ? "Поиск по номеру заявления" : "Поиск по фамилии или студ. билету"}
+					placeholder={tabsState === 'payouts' ? "Поиск по номеру заявления" : "Поиск по фамилии, группе или студ. билету"}
 					onChange={(e) => {
 						const { value } = e.currentTarget;
 						if (tabsState == "payouts")
@@ -347,8 +320,8 @@ const App = ({ id, fetchedUser,
 				/>
 			</FixedLayout>
 			<Div style={{  paddingTop: 80, paddingBottom: 60 }}>
-				{tabsState == "students" && students.slice(0, count_on_page).map((post) =>
-					(<Group key={post.i}>
+				{tabsState == "students" && students.slice(0, count_on_page).map((post, i) =>
+					(<Group key={i}>
 						<Cell size="l" onClick={(e) => {
 							on_students_click(e, post);
 						}}
@@ -365,8 +338,8 @@ const App = ({ id, fetchedUser,
 							}>{post.name}</Cell>
 					</Group>))}
 				{/* {tabsState == "payouts" && get_payouts().map((post) => */}
-				{tabsState == "payouts" && searchPayouts.slice(0, count_on_page).map((post) =>
-					(<Group key={post.i}>
+				{tabsState == "payouts" && searchPayouts.slice(0, count_on_page).map((post, i) =>
+					(<Group key={i}>
 						<Cell size="l" onClick={(e) => {
 							on_payouts_click(e, post);
 						}}

@@ -1,35 +1,21 @@
 import { parsePhoneNumberFromString } from 'libphonenumber-js'
 import React, { useState, useEffect } from 'react';
-import PropTypes, { func } from 'prop-types';
 import Panel from '@vkontakte/vkui/dist/components/Panel/Panel';
 import PanelHeader from '@vkontakte/vkui/dist/components/PanelHeader/PanelHeader';
 import Button from '@vkontakte/vkui/dist/components/Button/Button';
 import Input from '@vkontakte/vkui/dist/components/Input/Input';
 import FormLayoutGroup from '@vkontakte/vkui/dist/components/FormLayoutGroup/FormLayoutGroup';
 import FormLayout from '@vkontakte/vkui/dist/components/FormLayout/FormLayout';
-
 import Select from '@vkontakte/vkui/dist/components/Select/Select';
-// import Radio from '@vkontakte/vkui/dist/components/Radio/Radio';
-// import Textarea from '@vkontakte/vkui/dist/components/Textarea/Textarea';
 import Checkbox from '@vkontakte/vkui/dist/components/Checkbox/Checkbox';
-import Link from '@vkontakte/vkui/dist/components/Link/Link';
 import ScreenSpinner from '@vkontakte/vkui/dist/components/ScreenSpinner/ScreenSpinner';
 import Snackbar from '@vkontakte/vkui/dist/components/Snackbar/Snackbar';
 import Avatar from '@vkontakte/vkui/dist/components/Avatar/Avatar';
-import Icon16Clear from '@vkontakte/icons/dist/16/clear';
-import Icon16Done from '@vkontakte/icons/dist/16/done';
 import Icon28CheckCircleOutline from '@vkontakte/icons/dist/28/check_circle_outline';
-
-import Div from '@vkontakte/vkui/dist/components/Div/Div';
 import Group from '@vkontakte/vkui/dist/components/Group/Group';
-import SimpleCell from '@vkontakte/vkui/dist/components/SimpleCell/SimpleCell';
-import InfoRow from '@vkontakte/vkui/dist/components/InfoRow/InfoRow';
 import Cell from '@vkontakte/vkui/dist/components/Cell/Cell';
-import PanelHeaderButton from '@vkontakte/vkui/dist/components/PanelHeaderButton/PanelHeaderButton';
-
 import Placeholder from '@vkontakte/vkui/dist/components/Placeholder/Placeholder';
 import PanelHeaderBack from '@vkontakte/vkui/dist/components/PanelHeaderBack/PanelHeaderBack';
-import PanelHeaderClose from '@vkontakte/vkui/dist/components/PanelHeaderClose/PanelHeaderClose';
 import Icon56CheckCircleOutline from '@vkontakte/icons/dist/56/check_circle_outline';
 import Icon56ErrorOutline from '@vkontakte/icons/dist/56/error_outline';
 import Icon24Error from '@vkontakte/icons/dist/24/error';
@@ -49,14 +35,11 @@ var main_url = "https://profkom-bot-bmstu.herokuapp.com/";
 // var main_url = "http://localhost:8000/";
 
 const App = ({
-	id, fetchedUser, categories,
+	id, go, goBack,
 	setPopout, login,
 	snackbar, setSnackbar,
-	student, setStudent,
-	go, goBack,
-	setActivePanel, setHistory,
-	proforg,
-	usersInfo, setUsersInfo
+	student, categories,
+	proforg, usersInfo,
 }) => {
 
 	const [getCategories, setGetCategories] = useState([]);
@@ -310,7 +293,7 @@ const App = ({
 		<Panel id={id}>
 			<PanelHeader 
 				// left={proforg == true && <PanelHeaderBack onClick={goBack} />}
-				left={proforg == true && <PanelHeaderBack onClick={() => window.history.back()} />}
+				left={proforg == true && <PanelHeaderBack onClick={goBack} />}
 			>Форма</PanelHeader>
 			{showForm
 				? <Group>
@@ -384,7 +367,7 @@ const App = ({
 							{/* <Radio name="type">Паспорт</Radio>
 				<Radio name="type">Загран</Radio> */}
 							{categories.map((category, i) => (
-								<Checkbox name="category" id={i.toString()}>{category}</Checkbox>
+								<Checkbox name="category" key={i} id={i.toString()}>{category}</Checkbox>
 								// <Checkbox name="category" id={i.toString()} defaultChecked={getCategories.indexOf(categories) != -1}>{category}</Checkbox>
 							))}
 						</FormLayoutGroup>
