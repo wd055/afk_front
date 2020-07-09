@@ -1,22 +1,24 @@
 import { parsePhoneNumberFromString } from 'libphonenumber-js'
 import React, { useState, useEffect } from 'react';
+
 import Panel from '@vkontakte/vkui/dist/components/Panel/Panel';
 import PanelHeader from '@vkontakte/vkui/dist/components/PanelHeader/PanelHeader';
-import Button from '@vkontakte/vkui/dist/components/Button/Button';
-import Link from '@vkontakte/vkui/dist/components/Link/Link';
+import PanelHeaderBack from '@vkontakte/vkui/dist/components/PanelHeaderBack/PanelHeaderBack';
 import Snackbar from '@vkontakte/vkui/dist/components/Snackbar/Snackbar';
 import Avatar from '@vkontakte/vkui/dist/components/Avatar/Avatar';
-import Group from '@vkontakte/vkui/dist/components/Group/Group';
-import SimpleCell from '@vkontakte/vkui/dist/components/SimpleCell/SimpleCell';
-import InfoRow from '@vkontakte/vkui/dist/components/InfoRow/InfoRow';
-import Cell from '@vkontakte/vkui/dist/components/Cell/Cell';
-import HorizontalScroll from '@vkontakte/vkui/dist/components/HorizontalScroll/HorizontalScroll';
-import Div from '@vkontakte/vkui/dist/components/Div/Div';
-import CellButton from '@vkontakte/vkui/dist/components/CellButton/CellButton';
+
 import Tabs from '@vkontakte/vkui/dist/components/Tabs/Tabs';
 import TabsItem from '@vkontakte/vkui/dist/components/TabsItem/TabsItem';
-import PanelHeaderBack from '@vkontakte/vkui/dist/components/PanelHeaderBack/PanelHeaderBack';
+import Link from '@vkontakte/vkui/dist/components/Link/Link';
+import InfoRow from '@vkontakte/vkui/dist/components/InfoRow/InfoRow';
 import Header from '@vkontakte/vkui/dist/components/Header/Header';
+import Group from '@vkontakte/vkui/dist/components/Group/Group';
+import Div from '@vkontakte/vkui/dist/components/Div/Div';
+import Cell from '@vkontakte/vkui/dist/components/Cell/Cell';
+import SimpleCell from '@vkontakte/vkui/dist/components/SimpleCell/SimpleCell';
+import HorizontalScroll from '@vkontakte/vkui/dist/components/HorizontalScroll/HorizontalScroll';
+import Button from '@vkontakte/vkui/dist/components/Button/Button';
+import CellButton from '@vkontakte/vkui/dist/components/CellButton/CellButton';
 
 import Icon24Error from '@vkontakte/icons/dist/24/error';
 import Icon28DeleteOutline from '@vkontakte/icons/dist/28/delete_outline';

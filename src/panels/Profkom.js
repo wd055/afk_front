@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
+
 import Panel from '@vkontakte/vkui/dist/components/Panel/Panel';
 import PanelHeader from '@vkontakte/vkui/dist/components/PanelHeader/PanelHeader';
-import Button from '@vkontakte/vkui/dist/components/Button/Button';
+import PanelHeaderButton from '@vkontakte/vkui/dist/components/PanelHeaderButton/PanelHeaderButton';
 import Snackbar from '@vkontakte/vkui/dist/components/Snackbar/Snackbar';
 import Avatar from '@vkontakte/vkui/dist/components/Avatar/Avatar';
-import Group from '@vkontakte/vkui/dist/components/Group/Group';
-import Cell from '@vkontakte/vkui/dist/components/Cell/Cell';
-import HorizontalScroll from '@vkontakte/vkui/dist/components/HorizontalScroll/HorizontalScroll';
+
 import Search from '@vkontakte/vkui/dist/components/Search/Search';
+import Cell from '@vkontakte/vkui/dist/components/Cell/Cell';
 import Div from '@vkontakte/vkui/dist/components/Div/Div';
-import Separator from '@vkontakte/vkui/dist/components/Separator/Separator';
+import Group from '@vkontakte/vkui/dist/components/Group/Group';
+import HorizontalScroll from '@vkontakte/vkui/dist/components/HorizontalScroll/HorizontalScroll';
 import FixedLayout from '@vkontakte/vkui/dist/components/FixedLayout/FixedLayout';
-import PanelHeaderButton from '@vkontakte/vkui/dist/components/PanelHeaderButton/PanelHeaderButton';
+import Button from '@vkontakte/vkui/dist/components/Button/Button';
+import Separator from '@vkontakte/vkui/dist/components/Separator/Separator';
 
 import Icon24Error from '@vkontakte/icons/dist/24/error';
 import Icon28AddOutline from '@vkontakte/icons/dist/28/add_outline';

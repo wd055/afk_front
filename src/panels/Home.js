@@ -1,21 +1,24 @@
 import { parsePhoneNumberFromString } from 'libphonenumber-js'
 import React, { useState, useEffect } from 'react';
+
 import Panel from '@vkontakte/vkui/dist/components/Panel/Panel';
 import PanelHeader from '@vkontakte/vkui/dist/components/PanelHeader/PanelHeader';
-import Button from '@vkontakte/vkui/dist/components/Button/Button';
-import Input from '@vkontakte/vkui/dist/components/Input/Input';
-import FormLayoutGroup from '@vkontakte/vkui/dist/components/FormLayoutGroup/FormLayoutGroup';
-import FormLayout from '@vkontakte/vkui/dist/components/FormLayout/FormLayout';
-import Select from '@vkontakte/vkui/dist/components/Select/Select';
-import Checkbox from '@vkontakte/vkui/dist/components/Checkbox/Checkbox';
-import ScreenSpinner from '@vkontakte/vkui/dist/components/ScreenSpinner/ScreenSpinner';
+import PanelHeaderBack from '@vkontakte/vkui/dist/components/PanelHeaderBack/PanelHeaderBack';
+import Placeholder from '@vkontakte/vkui/dist/components/Placeholder/Placeholder';
 import Snackbar from '@vkontakte/vkui/dist/components/Snackbar/Snackbar';
 import Avatar from '@vkontakte/vkui/dist/components/Avatar/Avatar';
-import Icon28CheckCircleOutline from '@vkontakte/icons/dist/28/check_circle_outline';
-import Group from '@vkontakte/vkui/dist/components/Group/Group';
+import ScreenSpinner from '@vkontakte/vkui/dist/components/ScreenSpinner/ScreenSpinner';
+
 import Cell from '@vkontakte/vkui/dist/components/Cell/Cell';
-import Placeholder from '@vkontakte/vkui/dist/components/Placeholder/Placeholder';
-import PanelHeaderBack from '@vkontakte/vkui/dist/components/PanelHeaderBack/PanelHeaderBack';
+import Group from '@vkontakte/vkui/dist/components/Group/Group';
+import FormLayout from '@vkontakte/vkui/dist/components/FormLayout/FormLayout';
+import FormLayoutGroup from '@vkontakte/vkui/dist/components/FormLayoutGroup/FormLayoutGroup';
+import Input from '@vkontakte/vkui/dist/components/Input/Input';
+import Select from '@vkontakte/vkui/dist/components/Select/Select';
+import Checkbox from '@vkontakte/vkui/dist/components/Checkbox/Checkbox';
+import Button from '@vkontakte/vkui/dist/components/Button/Button';
+
+import Icon28CheckCircleOutline from '@vkontakte/icons/dist/28/check_circle_outline';
 import Icon56CheckCircleOutline from '@vkontakte/icons/dist/56/check_circle_outline';
 import Icon56ErrorOutline from '@vkontakte/icons/dist/56/error_outline';
 import Icon24Error from '@vkontakte/icons/dist/24/error';
