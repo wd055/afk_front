@@ -121,7 +121,6 @@ const App = () => {
 
 	bridge.send("VKWebAppGetUserInfo", {});
 	useEffect(() => {
-		
 		const queryParams = parseQueryString(window.location.search);
 		const hashParams = parseQueryString(window.location.hash);		
 
@@ -437,7 +436,6 @@ const App = () => {
 			modalData.status = "err";
 		}
 	}
-
 
 	const modals = (
 		<ModalRoot

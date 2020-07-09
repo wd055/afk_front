@@ -91,10 +91,12 @@ const App = ({ id, go, goBack,
 
 			</FormLayout>
 			<FixedLayout vertical="bottom" filled>
-				<Button 
-					size="xl" 
-					disabled={!messageValue}
-				>Отправить</Button>
+				<FormLayout>
+					<Button 
+						size="xl" 
+						disabled={!messageValue}
+					>Отправить</Button>
+				</FormLayout>
 			</FixedLayout>
 			{snackbar}
 		</Panel>

@@ -40,8 +40,14 @@ const App = ({ id, 	go, goBack,
 	const [searchValue, setSearchValue] = useState("");
 
 	useEffect(() => {
-		if (students.length === 0 && searchValue.length === 0)
+		if (students.length === 0 && searchValue.length === 0){
 			search_users('', 0);
+		}
+		if (list_of_users.length != list_of_login.length){
+			for (var i = 0; i < list_of_users.length; i++) {
+				list_of_login.push(list_of_users[i].login);
+			}
+		}
 		set_selected();
 	});
 

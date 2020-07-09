@@ -17,15 +17,15 @@ const App = ({ id, go, goBack,
 	setPopout, setModal,
 	snackbar, setSnackbar,
 	setModalData,
-	textValue, setTextValue,
+	messageValue, setMessageValue,
 	list_of_users, set_list_of_users, 
 	payments_edu, setPayments_edu,
 	mailingCategories, setMailingCategories,
 }) => {
 
 	useEffect(() => {
-		if (textValue && textValue.length > 0)
-			setTextValue();
+		if (messageValue && messageValue.length > 0)
+			setMessageValue();
 		if (payments_edu && payments_edu.length > 0)
 			setPayments_edu();
 		if (list_of_users && list_of_users.length > 0)
