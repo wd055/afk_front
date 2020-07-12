@@ -29,9 +29,10 @@ const App = ({ id, go, goBack,
 	snackbar, setSnackbar,
 	list_of_users, set_list_of_users,
 	messageValue, setMessageValue,
+	countAttachments, setCountAttachments,
+	attachments, setAttachments,
+	Attachments,
 }) => {
-
-	const [countAttachments, setCountAttachments] = useState(1);
 
 	useEffect(() => {
 	});
@@ -43,8 +44,9 @@ const App = ({ id, go, goBack,
 			querys: window.location.search,
 			message: messageValue,
 			users: list_of_users,
-			attachment:"",
 		}
+		if (countAttachments > 0)
+			data.attachment = attachments.join();
 
 		try {
 			const response = await fetch(url, {
@@ -57,7 +59,12 @@ const App = ({ id, go, goBack,
 			const json = await response.json();
 			if (response.ok) {
 				statusSnackbar(200, setSnackbar);
-			}else{
+				setCountAttachments(0);
+				setAttachments([]);
+				setMessageValue();
+				set_list_of_users([]);
+				goBack();
+			} else {
 				statusSnackbar(response.status, setSnackbar);
 				console.error('individual_mailing:', data);
 			}
@@ -87,6 +94,8 @@ const App = ({ id, go, goBack,
 					}}
 					defaultValue={messageValue}
 				/>
+				<Attachments />
+
 			</FormLayout>
 
 			<Separator />

@@ -45,6 +45,11 @@ import Set_cats_mass_mailing from './panels/Set_cats_mass_mailing';
 import { redIcon, blueIcon, redBackground } from './panels/style';
 import FormLayout from '@vkontakte/vkui/dist/components/FormLayout/FormLayout';
 import FormLayoutGroup from '@vkontakte/vkui/dist/components/FormLayoutGroup/FormLayoutGroup';
+import Div from '@vkontakte/vkui/dist/components/Div/Div';
+import Input from '@vkontakte/vkui/dist/components/Input/Input';
+import Header from '@vkontakte/vkui/dist/components/Header/Header';
+import TabsItem from '@vkontakte/vkui/dist/components/TabsItem/TabsItem';
+import Tabs from '@vkontakte/vkui/dist/components/Tabs/Tabs';
 
 var origin = "https://thingworx.asuscomm.com:10888"
 var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
@@ -56,18 +61,18 @@ const App = () => {
 	const [history, setHistory] = useState([])
 
 	const [modal, setModal] = useState();
-	const [modalData, setModalData] = useState({		
-        payouts_type: "Выплаты профоргам и старостам",
-        id: 11,
-        date: "2020-06-27",
-        status: "accepted",
-        error: "asdawefwsd",
-        delete: false,
-        // surname_and_initials: "Власов Д.В.",
-        students_group: "ИУ7-21Б",
-        students_login: "19У153",
-        students_name: "Власов Денис Владимирович",
-		new:false,
+	const [modalData, setModalData] = useState({
+		payouts_type: "Выплаты профоргам и старостам",
+		id: 11,
+		date: "2020-06-27",
+		status: "accepted",
+		error: "asdawefwsd",
+		delete: false,
+		// surname_and_initials: "Власов Д.В.",
+		students_group: "ИУ7-21Б",
+		students_login: "19У153",
+		students_name: "Власов Денис Владимирович",
+		new: false,
 	});
 
 	const student_default_value = {
@@ -103,6 +108,9 @@ const App = () => {
 	const [mailingCategories, setMailingCategories] = useState([]);
 	const [messageValue, setMessageValue] = useState();
 	const [payments_edu, setPayments_edu] = useState();
+	const [group, setGroup] = useState();
+	const [countAttachments, setCountAttachments] = useState(0);
+	const [attachments, setAttachments] = useState([]);
 
 	const modals_const = [
 		'payout'
@@ -122,14 +130,14 @@ const App = () => {
 	bridge.send("VKWebAppGetUserInfo", {});
 	useEffect(() => {
 		const queryParams = parseQueryString(window.location.search);
-		const hashParams = parseQueryString(window.location.hash);		
+		const hashParams = parseQueryString(window.location.hash);
 
 		console.log(queryParams)
 		// console.log(hashParams)
-		if (hashParams["activePanel"] && activePanel !== hashParams["activePanel"]){
+		if (hashParams["activePanel"] && activePanel !== hashParams["activePanel"]) {
 			setActivePanel(hashParams["activePanel"]);
 			setPopout(null);
-		}else{
+		} else {
 			get_form();
 		}
 		console.log("qwe")
@@ -166,12 +174,12 @@ const App = () => {
 		if (history.length === 1) {
 			bridge.send("VKWebAppClose", { "status": "success" });
 		} else if (history.length > 1) {
-			if (modals_const.indexOf(history[history.length - 1]) > -1){
+			if (modals_const.indexOf(history[history.length - 1]) > -1) {
 				setSearchPayouts([]);
 				setModal(null);
-			}else if (modals_const.indexOf(history[history.length - 2]) === -1){
+			} else if (modals_const.indexOf(history[history.length - 2]) === -1) {
 				setActivePanel(history[history.length - 2]);
-			}else{
+			} else {
 				setModal(history[history.length - 2]);
 			}
 			history.pop();
@@ -182,12 +190,12 @@ const App = () => {
 	function go(name, itsModal) {
 		// console.log('history go 1', history, itsModal)
 		if (history[history.length - 1] !== name) {
-			if (name === "Home"){
+			if (name === "Home") {
 				get_form();
 			}
-			if (itsModal){
+			if (itsModal) {
 				setModal(name);
-			}else{
+			} else {
 				setStudent(student_default_value);
 				setActivePanel(name);
 			}
@@ -248,7 +256,7 @@ const App = () => {
 	function get_form() {
 
 		var url = main_url + "profkom_bot/get_form/";
-		
+
 		var data = {
 			querys: window.location.search,
 		}
@@ -267,16 +275,15 @@ const App = () => {
 				console.log("end req")
 				setPopout(null);
 				if (data !== "Error") {
-					for (var i in data){
-						if(data[i] === null || data[i] === 'none')
+					for (var i in data) {
+						if (data[i] === null || data[i] === 'none')
 							data[i] = ""
 					}
 					console.log('app get form:', data);
-					
+
 					if (data.phone) {
 						const phoneNumber = parsePhoneNumberFromString(data.phone, 'RU')
 						if (phoneNumber) {
-							console.log(phoneNumber.formatNational());
 							data.phone = phoneNumber.formatNational();
 						}
 					}
@@ -284,9 +291,9 @@ const App = () => {
 					setUsersInfo(data);
 					if (login === null) {
 						setProforg(data.proforg);
-						if (data.proforg === true){
+						if (data.proforg === true) {
 							go("Profkom");
-						}else{
+						} else {
 							go("Home");
 						}
 					}
@@ -315,12 +322,50 @@ const App = () => {
 				})
 	}
 
-	function on_modals_dutton_click(){
+	
+	function Attachments() {
+		var rows = [];
+		for (var i = 0; i < countAttachments; i++) {
+			rows.push(<Div key={i}>
+				<Input
+					id={"input_attachment_" + i}
+					key={i}
+					onChange={(e) => {
+						const { value } = e.currentTarget;
+						var temp = attachments;
+						var n = e.target.getAttribute('id').replace("input_attachment_", "");
+						temp[n] = value;
+						setAttachments(temp);
+					}}
+					defaultValue={attachments[i]}
+				/>
+			</Div>)
+		}
+		return <Group
+			header={<Header
+				key="attachments_header"
+				mode="secondary"
+				aside={<Tabs mode="buttons">
+					<TabsItem selected={true} onClick={() => { setCountAttachments(countAttachments + 1) }}>+</TabsItem>
+					<TabsItem selected={true} onClick={() => { 
+						setCountAttachments(Math.max(countAttachments - 1, 0));
+						setAttachments(attachments.slice(0, -1));
+					}}>-</TabsItem>
+				</Tabs>}
+			>Прикрепить</Header>}
+			description="Ссылку ВК на документ (саму ссылку, начинающуюся с photo-... или doc-... и тп)"
+			>
+			{rows}
+		</Group>;
+	}
+
+	//modals funcs
+	function on_modals_dutton_click() {
 		check_radio_buttons();
 		console.log(modalData)
-		if (modalData.new === true){
+		if (modalData.new === true) {
 			add_payout();
-		}else{
+		} else {
 			edit_payout();
 		}
 	}
@@ -343,7 +388,7 @@ const App = () => {
 			.then(response => response.json())
 			.then((data) => {
 				if (data !== "Error") {
-					if (student.users_payouts){
+					if (student.users_payouts) {
 						student.users_payouts.push(data);
 					}
 					// setModal(null)
@@ -420,7 +465,7 @@ const App = () => {
 				})
 	}
 
-	function check_radio_buttons(){
+	function check_radio_buttons() {
 		var arr = document.getElementsByName('status');
 		var status_id = -1;
 		for (var i = 0; i < arr.length; i++) {
@@ -428,11 +473,11 @@ const App = () => {
 				status_id = i;
 			}
 		}
-		if (status_id === 0){
+		if (status_id === 0) {
 			modalData.status = "filed";
-		}else if (status_id === 1){
+		} else if (status_id === 1) {
 			modalData.status = "accepted";
-		}else if (status_id === 2){
+		} else if (status_id === 2) {
 			modalData.status = "err";
 		}
 	}
@@ -454,7 +499,7 @@ const App = () => {
 						bottomContent={
 							<HorizontalScroll>
 								<div style={{ display: 'flex' }}>
-									{!modalData.new &&<React.Fragment>
+									{!modalData.new && <React.Fragment>
 										<Button size="m" mode="outline">{modalData.id}</Button>
 										<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{modalData.date}</Button>
 										<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{modalData.students_group}</Button>
@@ -561,11 +606,11 @@ const App = () => {
 						top="Сообщение"
 						placeholder="Сообщение"
 						id="text"
-						// value={modalData.error} 
-						// onChange={(e) => {
-						// 	const { value } = e.currentTarget;
-						// 	modalData.error = value;
-						// }}
+					// value={modalData.error} 
+					// onChange={(e) => {
+					// 	const { value } = e.currentTarget;
+					// 	modalData.error = value;
+					// }}
 					/>
 					<CellButton
 						mode="danger"
@@ -631,7 +676,7 @@ const App = () => {
 					setModal={setModal} setLogin={setLogin}
 					students={students} setStudents={setStudents}
 					snackbar={snackbar} setSnackbar={setSnackbar}
-					searchValue={searchValue} setSearchValue={setSearchValue} 
+					searchValue={searchValue} setSearchValue={setSearchValue}
 					setModalData={setModalData}
 					tabsState={tabsState} setTabsState={setTabsState}
 					searchPayouts={searchPayouts} setSearchPayouts={setSearchPayouts}
@@ -644,19 +689,29 @@ const App = () => {
 					list_of_users={list_of_users} set_list_of_users={set_list_of_users}
 					payments_edu={payments_edu} setPayments_edu={setPayments_edu}
 					mailingCategories={mailingCategories} setMailingCategories={setMailingCategories}
+					group={group} setGroup={setGroup}
+					countAttachments={countAttachments} setCountAttachments={setCountAttachments}
+					attachments={attachments} setAttachments={setAttachments}
 				/>
 				<Mass_mailing id='Mass_mailing' go={go} goBack={goBack}
-					snackbar={snackbar}
-					searchValue={searchValue} setSearchValue={setSearchValue} 
-					mailingCategories={mailingCategories} setMailingCategories={setMailingCategories} 
+					snackbar={snackbar} setPopout={setPopout} setSnackbar={setSnackbar}
+					searchValue={searchValue} setSearchValue={setSearchValue}
+					mailingCategories={mailingCategories} setMailingCategories={setMailingCategories}
 					messageValue={messageValue} setMessageValue={setMessageValue}
 					payments_edu={payments_edu} setPayments_edu={setPayments_edu}
+					group={group} setGroup={setGroup}
+					countAttachments={countAttachments} setCountAttachments={setCountAttachments}
+					attachments={attachments} setAttachments={setAttachments}
+					Attachments={Attachments}
 				/>
 				<Individual_mailing id='Individual_mailing' go={go} goBack={goBack}
 					setPopout={setPopout} setLogin={setLogin}
 					snackbar={snackbar} setSnackbar={setSnackbar}
 					list_of_users={list_of_users} set_list_of_users={set_list_of_users}
 					messageValue={messageValue} setMessageValue={setMessageValue}
+					countAttachments={countAttachments} setCountAttachments={setCountAttachments}
+					attachments={attachments} setAttachments={setAttachments}
+					Attachments={Attachments}
 				/>
 				<Mailing_Users id='Mailing_Users' go={go} goBack={goBack}
 					setLogin={setLogin}
@@ -664,7 +719,7 @@ const App = () => {
 					snackbar={snackbar} setSnackbar={setSnackbar}
 					list_of_users={list_of_users}
 				/>
-				<Set_cats_mass_mailing id='Set_cats_mass_mailing' 
+				<Set_cats_mass_mailing id='Set_cats_mass_mailing'
 					go={go} goBack={goBack}
 					snackbar={snackbar} categories={categories}
 					setMailingCategories={setMailingCategories} mailingCategories={mailingCategories}

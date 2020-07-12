@@ -21,6 +21,9 @@ const App = ({ id, go, goBack,
 	list_of_users, set_list_of_users, 
 	payments_edu, setPayments_edu,
 	mailingCategories, setMailingCategories,
+	group, setGroup,
+	countAttachments, setCountAttachments,
+	attachments, setAttachments,
 }) => {
 
 	useEffect(() => {
@@ -32,55 +35,11 @@ const App = ({ id, go, goBack,
 			set_list_of_users([]);
 		if (mailingCategories && mailingCategories.length > 0)
 			setMailingCategories([]);
+		if (countAttachments && countAttachments > 0)
+			setCountAttachments(0);
+		if (attachments && attachments.length > 0)
+			setAttachments([]);
 	});
-		
-
-	function search_users() {
-
-		// var url = main_url + "profkom_bot/search_users/";
-		// fetch(url, {
-		// 	method: 'POST',
-		// 	body: JSON.stringify({
-		// 		querys: window.location.search,
-		// 		from: list_left_end,
-		// 		to: list_left_end + count_on_page + 1,
-		// 		value: value,
-		// 	}),
-		// 	headers: {
-		// 		'Origin': origin
-		// 	}
-		// })
-		// 	.then(response => response.json())
-		// 	.then((data) => {
-		// 		if (data != "Error") {
-		// 			console.log(data)
-		// 			setStudents(data)
-		// 			return (data)
-		// 		}
-		// 		else {
-		// 			setSnackbar(<Snackbar
-		// 				layout="vertical"
-		// 				onClose={() => setSnackbar(null)}
-		// 				before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
-		// 			>
-		// 				Ошибка подключения
-		// 				</Snackbar>);
-		// 			console.error('search_payouts:', data)
-		// 			return null
-		// 		}
-		// 	},
-		// 		(error) => {
-		// 			setSnackbar(<Snackbar
-		// 				layout="vertical"
-		// 				onClose={() => setSnackbar(null)}
-		// 				before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
-		// 			>
-		// 				Ошибка подключения
-		// 				</Snackbar>);
-		// 			console.error('search_payouts:', error)
-		// 			return null
-		// 		})
-	}
 
 	const Home =
 		<Panel id={id} style={{ 'maxWidth': 630, margin: 'auto' }}>

@@ -77,7 +77,7 @@ const App = ({ id, go, goBack,
 
 		if (student.login !== login)
 			get_users_info();
-		console.log(student, login)
+		console.log(student)
 	});
 
 	function copy_in_bufer(text) {
@@ -105,7 +105,6 @@ const App = ({ id, go, goBack,
 					if (data.phone) {
 						const phoneNumber = parsePhoneNumberFromString(data.phone, 'RU')
 						if (phoneNumber) {
-							console.log(phoneNumber.formatNational());
 							data.phone = phoneNumber.formatNational();
 						}
 					}
