@@ -142,7 +142,10 @@ const App = ({
 
 		if (login !== null){
 			data.students_login = login;
-			student.phone = phone;
+			student.phone = phoneNumber.number;
+			if (phoneNumber) {
+				student.phone = phoneNumber.formatNational();
+			}
 			student.email = email;
 		}
 
@@ -192,7 +195,7 @@ const App = ({
 					  </Snackbar>);
 					setPopout(null);
 					if (proforg === true)
-						window.history.back();
+						goBack();
 				}
 				console.log("set form:", data)
 			},

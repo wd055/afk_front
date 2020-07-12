@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import bridge from '@vkontakte/vk-bridge';
 
 import Panel from '@vkontakte/vkui/dist/components/Panel/Panel';
 import PanelHeader from '@vkontakte/vkui/dist/components/PanelHeader/PanelHeader';
@@ -24,9 +25,26 @@ const App = ({ id, go, goBack,
 	group, setGroup,
 	countAttachments, setCountAttachments,
 	attachments, setAttachments,
+	queryParams,
 }) => {
 
+	const [favorites, setFavorites] = useState(false);
+	const [platform, setPlatform] = useState("");
+
 	useEffect(() => {
+		setFavorites(queryParams.vk_is_favorite === 1);
+		setPlatform(queryParams.vk_platform);
+
+		bridge.subscribe(({ detail: { type, data } }) => {
+			if (type === 'VKWebAppAddToFavoritesResult') {
+				setFavorites(true);
+				queryParams.vk_is_favorite = 1;
+			}
+		});
+		
+		console.log(queryParams)
+		console.log(favorites)
+
 		if (messageValue && messageValue.length > 0)
 			setMessageValue();
 		if (payments_edu && payments_edu.length > 0)
@@ -47,7 +65,10 @@ const App = ({ id, go, goBack,
 				left={<PanelHeaderBack onClick={goBack} />}
 			>Настройки</PanelHeader>
 			<Group>
-				<Header mode="secondary">Рассылки</Header>
+				{!favorites && <SimpleCell expandable onClick={() => {bridge.send("VKWebAppAddToFavorites", {})}}>Добавить в избранное</SimpleCell>}
+				{platform == "mobile_android" && <SimpleCell expandable onClick={() => {bridge.send("VKWebAppAddToHomeScreen")}}>Добавить ярлык на рабочий стол</SimpleCell>}
+			</Group>
+			<Group>
 				<SimpleCell expandable onClick={() => go('Mass_mailing')}>Массовая рассылка</SimpleCell>
 				<SimpleCell expandable onClick={() => go('Individual_mailing')}>Индивидуальные сообщения</SimpleCell>
 			</Group>

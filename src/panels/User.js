@@ -19,6 +19,7 @@ import SimpleCell from '@vkontakte/vkui/dist/components/SimpleCell/SimpleCell';
 import HorizontalScroll from '@vkontakte/vkui/dist/components/HorizontalScroll/HorizontalScroll';
 import Button from '@vkontakte/vkui/dist/components/Button/Button';
 import CellButton from '@vkontakte/vkui/dist/components/CellButton/CellButton';
+import PullToRefresh from '@vkontakte/vkui/dist/components/PullToRefresh/PullToRefresh';
 
 import Icon24Error from '@vkontakte/icons/dist/24/error';
 import Icon28DeleteOutline from '@vkontakte/icons/dist/28/delete_outline';
@@ -51,6 +52,7 @@ const App = ({ id, go, goBack,
 	const [set_accepted_temp, set_set_accepted_temp] = useState(0);
 	const [tabsState, setTabsState] = useState("actual");
 	const [payoutsShow, setPayoutsShow] = useState("users_payouts");
+	const [fetching, setFetching] = useState(false);
 
 
 	useEffect(() => {
@@ -99,6 +101,7 @@ const App = ({ id, go, goBack,
 			.then(response => response.json())
 			.then((data) => {
 				if (data !== "Error") {
+					setFetching(false);
 					console.log("users get_users_info", data)
 					data.login = login;
 
@@ -241,7 +244,7 @@ const App = ({ id, go, goBack,
 				left={<PanelHeaderBack onClick={goBack} />}
 			>Профком МГТУ</PanelHeader>
 			<Group>
-				<Cell size="l" onClick={() => get_users_info()}
+				<Cell size="l"
 					before={(student.photo_100 && student.photo_100.length > 0) && <Avatar size={40} src={student.photo_100} />}
 					bottomContent={
 						<HorizontalScroll>
@@ -359,19 +362,24 @@ const App = ({ id, go, goBack,
 						selected={tabsState === 'all'}
 					>Неактуальные заявления</TabsItem>
 				</Tabs>
-
-				{student[payoutsShow].map((post, i) => post.delete === false &&
-					(<Group key={i} separator={"show"}>
-						<Cell size="l" onClick={(e) => {
-							on_payouts_click(e, post);
-						}}
-							before={get_before_payouts(post.delete, post.status)}
-							asideContent={post.status === "filed" &&
-								<Icon28DoneOutline style={blueIcon} />}
-							// bottomContent={<Button size="m" mode="outline">{post.id}</Button>}
-							description={post.id}
-						>{post.payouts_type}</Cell>
-					</Group>))}
+				<PullToRefresh onRefresh={() => {
+						setFetching(true);
+						get_users_info();
+					}}
+					isFetching={fetching}>
+					{student[payoutsShow].map((post, i) => post.delete === false &&
+						(<Group key={i} separator={"show"}>
+							<Cell size="l" onClick={(e) => {
+								on_payouts_click(e, post);
+							}}
+								before={get_before_payouts(post.delete, post.status)}
+								asideContent={post.status === "filed" &&
+									<Icon28DoneOutline style={blueIcon} />}
+								// bottomContent={<Button size="m" mode="outline">{post.id}</Button>}
+								description={post.id}
+							>{post.payouts_type}</Cell>
+						</Group>))}
+				</PullToRefresh>
 			</Group>
 			{snackbar}
 		</Panel>

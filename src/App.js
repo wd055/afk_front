@@ -122,16 +122,18 @@ const App = () => {
 				return { key: kvp[0], value: kvp[1] }
 			})
 			.reduce((query, kvp) => {
-				query[kvp.key] = kvp.value;
+				if (parseInt(kvp.value) || kvp.value === "0")
+					query[kvp.key] = parseInt(kvp.value);
+				else
+					query[kvp.key] = kvp.value;
 				return query
 			}, {})
 	};
 
 	bridge.send("VKWebAppGetUserInfo", {});
+	const queryParams = parseQueryString(window.location.search);
+	const hashParams = parseQueryString(window.location.hash);
 	useEffect(() => {
-		const queryParams = parseQueryString(window.location.search);
-		const hashParams = parseQueryString(window.location.hash);
-
 		console.log(queryParams)
 		// console.log(hashParams)
 		if (hashParams["activePanel"] && activePanel !== hashParams["activePanel"]) {
@@ -140,7 +142,6 @@ const App = () => {
 		} else {
 			get_form();
 		}
-		console.log("qwe")
 
 		window.addEventListener('popstate', () => goBack());
 		get_all_categories();
@@ -191,6 +192,7 @@ const App = () => {
 		// console.log('history go 1', history, itsModal)
 		if (history[history.length - 1] !== name) {
 			if (name === "Home") {
+				setUsersInfo(null);
 				get_form();
 			}
 			if (itsModal) {
@@ -281,12 +283,12 @@ const App = () => {
 					}
 					console.log('app get form:', data);
 
-					if (data.phone) {
-						const phoneNumber = parsePhoneNumberFromString(data.phone, 'RU')
-						if (phoneNumber) {
-							data.phone = phoneNumber.formatNational();
-						}
-					}
+					// if (data.phone) {
+					// 	const phoneNumber = parsePhoneNumberFromString(data.phone, 'RU')
+					// 	if (phoneNumber) {
+					// 		data.phone = phoneNumber.formatNational();
+					// 	}
+					// }
 
 					setUsersInfo(data);
 					if (login === null) {
@@ -372,6 +374,7 @@ const App = () => {
 
 	function add_payout() {
 		var url = main_url + "profkom_bot/add_payout/";
+		
 		fetch(url, {
 			method: 'POST',
 			body: JSON.stringify({
@@ -391,7 +394,6 @@ const App = () => {
 					if (student.users_payouts) {
 						student.users_payouts.push(data);
 					}
-					// setModal(null)
 					goBack();
 				}
 				else {
@@ -496,6 +498,11 @@ const App = () => {
 			>
 				<Group>
 					<Cell size="l"
+						onClick={() =>{
+							setLogin(modalData.students_login);
+							goBack();
+							go("User");
+						}}
 						bottomContent={
 							<HorizontalScroll>
 								<div style={{ display: 'flex' }}>
@@ -593,50 +600,6 @@ const App = () => {
 					</FormLayout>
 				</Group>
 			</ModalPage>
-			<ModalPage
-				id={'mass_mailing'}
-				header={
-					<ModalPageHeader
-					//   left={IS_PLATFORM_ANDROID && <PanelHeaderButton onClick={this.modalBack}><Icon24Cancel /></PanelHeaderButton>}
-					//   right={IS_PLATFORM_IOS && <PanelHeaderButton onClick={this.modalBack}><Icon24Dismiss /></PanelHeaderButton>}
-					>Рассылка</ModalPageHeader>}
-			>
-				<FormLayout>
-					<Textarea
-						top="Сообщение"
-						placeholder="Сообщение"
-						id="text"
-					// value={modalData.error} 
-					// onChange={(e) => {
-					// 	const { value } = e.currentTarget;
-					// 	modalData.error = value;
-					// }}
-					/>
-					<CellButton
-						mode="danger"
-						before={<Icon28Send />}
-						onClick={() => setPopout(<Alert
-							actionsLayout="vertical"
-							actions={[{
-								title: 'Разослать',
-								autoclose: true,
-								mode: 'destructive',
-								action: () => {
-									on_modals_dutton_click();
-								},
-							}, {
-								title: 'Отмена',
-								autoclose: true,
-								mode: 'cancel'
-							}]}
-							onClose={() => setPopout(null)}
-						>
-							<h2>Подтвердите действие</h2>
-							<p>Вы уверены, что хотите разослать это сообщение?</p>
-						</Alert>)}
-					>Разослать</CellButton>
-				</FormLayout>
-			</ModalPage>
 		</ModalRoot>
 	);
 
@@ -692,6 +655,7 @@ const App = () => {
 					group={group} setGroup={setGroup}
 					countAttachments={countAttachments} setCountAttachments={setCountAttachments}
 					attachments={attachments} setAttachments={setAttachments}
+					queryParams={queryParams}
 				/>
 				<Mass_mailing id='Mass_mailing' go={go} goBack={goBack}
 					snackbar={snackbar} setPopout={setPopout} setSnackbar={setSnackbar}
