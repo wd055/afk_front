@@ -13,6 +13,8 @@ import Icon28AddCircleOutline from '@vkontakte/icons/dist/28/add_circle_outline'
 import Icon28ShareOutline from '@vkontakte/icons/dist/28/share_outline';
 import Icon28BrainOutline from '@vkontakte/icons/dist/28/brain_outline';
 
+import { statusSnackbar } from './style';
+
 // var origin = "https://thingworx.asuscomm.com:10888"
 // var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
 
@@ -92,6 +94,7 @@ const App = ({ id, go, goBack,
 				bridge.send("VKWebAppStorageSet", {"key": keys[i], "value": "false"});
 			}
 		}
+		statusSnackbar(200, setSnackbar);
 	}
 	const Home =
 		<Panel id={id} style={{ 'maxWidth': 630, margin: 'auto' }}>
