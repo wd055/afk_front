@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import Panel from '@vkontakte/vkui/dist/components/Panel/Panel';
 import PanelHeader from '@vkontakte/vkui/dist/components/PanelHeader/PanelHeader';
 import PanelHeaderBack from '@vkontakte/vkui/dist/components/PanelHeaderBack/PanelHeaderBack';
-import Placeholder from '@vkontakte/vkui/dist/components/Placeholder/Placeholder';
 import Snackbar from '@vkontakte/vkui/dist/components/Snackbar/Snackbar';
 import Avatar from '@vkontakte/vkui/dist/components/Avatar/Avatar';
 import ScreenSpinner from '@vkontakte/vkui/dist/components/ScreenSpinner/ScreenSpinner';
@@ -19,13 +18,11 @@ import Checkbox from '@vkontakte/vkui/dist/components/Checkbox/Checkbox';
 import Button from '@vkontakte/vkui/dist/components/Button/Button';
 
 import Icon28CheckCircleOutline from '@vkontakte/icons/dist/28/check_circle_outline';
-import Icon56CheckCircleOutline from '@vkontakte/icons/dist/56/check_circle_outline';
-import Icon56ErrorOutline from '@vkontakte/icons/dist/56/error_outline';
 import Icon24Error from '@vkontakte/icons/dist/24/error';
 
 import bridge from '@vkontakte/vk-bridge';
 
-import { redIcon, blueIcon, orangeBackground, blueBackground, redBackground } from './style';
+import { orangeBackground, blueBackground, redBackground } from './style';
 
 const check_valid = false;
 const show_valid = true;
@@ -46,8 +43,6 @@ const App = ({
 }) => {
 
 	const [getCategories, setGetCategories] = useState([]);
-	const [showForm, setShowForm] = useState(true);
-	const [submitSuccess, setSubmitSuccess] = useState("Успешно!");
 	// const [snackbar, setSnackbar] = useState();
 
 	const [email, setEmail] = useState("");
@@ -56,9 +51,10 @@ const App = ({
 	const [name, setName] = useState("");
 	const [group, setGroup] = useState("");
 	const [students_login, set_students_login] = useState("");
+	const [students_proforg, set_students_proforg] = useState(0);
 
 	useEffect(() => {
-		if (usersInfo !== null && students_login !== usersInfo.login){
+		if (usersInfo !== null && students_login !== usersInfo.login) {
 			console.log("!!!!!!!!!!!!", usersInfo)
 			setGroup(usersInfo.group);
 			set_students_login(usersInfo.login);
@@ -67,6 +63,7 @@ const App = ({
 			setPhone(usersInfo.phone);
 			setGetCategories(usersInfo.categories);
 			setPayments_edu(usersInfo.payments_edu);
+			set_students_proforg(usersInfo.proforg);
 		}
 		// get_users_info()
 		bridge.subscribe(({ detail: { type, data } }) => {
@@ -79,7 +76,7 @@ const App = ({
 				setPhone(data.phone_number);
 			}
 		});
-	});
+	}, [usersInfo, students_login]);
 
 	const [clickEmail, setClickEmail] = useState(true);
 	const [clickPhone, setClickPhone] = useState(true);
@@ -115,7 +112,7 @@ const App = ({
 	}
 
 	function onFormClick(e) {
-		if (login === null && (( check_valid && (!email || !phone || !validatePhone(phone)  || !validateEmail(email) ) ) || !payments_edu)) {
+		if (login === null && ((check_valid && (!email || !phone || !validatePhone(phone) || !validateEmail(email))) || !payments_edu)) {
 			setSnackbar(<Snackbar
 				layout="vertical"
 				onClose={() => setSnackbar(null)}
@@ -134,13 +131,17 @@ const App = ({
 			payments_edu: document.getElementById("payments_edu").value,
 			categories: []
 		}
-		
+
+		if (proforg >= 3) {
+			data.proforg = students_proforg;
+		}
+
 		const phoneNumber = parsePhoneNumberFromString(phone, 'RU')
 		if (phoneNumber) {
 			data.phone = phoneNumber.number;
 		}
 
-		if (login !== null){
+		if (login !== null) {
 			data.students_login = login;
 			student.phone = phoneNumber.number;
 			if (phoneNumber) {
@@ -173,7 +174,6 @@ const App = ({
 			.then(response => response.json())
 			.then((data) => {
 				setPopout(null);
-				// setShowForm(false);
 				if (data !== 'Success') {
 					setSnackbar(<Snackbar
 						layout="vertical"
@@ -194,7 +194,7 @@ const App = ({
 						Успешно!
 					  </Snackbar>);
 					setPopout(null);
-					if (proforg === true)
+					if (proforg > 0)
 						goBack();
 				}
 				console.log("set form:", data)
@@ -222,101 +222,101 @@ const App = ({
 
 	const Home =
 		<Panel id={id}>
-			<PanelHeader 
-				// left={proforg === true && <PanelHeaderBack onClick={goBack} />}
-				left={proforg === true && <PanelHeaderBack onClick={goBack} />}
+			<PanelHeader
+				left={proforg > 0 && <PanelHeaderBack onClick={goBack} />}
 			>Форма</PanelHeader>
-			{showForm
-				? <Group>
-					<Group>
-						<Cell size="l"
-							bottomContent={
-								<div style={{ display: 'flex' }}>
-									<Button size="m" mode="outline">{group}</Button>
-									<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{students_login}</Button>
-								</div>
-							}>{name}</Cell>
-					</Group>
-					<FormLayout>
-						<FormLayoutGroup 
-							top="Контактные данные"
-							bottom={login === null && contacts_bottom}
-						>
-							<Input
-								type="text"
-								top="E-mail"
-								placeholder="E-mail"
-								name="email"
-								id="email"
-								onClick={onEmailClick}
-								onChange={(e) => {
-									const { value } = e.currentTarget;
-									setEmail(value.slice(0, 100));
-								}}
-								value={email}
-								status={(show_valid && login === null) && (validateEmail(email) ? 'valid' : 'error')}
-								bottom={(show_valid && login === null) && (validateEmail(email) ?
-									'' : 'Пожалуйста, корректно введите Вашу электронную почту')}
-								required={check_valid}
-							/>
-							<Input
-								id="phone"
-								type="phone"
-								top="Телефон"
-								placeholder="Телефон"
-								name="phone"
-								onClick={onPhoneClick}
-								onChange={(e) => {
-									const { value } = e.currentTarget;
-									setPhone(value.slice(0, 50));
-								}}
-								value={phone}
-								status={(show_valid && login===null) && (validatePhone(phone) ? 'valid' : 'error')}
-								bottom={(show_valid && login===null) && (validatePhone(phone) ? '' : 'Пожалуйста, корректно введите Ваш номер телефона')}
-								required = {check_valid}
-							/>
-						</FormLayoutGroup>
-						<Select
-							top="Форма обучения"
-							placeholder="Форма обучения"
-							id='payments_edu'
-							name="payments_edu"
+			<Group>
+				<Group>
+					<Cell size="l"
+						bottomContent={
+							<div style={{ display: 'flex' }}>
+								<Button size="m" mode="outline">{group}</Button>
+								<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{students_login}</Button>
+							</div>
+						}>{name}</Cell>
+				</Group>
+				<FormLayout>
+					{proforg >= 3 && <Input
+						type="number"
+						top="Уровень профорга"
+						name="proforg"
+						id="proforg"
+						onChange={(e) => {
+							const { value } = e.currentTarget;
+							set_students_proforg(value);
+						}}
+						value={students_proforg}>
+					</Input>}
+					<FormLayoutGroup
+						top="Контактные данные"
+						bottom={login === null && contacts_bottom}
+					>
+						<Input
+							type="text"
+							top="E-mail"
+							placeholder="E-mail"
+							name="email"
+							id="email"
+							onClick={onEmailClick}
 							onChange={(e) => {
 								const { value } = e.currentTarget;
-								setPayments_edu(value);
+								setEmail(value.slice(0, 100));
 							}}
-							value={String(payments_edu)}
-							status={login===null && (payments_edu ? 'valid' : 'error')}
-							bottom={login===null && (payments_edu ? '' : 'Пожалуйста, выберите форму обучения')}
-							required = {login===null}
-						>
-							<option value="free" id="select_free">Бюджетная</option>
-							<option value="paid" id="select_paid">Платная</option>
-						</Select>
+							value={email}
+							status={(show_valid && login === null) && (validateEmail(email) ? 'valid' : 'error')}
+							bottom={(show_valid && login === null) && (validateEmail(email) ?
+								'' : 'Пожалуйста, корректно введите Вашу электронную почту')}
+							required={check_valid}
+						/>
+						<Input
+							id="phone"
+							type="phone"
+							top="Телефон"
+							placeholder="Телефон"
+							name="phone"
+							onClick={onPhoneClick}
+							onChange={(e) => {
+								const { value } = e.currentTarget;
+								setPhone(value.slice(0, 50));
+							}}
+							value={phone}
+							status={(show_valid && login === null) && (validatePhone(phone) ? 'valid' : 'error')}
+							bottom={(show_valid && login === null) && (validatePhone(phone) ? '' : 'Пожалуйста, корректно введите Ваш номер телефона')}
+							required={check_valid}
+						/>
+					</FormLayoutGroup>
+					<Select
+						top="Форма обучения"
+						placeholder="Форма обучения"
+						id='payments_edu'
+						name="payments_edu"
+						onChange={(e) => {
+							const { value } = e.currentTarget;
+							setPayments_edu(value);
+						}}
+						value={String(payments_edu)}
+						status={login === null && (payments_edu ? 'valid' : 'error')}
+						bottom={login === null && (payments_edu ? '' : 'Пожалуйста, выберите форму обучения')}
+						required={login === null}
+					>
+						<option value="free" id="select_free">Бюджетная</option>
+						<option value="paid" id="select_paid">Платная</option>
+					</Select>
 
-						<FormLayoutGroup top="Выберите подходящие категории" onLoad={onLoadCategory()}>
-							{/* <Radio name="type">Паспорт</Radio>
+					<FormLayoutGroup top="Выберите подходящие категории" onLoad={onLoadCategory()}>
+						{/* <Radio name="type">Паспорт</Radio>
 				<Radio name="type">Загран</Radio> */}
-							{categories.map((category, i) => (
-								<Checkbox name="category" key={i} id={i.toString()}>{category}</Checkbox>
-								// <Checkbox name="category" id={i.toString()} defaultChecked={getCategories.indexOf(categories) !== -1}>{category}</Checkbox>
-							))}
-						</FormLayoutGroup>
-						{/* <Checkbox>Согласен со всем <Link>этим</Link></Checkbox> */}
+						{categories.map((category, i) => (
+							<Checkbox name="category" key={i} id={i.toString()}>{category}</Checkbox>
+							// <Checkbox name="category" id={i.toString()} defaultChecked={getCategories.indexOf(categories) !== -1}>{category}</Checkbox>
+						))}
+					</FormLayoutGroup>
+					{/* <Checkbox>Согласен со всем <Link>этим</Link></Checkbox> */}
 
-						{/* <Textarea top="О себе" /> */}
-						<Button size="xl" onClick={onFormClick}>Подтвердить</Button>
-					</FormLayout>
-				</Group>
-				: <Placeholder
-					icon={submitSuccess === 'Успешно!' ? <Icon56CheckCircleOutline style={blueIcon} /> : <Icon56ErrorOutline style={redIcon} />}
-					// action={<Button size="l" mode="tertiary">Показать все сообщения</Button>}
-					stretched
-					id="Placeholder"
-					style="visibility:hidden;"
-				>
-					{submitSuccess}
-				</Placeholder>}
+					{/* <Textarea top="О себе" /> */}
+					<Button size="xl" onClick={onFormClick}>Подтвердить</Button>
+				</FormLayout>
+			</Group>
 			{snackbar}
 		</Panel>
 	return Home;

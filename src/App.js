@@ -1,4 +1,3 @@
-import { parsePhoneNumberFromString } from 'libphonenumber-js'
 import React, { useState, useEffect } from 'react';
 import bridge from '@vkontakte/vk-bridge';
 import View from '@vkontakte/vkui/dist/components/View/View';
@@ -25,22 +24,20 @@ import CellButton from '@vkontakte/vkui/dist/components/CellButton/CellButton';
 import Alert from '@vkontakte/vkui/dist/components/Alert/Alert';
 
 import Icon28DeleteOutline from '@vkontakte/icons/dist/28/delete_outline';
-import Icon28Send from '@vkontakte/icons/dist/28/send';
+import Icon24Error from '@vkontakte/icons/dist/24/error';
 
 import Snackbar from '@vkontakte/vkui/dist/components/Snackbar/Snackbar';
 import Avatar from '@vkontakte/vkui/dist/components/Avatar/Avatar';
 import ConfigProvider from '@vkontakte/vkui/dist/components/ConfigProvider/ConfigProvider';
 
-import Icon24Error from '@vkontakte/icons/dist/24/error';
-
 import Home from './panels/Home';
 import Profkom from './panels/Profkom';
 import User from './panels/User';
 import Settings from './panels/Settings';
-import Mass_mailing from './panels/Mass_mailing';
-import Individual_mailing from './panels/Individual_mailing';
-import Mailing_Users from './panels/Mailing_Users';
-import Set_cats_mass_mailing from './panels/Set_cats_mass_mailing';
+import MASS_MAILING from './panels/MASS_MAILING';
+import INDIVIDUAL_MAILING from './panels/INDIVIDUAL_MAILING';
+import MAILING_USERS from './panels/MAILING_USERS';
+import SET_CATEGORIES_MASS_MAILING from './panels/SET_CATEGORIES_MASS_MAILING';
 
 import { redIcon, blueIcon, redBackground } from './panels/style';
 import FormLayout from '@vkontakte/vkui/dist/components/FormLayout/FormLayout';
@@ -58,7 +55,7 @@ var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
 
 const App = () => {
 	const [activePanel, setActivePanel] = useState('spinner');
-	const [history, setHistory] = useState([])
+	const [history] = useState([])
 
 	const [modal, setModal] = useState();
 	const [modalData, setModalData] = useState({
@@ -163,12 +160,8 @@ const App = () => {
 			if (type === 'VKWebAppGetUserInfoResult') {
 			}
 		});
-		async function fetchData() {
-			// const user = await bridge.send('VKWebAppGetUserInfo');
-			// setPopout(null);
-		}
-		fetchData();
 	}, []);
+
 
 	function goBack() {
 		// console.log('history goBack 1', history)
@@ -293,7 +286,7 @@ const App = () => {
 					setUsersInfo(data);
 					if (login === null) {
 						setProforg(data.proforg);
-						if (data.proforg === true) {
+						if (data.proforg > 0) {
 							go("Profkom");
 						} else {
 							go("Home");
@@ -655,9 +648,9 @@ const App = () => {
 					group={group} setGroup={setGroup}
 					countAttachments={countAttachments} setCountAttachments={setCountAttachments}
 					attachments={attachments} setAttachments={setAttachments}
-					queryParams={queryParams}
+					queryParams={queryParams} proforg={proforg}
 				/>
-				<Mass_mailing id='Mass_mailing' go={go} goBack={goBack}
+				<MASS_MAILING id='MASS_MAILING' go={go} goBack={goBack}
 					snackbar={snackbar} setPopout={setPopout} setSnackbar={setSnackbar}
 					searchValue={searchValue} setSearchValue={setSearchValue}
 					mailingCategories={mailingCategories} setMailingCategories={setMailingCategories}
@@ -668,7 +661,7 @@ const App = () => {
 					attachments={attachments} setAttachments={setAttachments}
 					Attachments={Attachments}
 				/>
-				<Individual_mailing id='Individual_mailing' go={go} goBack={goBack}
+				<INDIVIDUAL_MAILING id='INDIVIDUAL_MAILING' go={go} goBack={goBack}
 					setPopout={setPopout} setLogin={setLogin}
 					snackbar={snackbar} setSnackbar={setSnackbar}
 					list_of_users={list_of_users} set_list_of_users={set_list_of_users}
@@ -677,13 +670,13 @@ const App = () => {
 					attachments={attachments} setAttachments={setAttachments}
 					Attachments={Attachments}
 				/>
-				<Mailing_Users id='Mailing_Users' go={go} goBack={goBack}
+				<MAILING_USERS id='MAILING_USERS' go={go} goBack={goBack}
 					setLogin={setLogin}
 					students={students} setStudents={setStudents}
 					snackbar={snackbar} setSnackbar={setSnackbar}
 					list_of_users={list_of_users}
 				/>
-				<Set_cats_mass_mailing id='Set_cats_mass_mailing'
+				<SET_CATEGORIES_MASS_MAILING id='SET_CATEGORIES_MASS_MAILING'
 					go={go} goBack={goBack}
 					snackbar={snackbar} categories={categories}
 					setMailingCategories={setMailingCategories} mailingCategories={mailingCategories}

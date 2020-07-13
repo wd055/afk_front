@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
 import Panel from '@vkontakte/vkui/dist/components/Panel/Panel';
 import PanelHeader from '@vkontakte/vkui/dist/components/PanelHeader/PanelHeader';
@@ -34,11 +34,8 @@ const App = ({ id, go, goBack,
 	Attachments,
 }) => {
 
-	useEffect(() => {
-	});
-
 	async function send_individual_mailing() {
-		var url = main_url + "profkom_bot/individual_mailing";
+		var url = main_url + "profkom_bot/INDIVIDUAL_MAILING";
 		
 		var data = {
 			querys: window.location.search,
@@ -56,7 +53,7 @@ const App = ({ id, go, goBack,
 					'Origin': origin
 				}
 			});
-			const json = await response.json();
+			// const json = await response.json();
 			if (response.ok) {
 				statusSnackbar(200, setSnackbar);
 				setCountAttachments(0);
@@ -66,12 +63,12 @@ const App = ({ id, go, goBack,
 				goBack();
 			} else {
 				statusSnackbar(response.status, setSnackbar);
-				console.error('individual_mailing:', data);
+				console.error('INDIVIDUAL_MAILING:', data);
 			}
 		} catch (error) {
 			setPopout(null);
 			statusSnackbar(0, setSnackbar);
-			console.error('individual_mailing:', error);
+			console.error('INDIVIDUAL_MAILING:', error);
 		}
 	}
 	
@@ -101,7 +98,7 @@ const App = ({ id, go, goBack,
 			<Separator />
 			<SimpleCell
 				expandable
-				onClick={() => go('Mailing_Users')}
+				onClick={() => go('MAILING_USERS')}
 				description="Если студента нельзя выбрать, значит он не авторизовывался в ВК"
 			>Выбор студентов
 			</SimpleCell>

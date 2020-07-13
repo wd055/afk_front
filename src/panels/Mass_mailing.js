@@ -16,7 +16,6 @@ import Select from '@vkontakte/vkui/dist/components/Select/Select';
 import Textarea from '@vkontakte/vkui/dist/components/Textarea/Textarea';
 
 import { statusSnackbar } from './style';
-import { func } from 'prop-types';
 
 var origin = "https://thingworx.asuscomm.com:10888"
 var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
@@ -42,7 +41,7 @@ const App = ({ id, go, goBack,
 	});
 
 	async function send_mass_mailing() {
-		var url = main_url + "profkom_bot/mass_mailing";
+		var url = main_url + "profkom_bot/MASS_MAILING";
 		
 		var data = {
 			querys: window.location.search,
@@ -63,7 +62,7 @@ const App = ({ id, go, goBack,
 					'Origin': origin
 				}
 			});
-			const json = await response.json();
+			// const json = await response.json();
 			if (response.ok) {
 				statusSnackbar(200, setSnackbar);
 				setMessageValue();
@@ -147,7 +146,7 @@ const App = ({ id, go, goBack,
 				<Separator />
 				<SimpleCell
 					expandable
-					onClick={() => go('Set_cats_mass_mailing')}
+					onClick={() => go('SET_CATEGORIES_MASS_MAILING')}
 					description="У студента есть хоть одна выбранная категория(не забудьте подтвердить выбор)"
 					indicator={mailingCategories && mailingCategories.length > 0 && <Counter>{mailingCategories.length}</Counter>}
 				>Выбор категорий

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import bridge from '@vkontakte/vk-bridge';
 
 import Panel from '@vkontakte/vkui/dist/components/Panel/Panel';
 import PanelHeader from '@vkontakte/vkui/dist/components/PanelHeader/PanelHeader';
@@ -28,6 +29,7 @@ import Icon28SettingsOutline from '@vkontakte/icons/dist/28/settings_outline';
 
 import Tabs from '@vkontakte/vkui/dist/components/Tabs/Tabs';
 import TabsItem from '@vkontakte/vkui/dist/components/TabsItem/TabsItem';
+import Tooltip from '@vkontakte/vkui/dist/components/Tooltip/Tooltip';
 
 import { redIcon, blueIcon, blueBackground, redBackground } from './style';
 
@@ -49,13 +51,43 @@ const App = ({ id, go, setPopout,
 	const count_on_page = 6;
 	const [set_accepted_temp, set_set_accepted_temp] = useState(0);
 	const [list_left_end, set_list_left_end] = useState(0);
+	const [tooltip_payouts_tips, set_tooltip_payouts_tips] = useState(false);
 
 	useEffect(() => {
 		if (tabsState === "students" && students.length === 0 && searchValue.length === 0)
 			search_users('', 0);
 		else if (tabsState === "payouts" && searchPayouts.length === 0 && searchValue.length === 0)
 			search_payouts('', 0);
+
+		bridge.subscribe(({ detail: { type, data } }) => {
+			// if (type === 'VKWebAppStorageGetKeysResult') {
+			// 	console.log(data.keys)
+			// }
+			// if (type === 'VKWebAppStorageGetKeysFailed') {
+			// 	console.error(data)
+			// }
+
+			// if (type === 'VKWebAppStorageSetResult') {
+			// 	console.log(data)
+			// }
+			// if (type === 'VKWebAppStorageSetFailed') {
+			// 	console.error(data)
+			// }
+
+			if (type === 'VKWebAppStorageGetResult') {
+				// payouts_tip_click(data.keys[0])
+				if (data.keys[0].key === "tooltip_payouts_tips" && 
+					(data.keys[0].value === false || data.keys[0].value === "false")) {
+					bridge.send("VKWebAppStorageSet", { "key": "tooltip_payouts_tips", "value": "true"});
+					set_tooltip_payouts_tips(true);
+				}
+				console.log(data)
+			}
+			// if (type === 'VKWebAppStorageGetFailed') {
+			// 	console.error(data)
+			// }
 		});
+	}, []);
 
 	function search_payouts(value, list_left_end) {
 		var url = main_url + "profkom_bot/search_payouts/";
@@ -273,10 +305,17 @@ const App = ({ id, go, setPopout,
 		}
 	}
 
+	// function payouts_tip_click(keys) {
+	// 	if (keys.value === false || keys.value === "false") {
+	// 		bridge.send("VKWebAppStorageSet", { "key": "tooltip_payouts_tips", "value": "true"});
+	// 		set_tooltip_payouts_tips(true);
+	// 	}
+	// }
+
 	const Home =
 		<Panel id={id} style={{ 'maxWidth': 630, margin: 'auto' }}>
 			<PanelHeader
-				left={<PanelHeaderButton><Icon28SettingsOutline onClick={() => go("Settings")}/></PanelHeaderButton>}
+				left={<PanelHeaderButton><Icon28SettingsOutline onClick={() => go("Settings")} /></PanelHeaderButton>}
 			>Профком МГТУ</PanelHeader>
 
 			<FixedLayout vertical="top">
@@ -298,6 +337,7 @@ const App = ({ id, go, setPopout,
 							setSearchValue("");
 							setSearchPayouts([]);
 							set_list_left_end(0);
+							bridge.send("VKWebAppStorageGet", { "keys": ["tooltip_payouts_tips"] });
 						}}
 						selected={tabsState === 'payouts'}
 					>Заявления</TabsItem>
@@ -319,52 +359,63 @@ const App = ({ id, go, setPopout,
 					after={null}
 				/>
 			</FixedLayout>
-			<Div style={{  paddingTop: 80, paddingBottom: 60 }}>
-				{tabsState === "students" && students.slice(0, count_on_page).map((post, i) =>
-					(<Group key={i}>
-						<Cell size="l" onClick={(e) => {
-							on_students_click(e, post);
-						}}
-							asideContent={
-								<Icon28AddOutline name="icon" style={blueIcon} />
-							}
-							bottomContent={
-								<HorizontalScroll>
-									<div style={{ display: 'flex' }}>
-										<Button size="m" mode="outline">{post.group}</Button>
-										<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{post.login}</Button>
-									</div>
-								</HorizontalScroll>
-							}>{post.name}</Cell>
-					</Group>))}
-				{/* {tabsState === "payouts" && get_payouts().map((post) => */}
-				{tabsState === "payouts" && searchPayouts.slice(0, count_on_page).map((post, i) =>
-					(<Group key={i}>
-						<Cell size="l" onClick={(e) => {
-							on_payouts_click(e, post);
-						}}
-							before={get_before_payouts(post.delete, post.status)}
-							asideContent={(post.status === "filed" && post.delete === false) &&
-								// <div style={{ display: 'flex' }}>
-								<Icon28DoneOutline style={blueIcon} />}
-							// <Icon28CancelCircleOutline style={{ marginLeft: 8, color: 'red' }} />
-							// </div>}
-							bottomContent={
-								<HorizontalScroll>
-									<div style={{ display: 'flex' }}>
-										<Button size="m" mode="outline">{post.id}</Button>
-										<Button size="m" mode="outline"
-											style={{ marginLeft: 8 }} id={post.students_login} name="login"
-										>{post.students_login}</Button>
-										<Button size="m" mode="outline"
-											style={{ marginLeft: 8 }} id={post.students_login} name="login"
-										>{post.surname_and_initials}</Button>
-									</div>
-								</HorizontalScroll>
-							}>{post.payouts_type}</Cell>
-					</Group>))}
-			</Div>
+			<Tooltip
+				mode="light"
+				text="У заявления можете нажать на Фио или Студ билет для открытия студента"
+				isShown={tooltip_payouts_tips}
+				onClose={() => set_tooltip_payouts_tips(false)}
+				offsetX={100}
+				offsetY={30}
+				cornerOffset={80}
+			>
+				<Div style={{ paddingTop: 80, paddingBottom: 60 }}>
+					{tabsState === "students" && students.slice(0, count_on_page).map((post, i) =>
+						(<Group key={i}>
+							<Cell size="l" onClick={(e) => {
+								on_students_click(e, post);
+							}}
+								asideContent={
+									<Icon28AddOutline name="icon" style={blueIcon} />
+								}
+								bottomContent={
+									<HorizontalScroll>
+										<div style={{ display: 'flex' }}>
+											<Button size="m" mode="outline">{post.group}</Button>
+											<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{post.login}</Button>
+										</div>
+									</HorizontalScroll>
+								}>{post.name}</Cell>
+						</Group>))}
+					{/* {tabsState === "payouts" && get_payouts().map((post) => */}
+					{tabsState === "payouts" && searchPayouts.slice(0, count_on_page).map((post, i) =>
+						(<Group key={i}>
+							<Cell size="l" onClick={(e) => {
+								on_payouts_click(e, post);
+							}}
+								before={get_before_payouts(post.delete, post.status)}
+								asideContent={(post.status === "filed" && post.delete === false) &&
+									// <div style={{ display: 'flex' }}>
+									<Icon28DoneOutline style={blueIcon} />}
+								// <Icon28CancelCircleOutline style={{ marginLeft: 8, color: 'red' }} />
+								// </div>}
+								bottomContent={
+									<HorizontalScroll>
+										<div style={{ display: 'flex' }}>
+											<Button size="m" mode="outline">{post.id}</Button>
 
+
+											<Button size="m" mode="outline"
+												style={{ marginLeft: 8 }} id={post.students_login} name="login"
+											>{post.students_login}</Button>
+											<Button size="m" mode="outline"
+												style={{ marginLeft: 8 }} id={post.students_login} name="login"
+											>{post.surname_and_initials}</Button>
+										</div>
+									</HorizontalScroll>
+								}>{post.payouts_type}</Cell>
+						</Group>))}
+				</Div>
+			</Tooltip>
 			<FixedLayout vertical="bottom" filled>
 				<Separator wide />
 				<Div style={{ display: 'flex' }}>

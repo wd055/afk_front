@@ -5,12 +5,17 @@ import Panel from '@vkontakte/vkui/dist/components/Panel/Panel';
 import PanelHeader from '@vkontakte/vkui/dist/components/PanelHeader/PanelHeader';
 import PanelHeaderBack from '@vkontakte/vkui/dist/components/PanelHeaderBack/PanelHeaderBack';
 
-import Header from '@vkontakte/vkui/dist/components/Header/Header';
 import Group from '@vkontakte/vkui/dist/components/Group/Group';
 import SimpleCell from '@vkontakte/vkui/dist/components/SimpleCell/SimpleCell';
 
-var origin = "https://thingworx.asuscomm.com:10888"
-var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
+import Icon28FavoriteOutline from '@vkontakte/icons/dist/28/favorite_outline';
+import Icon28AddCircleOutline from '@vkontakte/icons/dist/28/add_circle_outline';
+import Icon28ShareOutline from '@vkontakte/icons/dist/28/share_outline';
+import Icon28BrainOutline from '@vkontakte/icons/dist/28/brain_outline';
+
+// var origin = "https://thingworx.asuscomm.com:10888"
+// var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
+
 // var main_url = "http://thingworx.asuscomm.com/"
 // var main_url = "http://localhost:8000/"
 
@@ -25,7 +30,7 @@ const App = ({ id, go, goBack,
 	group, setGroup,
 	countAttachments, setCountAttachments,
 	attachments, setAttachments,
-	queryParams,
+	queryParams, proforg,
 }) => {
 
 	const [favorites, setFavorites] = useState(false);
@@ -40,10 +45,31 @@ const App = ({ id, go, goBack,
 				setFavorites(true);
 				queryParams.vk_is_favorite = 1;
 			}
+			
+			if (type === 'VKWebAppStorageGetKeysResult') {
+				console.log(data.keys)
+				repeat_learning(data.keys);
+			}
+			// if (type === 'VKWebAppStorageGetKeysFailed') {
+			// 	console.error(data)
+			// }
+
+			// if (type === 'VKWebAppStorageSetResult') {
+			// 	console.log(data)
+			// }
+			// if (type === 'VKWebAppStorageSetFailed') {
+			// 	console.error(data)
+			// }
+
+			// if (type === 'VKWebAppStorageGetResult') {
+			// 	console.log(data)
+			// }
+			// if (type === 'VKWebAppStorageGetFailed') {
+			// 	console.error(data)
+			// }
 		});
 		
 		console.log(queryParams)
-		console.log(favorites)
 
 		if (messageValue && messageValue.length > 0)
 			setMessageValue();
@@ -57,21 +83,50 @@ const App = ({ id, go, goBack,
 			setCountAttachments(0);
 		if (attachments && attachments.length > 0)
 			setAttachments([]);
-	});
+	}, []);
 
+	function repeat_learning(keys){
+		for(var i in keys){
+			console.log(keys[i])
+			if (keys[i].indexOf("tooltip") > -1){
+				bridge.send("VKWebAppStorageSet", {"key": keys[i], "value": "false"});
+			}
+		}
+	}
 	const Home =
 		<Panel id={id} style={{ 'maxWidth': 630, margin: 'auto' }}>
 			<PanelHeader 
 				left={<PanelHeaderBack onClick={goBack} />}
 			>Настройки</PanelHeader>
 			<Group>
-				{!favorites && <SimpleCell expandable onClick={() => {bridge.send("VKWebAppAddToFavorites", {})}}>Добавить в избранное</SimpleCell>}
-				{platform == "mobile_android" && <SimpleCell expandable onClick={() => {bridge.send("VKWebAppAddToHomeScreen")}}>Добавить ярлык на рабочий стол</SimpleCell>}
+				{!favorites &&
+					<SimpleCell
+						expandable
+						onClick={() => { bridge.send("VKWebAppAddToFavorites", {}) }}
+						before={<Icon28FavoriteOutline />}
+					>Добавить в избранное</SimpleCell>}
+				{platform === "mobile_android" &&
+					<SimpleCell
+						expandable
+						onClick={() => { bridge.send("VKWebAppAddToHomeScreen") }}
+						before={<Icon28AddCircleOutline />}
+					>Добавить ярлык на рабочий стол</SimpleCell>}
+				<SimpleCell
+					expandable
+					onClick={() => { bridge.send("VKWebAppShare") }}
+					before={<Icon28ShareOutline />}
+				>Поделиться приложением</SimpleCell>
+				<SimpleCell
+					expandable
+					onClick={() => {bridge.send("VKWebAppStorageGetKeys", {"count": 100})}}
+					before={<Icon28BrainOutline />}
+					description="Сброс информационных плашек"
+				>Повторное обучение</SimpleCell>
 			</Group>
-			<Group>
-				<SimpleCell expandable onClick={() => go('Mass_mailing')}>Массовая рассылка</SimpleCell>
-				<SimpleCell expandable onClick={() => go('Individual_mailing')}>Индивидуальные сообщения</SimpleCell>
-			</Group>
+			{proforg >= 3 && <Group>
+				<SimpleCell expandable onClick={() => go('MASS_MAILING')}>Массовая рассылка</SimpleCell>
+				<SimpleCell expandable onClick={() => go('INDIVIDUAL_MAILING')}>Индивидуальные сообщения</SimpleCell>
+			</Group>}
 			{snackbar}
 		</Panel>
 	return Home;
