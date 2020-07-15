@@ -686,6 +686,7 @@ const App = () => {
 					snackbar={snackbar} setSnackbar={setSnackbar}
 					setModalData={setModalData}
 					student={student} setStudent={setStudent}
+					queryParams={queryParams}
 				/>
 				<Home id='Home' go={go} goBack={goBack}
 					setPopout={setPopout} login={login}

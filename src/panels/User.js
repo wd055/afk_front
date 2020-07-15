@@ -46,16 +46,20 @@ const App = ({ id, go, goBack,
 	login,
 	snackbar, setSnackbar,
 	setModalData,
-	student, setStudent
+	student, setStudent,
+	queryParams,
 }) => {
 
 	const [set_accepted_temp, set_set_accepted_temp] = useState(0);
 	const [tabsState, setTabsState] = useState("actual");
 	const [payoutsShow, setPayoutsShow] = useState("users_payouts");
 	const [fetching, setFetching] = useState(false);
+	const [platform, setPlatform] = useState("");
 
 
 	useEffect(() => {
+		setPlatform(queryParams.vk_platform);
+
 		bridge.subscribe(({ detail: { type, data } }) => {
 			if (type === 'VKWebAppCopyTextResult') {
 				setSnackbar(<Snackbar
@@ -305,7 +309,13 @@ const App = ({ id, go, goBack,
 
 				{(student.phone !== null && student.phone.length > 0) &&
 					<SimpleCell
-						before={<Icon28PhoneOutline />}
+						before={
+							platform.indexOf("web") > -1 ?
+							<Link  href={"tel:" + student.phone} target="_blank">
+								<Icon28PhoneOutline />
+							</Link>
+							: <Icon28PhoneOutline />
+						}
 						onClick={() => copy_in_bufer(student.phone)}
 					>
 						<InfoRow>
@@ -315,7 +325,13 @@ const App = ({ id, go, goBack,
 
 				{(student.email !== null && student.email.length > 0) &&
 					<SimpleCell
-						before={<Icon28MailOutline />}
+						before={
+							platform.indexOf("web") > -1 ?
+							<Link  href={"mailto:" + student.email} target="_blank">
+								<Icon28MailOutline />
+							</Link>
+							: <Icon28MailOutline />
+						}
 						onClick={() => copy_in_bufer(student.email)}
 					>
 						<InfoRow>
