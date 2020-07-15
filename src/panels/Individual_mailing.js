@@ -31,11 +31,11 @@ const App = ({ id, go, goBack,
 	messageValue, setMessageValue,
 	countAttachments, setCountAttachments,
 	attachments, setAttachments,
-	Attachments,
+	Attachments, setStudents,
 }) => {
 
 	async function send_individual_mailing() {
-		var url = main_url + "profkom_bot/INDIVIDUAL_MAILING";
+		var url = main_url + "profkom_bot/individual_mailing";
 		
 		var data = {
 			querys: window.location.search,
@@ -98,7 +98,10 @@ const App = ({ id, go, goBack,
 			<Separator />
 			<SimpleCell
 				expandable
-				onClick={() => go('MAILING_USERS')}
+				onClick={() => {
+					go('MAILING_USERS');
+					setStudents([])
+				}}
 				description="Если студента нельзя выбрать, значит он не авторизовывался в ВК"
 			>Выбор студентов
 			</SimpleCell>

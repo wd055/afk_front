@@ -49,7 +49,7 @@ const App = ({ id, go, goBack,
 			}
 			
 			if (type === 'VKWebAppStorageGetKeysResult') {
-				console.log(data.keys)
+				console.log(data, data.keys)
 				repeat_learning(data.keys);
 			}
 			// if (type === 'VKWebAppStorageGetKeysFailed') {
@@ -69,7 +69,7 @@ const App = ({ id, go, goBack,
 			// if (type === 'VKWebAppStorageGetFailed') {
 			// 	console.error(data)
 			// }
-		});
+		}, []);
 		
 		console.log(queryParams)
 
@@ -121,7 +121,7 @@ const App = ({ id, go, goBack,
 				>Поделиться приложением</SimpleCell>
 				<SimpleCell
 					expandable
-					onClick={() => {bridge.send("VKWebAppStorageGetKeys", {"count": 100})}}
+					onClick={() => {bridge.send("VKWebAppStorageGetKeys", {"count": 100, "offset": 0})}}
 					before={<Icon28BrainOutline />}
 					description="Сброс информационных плашек"
 				>Повторное обучение</SimpleCell>

@@ -41,7 +41,7 @@ const App = ({ id, go, goBack,
 	});
 
 	async function send_mass_mailing() {
-		var url = main_url + "profkom_bot/MASS_MAILING";
+		var url = main_url + "profkom_bot/mass_mailing";
 		
 		var data = {
 			querys: window.location.search,

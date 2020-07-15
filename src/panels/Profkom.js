@@ -75,13 +75,14 @@ const App = ({ id, go, setPopout,
 			// }
 
 			if (type === 'VKWebAppStorageGetResult') {
+				console.log(data)
 				// payouts_tip_click(data.keys[0])
 				if (data.keys[0].key === "tooltip_payouts_tips" && 
-					(data.keys[0].value === false || data.keys[0].value === "false")) {
+				(data.keys[0].value === false || data.keys[0].value === "false")) {
 					bridge.send("VKWebAppStorageSet", { "key": "tooltip_payouts_tips", "value": "true"});
 					set_tooltip_payouts_tips(true);
 				}
-				console.log(data)
+				// console.log(data, data.keys[0], data.keys[0].key, data.keys[0].key === "tooltip_payouts_tips")
 			}
 			// if (type === 'VKWebAppStorageGetFailed') {
 			// 	console.error(data)
@@ -360,7 +361,7 @@ const App = ({ id, go, setPopout,
 				/>
 			</FixedLayout>
 			<Tooltip
-				mode="light"
+				// mode="light"
 				text="У заявления можете нажать на Фио или Студ билет для открытия студента"
 				isShown={tooltip_payouts_tips}
 				onClose={() => set_tooltip_payouts_tips(false)}

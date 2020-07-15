@@ -668,7 +668,7 @@ const App = () => {
 					messageValue={messageValue} setMessageValue={setMessageValue}
 					countAttachments={countAttachments} setCountAttachments={setCountAttachments}
 					attachments={attachments} setAttachments={setAttachments}
-					Attachments={Attachments}
+					Attachments={Attachments} setStudents={setStudents}
 				/>
 				<MAILING_USERS id='MAILING_USERS' go={go} goBack={goBack}
 					setLogin={setLogin}
