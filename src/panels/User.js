@@ -36,6 +36,7 @@ import Icon24Copy from '@vkontakte/icons/dist/24/copy';
 import bridge from '@vkontakte/vk-bridge';
 
 import { redIcon, blueIcon, blueBackground, redBackground } from './style';
+import Tooltip from '@vkontakte/vkui/dist/components/Tooltip/Tooltip';
 
 var origin = "https://thingworx.asuscomm.com:10888"
 var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
@@ -55,6 +56,7 @@ const App = ({ id, go, goBack,
 	const [payoutsShow, setPayoutsShow] = useState("users_payouts");
 	const [fetching, setFetching] = useState(false);
 	const [platform, setPlatform] = useState("");
+	const [tooltip_payouts_tips, set_tooltip_payouts_tips] = useState(false);
 
 
 	useEffect(() => {
@@ -78,6 +80,17 @@ const App = ({ id, go, goBack,
 				>
 					Ошибка копирования
 				  </Snackbar>);
+			}
+
+			if (type === 'VKWebAppStorageGetResult') {
+				console.log(data)
+				// payouts_tip_click(data.keys[0])
+				if (data.keys[0].key === "tooltip_payouts_tips" && 
+				(data.keys[0].value === false || data.keys[0].value === "false")) {
+					bridge.send("VKWebAppStorageSet", { "key": "tooltip_payouts_tips", "value": "true"});
+					set_tooltip_payouts_tips(true);
+				}
+				// console.log(data, data.keys[0], data.keys[0].key, data.keys[0].key === "tooltip_payouts_tips")
 			}
 		});
 
@@ -261,85 +274,67 @@ const App = ({ id, go, goBack,
 			</Group>
 
 			<Header
-				mode="secondary"
+				// mode="secondary"
 				aside={<Icon16Chevron />}
 				onClick={() => go("Home")}
+				subtitle="Редактирование данных и категорий студента"
 			>
 				Подробнее
 			</Header>
 
-			<Group separator={"hide"}>
+			<Tooltip
+				// mode="light"
+				text="У заявления можете нажать на Фио или Студ билет для открытия студента"
+				isShown={tooltip_payouts_tips}
+				onClose={() => set_tooltip_payouts_tips(false)}
+				offsetX={100}
+				offsetY={30}
+				cornerOffset={80}
+			>
+				<Group separator={"hide"}>
 
-				{/* {(student.domain && student.domain.length > 0) &&
-					<SimpleCell
-						before={<Icon28LogoVkOutline />}
-						onClick={() => copy_in_bufer(student.domain)}
-					>
-						<InfoRow>
-							{student.domain}
-						</InfoRow>
-					</SimpleCell>}*/}
 
+					{(student.domain && student.domain.length > 0) &&
+						<Link href={"https://vk.com/" + student.domain} target="_blank">
+							<CellButton
+								before={<Icon28LogoVkOutline />}
+							// onClick={() => copy_in_bufer(student.domain)}
+							>{student.domain}</CellButton>
+						</Link>}
 
-				{(student.domain && student.domain.length > 0) &&
-					<Link href={"https://vk.com/" + student.domain} target="_blank">
-						<CellButton
-							before={<Icon28LogoVkOutline />}
-						// onClick={() => copy_in_bufer(student.domain)}
-						>{student.domain}</CellButton>
-					</Link>}
+					{(student.phone !== null && student.phone.length > 0) &&
+						<SimpleCell
+							before={
+								platform.indexOf("web") > -1 ?
+								<Link  href={"tel:" + student.phone} target="_blank">
+									<Icon28PhoneOutline />
+								</Link>
+								: <Icon28PhoneOutline />
+							}
+							onClick={() => copy_in_bufer(student.phone)}
+						>
+							<InfoRow>
+								{student.phone}
+							</InfoRow>
+						</SimpleCell>}
 
-				{/* {(student.phone !== null && student.phone.length > 0) &&
-					// <Link href={"tel:" + student.phone} target="_blank">
-					<CellButton
-						before={<Icon28PhoneOutline />}
-						onClick={() => copy_in_bufer(student.phone)}
-					>{student.phone}</CellButton>
-					// </Link>
-				}
-
-				{(student.email !== null && student.email.length > 0) &&
-					// <Link href={"mailto:" + student.email} target="_blank">
-					<CellButton
-						before={<Icon28MailOutline />}
-						onClick={() => copy_in_bufer(student.email)}
-					>{student.email}</CellButton>
-					// </Link>
-				} */}
-
-				{(student.phone !== null && student.phone.length > 0) &&
-					<SimpleCell
-						before={
-							platform.indexOf("web") > -1 ?
-							<Link  href={"tel:" + student.phone} target="_blank">
-								<Icon28PhoneOutline />
-							</Link>
-							: <Icon28PhoneOutline />
-						}
-						onClick={() => copy_in_bufer(student.phone)}
-					>
-						<InfoRow>
-							{student.phone}
-						</InfoRow>
-					</SimpleCell>}
-
-				{(student.email !== null && student.email.length > 0) &&
-					<SimpleCell
-						before={
-							platform.indexOf("web") > -1 ?
-							<Link  href={"mailto:" + student.email} target="_blank">
-								<Icon28MailOutline />
-							</Link>
-							: <Icon28MailOutline />
-						}
-						onClick={() => copy_in_bufer(student.email)}
-					>
-						<InfoRow>
-							{student.email}
-						</InfoRow>
-					</SimpleCell>}
-			</Group>
-
+					{(student.email !== null && student.email.length > 0) &&
+						<SimpleCell
+							before={
+								platform.indexOf("web") > -1 ?
+								<Link  href={"mailto:" + student.email} target="_blank">
+									<Icon28MailOutline />
+								</Link>
+								: <Icon28MailOutline />
+							}
+							onClick={() => copy_in_bufer(student.email)}
+						>
+							<InfoRow>
+								{student.email}
+							</InfoRow>
+						</SimpleCell>}
+				</Group>
+			</Tooltip>
 
 			<Group separator={"hide"}>
 				<Div>
