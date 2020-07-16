@@ -63,7 +63,7 @@ const App = () => {
 		id: 11,
 		date: "2020-06-27",
 		status: "accepted",
-		error: "asdawefwsd",
+		error: "",
 		delete: false,
 		// surname_and_initials: "Власов Д.В.",
 		students_group: "ИУ7-21Б",
@@ -108,6 +108,7 @@ const App = () => {
 	const [group, setGroup] = useState();
 	const [countAttachments, setCountAttachments] = useState(0);
 	const [attachments, setAttachments] = useState([]);
+	const [tooltips, setTooltips] = useState([]);
 
 	const modals_const = [
 		'payout'
@@ -170,6 +171,7 @@ const App = () => {
 		} else if (history.length > 1) {
 			if (modals_const.indexOf(history[history.length - 1]) > -1) {
 				setSearchPayouts([]);
+				setSearchValue("");
 				setModal(null);
 			} else if (modals_const.indexOf(history[history.length - 2]) === -1) {
 				setActivePanel(history[history.length - 2]);
@@ -636,6 +638,7 @@ const App = () => {
 					setModalData={setModalData}
 					tabsState={tabsState} setTabsState={setTabsState}
 					searchPayouts={searchPayouts} setSearchPayouts={setSearchPayouts}
+					tooltips={tooltips}
 				/>
 				<Settings id='Settings' go={go} goBack={goBack}
 					setPopout={setPopout} setModal={setModal}
@@ -649,6 +652,7 @@ const App = () => {
 					countAttachments={countAttachments} setCountAttachments={setCountAttachments}
 					attachments={attachments} setAttachments={setAttachments}
 					queryParams={queryParams} proforg={proforg}
+					setTooltips={setTooltips}
 				/>
 				<MASS_MAILING id='MASS_MAILING' go={go} goBack={goBack}
 					snackbar={snackbar} setPopout={setPopout} setSnackbar={setSnackbar}
@@ -659,7 +663,7 @@ const App = () => {
 					group={group} setGroup={setGroup}
 					countAttachments={countAttachments} setCountAttachments={setCountAttachments}
 					attachments={attachments} setAttachments={setAttachments}
-					Attachments={Attachments}
+					Attachments={Attachments} queryParams={queryParams}
 				/>
 				<INDIVIDUAL_MAILING id='INDIVIDUAL_MAILING' go={go} goBack={goBack}
 					setPopout={setPopout} setLogin={setLogin}
@@ -669,6 +673,7 @@ const App = () => {
 					countAttachments={countAttachments} setCountAttachments={setCountAttachments}
 					attachments={attachments} setAttachments={setAttachments}
 					Attachments={Attachments} setStudents={setStudents}
+					queryParams={queryParams}
 				/>
 				<MAILING_USERS id='MAILING_USERS' go={go} goBack={goBack}
 					setLogin={setLogin}
@@ -687,6 +692,7 @@ const App = () => {
 					setModalData={setModalData}
 					student={student} setStudent={setStudent}
 					queryParams={queryParams}
+					tooltips={tooltips}
 				/>
 				<Home id='Home' go={go} goBack={goBack}
 					setPopout={setPopout} login={login}

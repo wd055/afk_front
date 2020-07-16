@@ -52,6 +52,7 @@ const App = ({
 	const [group, setGroup] = useState("");
 	const [students_login, set_students_login] = useState("");
 	const [students_proforg, set_students_proforg] = useState(0);
+	const [checkedCats, setCheckedCats] = useState(false);
 
 	useEffect(() => {
 		if (usersInfo !== null && students_login !== usersInfo.login) {
@@ -64,6 +65,8 @@ const App = ({
 			setGetCategories(usersInfo.categories);
 			setPayments_edu(usersInfo.payments_edu);
 			set_students_proforg(usersInfo.proforg);
+
+			setCheckedCats(false);
 		}
 		// get_users_info()
 		bridge.subscribe(({ detail: { type, data } }) => {
@@ -76,7 +79,7 @@ const App = ({
 				setPhone(data.phone_number);
 			}
 		});
-	}, [usersInfo, students_login]);
+	});
 
 	const [clickEmail, setClickEmail] = useState(true);
 	const [clickPhone, setClickPhone] = useState(true);
@@ -214,8 +217,12 @@ const App = ({
 
 	function onLoadCategory() {
 		var categorys = document.getElementsByName("category");
-		for (var i = 0; i < categorys.length; i++) {
-			categorys[i].checked = getCategories.indexOf(categories[i]) !== -1
+		console.log(checkedCats)
+		if (!checkedCats){
+			for (var i = 0; i < categorys.length; i++) {
+				categorys[i].checked = getCategories.indexOf(categories[i]) !== -1
+			}
+			setCheckedCats(true);
 		}
 	}
 	// console.log('token', params['token'])
