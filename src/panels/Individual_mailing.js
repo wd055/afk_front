@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 import Panel from '@vkontakte/vkui/dist/components/Panel/Panel';
 import PanelHeader from '@vkontakte/vkui/dist/components/PanelHeader/PanelHeader';
@@ -16,8 +16,11 @@ import Counter from '@vkontakte/vkui/dist/components/Counter/Counter';
 import FormLayout from '@vkontakte/vkui/dist/components/FormLayout/FormLayout';
 import Button from '@vkontakte/vkui/dist/components/Button/Button';
 import Textarea from '@vkontakte/vkui/dist/components/Textarea/Textarea';
+import Alert from '@vkontakte/vkui/dist/components/Alert/Alert';
 
-import { statusSnackbar } from './style';
+import Icon28CancelOutline from '@vkontakte/icons/dist/28/cancel_outline';
+
+import { statusSnackbar, redIcon } from './style';
 
 var origin = "https://thingworx.asuscomm.com:10888"
 var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
@@ -32,7 +35,36 @@ const App = ({ id, go, goBack,
 	countAttachments, setCountAttachments,
 	attachments, setAttachments,
 	Attachments, setStudents,
+	queryParams,
 }) => {
+
+	const [tempCount, setTempCount] = useState(0);
+
+	useEffect(() => {
+	});
+
+	function on_btn_click(){
+		test_message();
+		setPopout(<Alert
+			actionsLayout="vertical"
+			actions={[{
+				title: 'Разослать',
+				autoclose: true,
+				mode: 'destructive',
+				action: () => {
+					send_individual_mailing();
+				},
+			}, {
+				title: 'Отмена',
+				autoclose: true,
+				mode: 'cancel'
+			}]}
+			onClose={() => setPopout(null)}
+		>
+			<h2>Подтвердите отправку</h2>
+			<p>Вы уверены, что хотите разослать сообщение? Сначала проверьте тестовое сообщение!</p>
+		</Alert>)
+	}
 
 	async function send_individual_mailing() {
 		var url = main_url + "profkom_bot/individual_mailing";
@@ -71,7 +103,67 @@ const App = ({ id, go, goBack,
 			console.error('INDIVIDUAL_MAILING:', error);
 		}
 	}
-	
+
+	async function test_message() {
+		var url = main_url + "profkom_bot/test_message";
+		
+		var data = {
+			querys: window.location.search,
+			message: messageValue,
+			user_id: queryParams.vk_user_id,
+		}
+
+		if (countAttachments > 0)
+			data.attachment = attachments.join();
+
+		try {
+			const response = await fetch(url, {
+				method: 'POST',
+				body: JSON.stringify(data),
+				headers: {
+					'Origin': origin
+				}
+			});
+			// const json = await response.json();
+			if (response.ok) {
+				statusSnackbar(200, setSnackbar);
+			} else {
+				statusSnackbar(response.status, setSnackbar);
+				console.error('INDIVIDUAL_MAILING test_message:', data);
+			}
+		} catch (error) {
+			setPopout(null);
+			statusSnackbar(0, setSnackbar);
+			console.error('INDIVIDUAL_MAILING test_message:', error);
+		}
+	}
+
+	function on_students_click(e, post) {
+		if (e.target.getAttribute('class') === "Cell__aside" ||
+			e.target.parentNode.getAttribute('class') === "Cell__aside" ||
+			e.target.parentNode.parentNode.getAttribute('class') === "Cell__aside" ||
+			e.target.parentNode.parentNode.parentNode.getAttribute('class') === "Cell__aside") {
+
+			//delete user
+			console.log("DELETE")
+			for (var i in list_of_users){
+				if (list_of_users[i].login === post.login){
+					// var temp = list_of_users;
+					// temp.splice(i, 1);
+					// console.log(temp);
+					// console.log(list_of_users);
+					// set_list_of_users(temp);
+					list_of_users.splice(i, 1);
+					setTempCount(tempCount + 1);
+					console.log(list_of_users);
+				}
+			}
+		} else {
+			setLogin(post.login);
+			go("User");
+		}
+	}
+
 	const Home =
 		<Panel id={id} style={{ 'maxWidth': 630, margin: 'auto' }}>
 			<PanelHeader 
@@ -120,14 +212,11 @@ const App = ({ id, go, goBack,
 							name="users"
 							id={post.login}
 
-							onClick={(e) => {
-								setLogin(post.login);
-								go("User");
-							}}
+							onClick={(e) => {on_students_click(e, post)}}
 
-							// asideContent={
-							// 	<Icon28AddOutline name="icon" style={blueIcon} />
-							// }
+							asideContent={
+								<Icon28CancelOutline style={redIcon} />
+							}
 
 							bottomContent={
 								<HorizontalScroll>
@@ -152,7 +241,7 @@ const App = ({ id, go, goBack,
 					<Button 
 						size="xl" 
 						disabled={list_of_users.length === 0 || !messageValue}
-						onClick={send_individual_mailing}
+						onClick={on_btn_click}
 					>Отправить</Button>
 				</FormLayout>
 			</FixedLayout>
