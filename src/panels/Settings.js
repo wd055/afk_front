@@ -33,6 +33,7 @@ const App = ({ id, go, goBack,
 	countAttachments, setCountAttachments,
 	attachments, setAttachments,
 	queryParams, proforg,
+	setTooltips,
 }) => {
 
 	const [favorites, setFavorites] = useState(false);
@@ -94,6 +95,7 @@ const App = ({ id, go, goBack,
 				bridge.send("VKWebAppStorageSet", {"key": keys[i], "value": "false"});
 			}
 		}
+		setTooltips([]);
 		statusSnackbar(200, setSnackbar);
 	}
 	const Home =

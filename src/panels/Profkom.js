@@ -46,6 +46,7 @@ const App = ({ id, go, setPopout,
 	setModalData,
 	tabsState, setTabsState,
 	searchPayouts, setSearchPayouts,
+	tooltips,
 }) => {
 
 	const count_on_page = 6;
@@ -75,7 +76,7 @@ const App = ({ id, go, setPopout,
 			// }
 
 			if (type === 'VKWebAppStorageGetResult') {
-				console.log(data)
+				console.log(data.keys[0], data.request_id)
 				// payouts_tip_click(data.keys[0])
 				if (data.keys[0].key === "tooltip_payouts_tips" && 
 				(data.keys[0].value === false || data.keys[0].value === "false")) {
@@ -88,7 +89,7 @@ const App = ({ id, go, setPopout,
 			// 	console.error(data)
 			// }
 		});
-	}, []);
+	}, [searchPayouts]);
 
 	function search_payouts(value, list_left_end) {
 		var url = main_url + "profkom_bot/search_payouts/";
@@ -338,7 +339,10 @@ const App = ({ id, go, setPopout,
 							setSearchValue("");
 							setSearchPayouts([]);
 							set_list_left_end(0);
-							bridge.send("VKWebAppStorageGet", { "keys": ["tooltip_payouts_tips"] });
+							if (tooltips.indexOf("tooltip_payouts_tips") === -1){
+								bridge.send("VKWebAppStorageGet", { "keys": ["tooltip_payouts_tips"] });
+								tooltips.push("tooltip_payouts_tips");
+							}
 						}}
 						selected={tabsState === 'payouts'}
 					>Заявления</TabsItem>

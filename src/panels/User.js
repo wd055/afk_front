@@ -48,7 +48,7 @@ const App = ({ id, go, goBack,
 	snackbar, setSnackbar,
 	setModalData,
 	student, setStudent,
-	queryParams,
+	queryParams, tooltips,
 }) => {
 
 	const [set_accepted_temp, set_set_accepted_temp] = useState(0);
@@ -56,11 +56,17 @@ const App = ({ id, go, goBack,
 	const [payoutsShow, setPayoutsShow] = useState("users_payouts");
 	const [fetching, setFetching] = useState(false);
 	const [platform, setPlatform] = useState("");
-	const [tooltip_payouts_tips, set_tooltip_payouts_tips] = useState(false);
+	const [tooltip_users_contact, set_tooltip_users_contact] = useState(false);
+	const [tooltip_users_payout, set_tooltip_users_payout] = useState(false);
 
 
 	useEffect(() => {
 		setPlatform(queryParams.vk_platform);
+		
+		if (tooltips.indexOf("tooltip_users_contact") === -1){
+			bridge.send("VKWebAppStorageGet", { "keys": ["tooltip_users_contact"] });
+			tooltips.push("tooltip_users_contact");
+		}
 
 		bridge.subscribe(({ detail: { type, data } }) => {
 			if (type === 'VKWebAppCopyTextResult') {
@@ -83,21 +89,23 @@ const App = ({ id, go, goBack,
 			}
 
 			if (type === 'VKWebAppStorageGetResult') {
-				console.log(data)
-				// payouts_tip_click(data.keys[0])
-				if (data.keys[0].key === "tooltip_payouts_tips" && 
-				(data.keys[0].value === false || data.keys[0].value === "false")) {
-					bridge.send("VKWebAppStorageSet", { "key": "tooltip_payouts_tips", "value": "true"});
-					set_tooltip_payouts_tips(true);
+				if (data.keys[0].key === "tooltip_users_contact" &&
+					(data.keys[0].value === false || data.keys[0].value === "false")) {
+					bridge.send("VKWebAppStorageSet", { "key": "tooltip_users_contact", "value": "true" });
+					set_tooltip_users_contact(true);
 				}
-				// console.log(data, data.keys[0], data.keys[0].key, data.keys[0].key === "tooltip_payouts_tips")
+				if (data.keys[0].key === "tooltip_users_payout" &&
+					(data.keys[0].value === false || data.keys[0].value === "false")) {
+					bridge.send("VKWebAppStorageSet", { "key": "tooltip_users_payout", "value": "true" });
+					set_tooltip_users_payout(true);
+				}
 			}
 		});
 
 		if (student.login !== login)
 			get_users_info();
 		console.log(student)
-	});
+	}, []);
 
 	function copy_in_bufer(text) {
 		bridge.send("VKWebAppCopyText", { text: text });
@@ -176,7 +184,7 @@ const App = ({ id, go, goBack,
 					.then(response => response.json())
 					.then((data) => {
 						if (data !== "Error") {
-							
+
 							var temp_all_arr = student.users_all_payouts;
 							for (var i in temp_all_arr) {
 								if (temp_all_arr[i].id === id) {
@@ -284,12 +292,19 @@ const App = ({ id, go, goBack,
 
 			<Tooltip
 				// mode="light"
-				text="У заявления можете нажать на Фио или Студ билет для открытия студента"
-				isShown={tooltip_payouts_tips}
-				onClose={() => set_tooltip_payouts_tips(false)}
-				offsetX={100}
-				offsetY={30}
-				cornerOffset={80}
+				text="VK - кликабелен на всех платформах. Телефон и почта в приложении копируются в буфер при нажатии или можно выделить текст и на некоторых устройствах будет предложено сразу позвонить или написать письмо. В браузере иконки кликабельны."
+				header="Контактные данные"
+				isShown={tooltip_users_contact}
+				onClose={() => {					
+					if (tooltip_users_contact === true && tooltips.indexOf("tooltip_users_payout") === -1){
+						bridge.send("VKWebAppStorageGet", { "keys": ["tooltip_users_payout"] });
+						tooltips.push("tooltip_users_payout");
+					}
+					set_tooltip_users_contact(false);
+				}}
+				offsetX={200}
+			// offsetY={30}
+			// cornerOffset={80}
 			>
 				<Group separator={"hide"}>
 
@@ -306,10 +321,10 @@ const App = ({ id, go, goBack,
 						<SimpleCell
 							before={
 								platform.indexOf("web") > -1 ?
-								<Link  href={"tel:" + student.phone} target="_blank">
-									<Icon28PhoneOutline />
-								</Link>
-								: <Icon28PhoneOutline />
+									<Link href={"tel:" + student.phone} target="_blank">
+										<Icon28PhoneOutline />
+									</Link>
+									: <Icon28PhoneOutline />
 							}
 							onClick={() => copy_in_bufer(student.phone)}
 						>
@@ -322,10 +337,10 @@ const App = ({ id, go, goBack,
 						<SimpleCell
 							before={
 								platform.indexOf("web") > -1 ?
-								<Link  href={"mailto:" + student.email} target="_blank">
-									<Icon28MailOutline />
-								</Link>
-								: <Icon28MailOutline />
+									<Link href={"mailto:" + student.email} target="_blank">
+										<Icon28MailOutline />
+									</Link>
+									: <Icon28MailOutline />
 							}
 							onClick={() => copy_in_bufer(student.email)}
 						>
@@ -357,26 +372,38 @@ const App = ({ id, go, goBack,
 			</Group>
 
 			<Group>
-				<Tabs mode="buttons">
-					<TabsItem
-						onClick={() => {
-							setTabsState('actual');
-							setPayoutsShow("users_payouts");
-						}}
-						selected={tabsState === 'actual'}
-					>Актуальные заявления</TabsItem>
-					<TabsItem
-						onClick={() => {
-							setTabsState('all');
-							setPayoutsShow("users_all_payouts");
-						}}
-						selected={tabsState === 'all'}
-					>Неактуальные заявления</TabsItem>
-				</Tabs>
+
+				<Tooltip
+					// mode="light"
+					text="Можно потянуть список заявлений вниз, чтобы обновить все списки и данные студента"
+					// header="Контактные данные"
+					isShown={tooltip_users_payout}
+					onClose={() => set_tooltip_users_payout(false)}
+					offsetX={80}
+					offsetY={10}
+					cornerOffset={90}
+				>
+					<Tabs mode="buttons">
+						<TabsItem
+							onClick={() => {
+								setTabsState('actual');
+								setPayoutsShow("users_payouts");
+							}}
+							selected={tabsState === 'actual'}
+						>Актуальные заявления</TabsItem>
+						<TabsItem
+							onClick={() => {
+								setTabsState('all');
+								setPayoutsShow("users_all_payouts");
+							}}
+							selected={tabsState === 'all'}
+						>Неактуальные заявления</TabsItem>
+					</Tabs>
+				</Tooltip>
 				<PullToRefresh onRefresh={() => {
-						setFetching(true);
-						get_users_info();
-					}}
+					setFetching(true);
+					get_users_info();
+				}}
 					isFetching={fetching}>
 					{student[payoutsShow].map((post, i) => post.delete === false &&
 						(<Group key={i} separator={"show"}>
