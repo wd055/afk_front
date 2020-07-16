@@ -14,6 +14,7 @@ import Input from '@vkontakte/vkui/dist/components/Input/Input';
 import Button from '@vkontakte/vkui/dist/components/Button/Button';
 import Select from '@vkontakte/vkui/dist/components/Select/Select';
 import Textarea from '@vkontakte/vkui/dist/components/Textarea/Textarea';
+import Alert from '@vkontakte/vkui/dist/components/Alert/Alert';
 
 import { statusSnackbar } from './style';
 
@@ -30,7 +31,7 @@ const App = ({ id, go, goBack,
 	group, setGroup,
 	countAttachments, setCountAttachments,
 	attachments, setAttachments,
-	Attachments,
+	Attachments, queryParams,
 }) => {
 
 	const [countSenders, setCountSenders] = useState();
@@ -39,6 +40,29 @@ const App = ({ id, go, goBack,
 		if (!countSenders)
 			mass_mailing_count();
 	});
+
+	function on_btn_click(){
+		test_message();
+		setPopout(<Alert
+			actionsLayout="vertical"
+			actions={[{
+				title: 'Разослать',
+				autoclose: true,
+				mode: 'destructive',
+				action: () => {
+					send_mass_mailing();
+				},
+			}, {
+				title: 'Отмена',
+				autoclose: true,
+				mode: 'cancel'
+			}]}
+			onClose={() => setPopout(null)}
+		>
+			<h2>Подтвердите отправку</h2>
+			<p>Вы уверены, что хотите разослать сообщение? Сначала проверьте тестовое сообщение!</p>
+		</Alert>)
+	}
 
 	async function send_mass_mailing() {
 		var url = main_url + "profkom_bot/mass_mailing";
@@ -80,6 +104,40 @@ const App = ({ id, go, goBack,
 			setPopout(null);
 			statusSnackbar(0, setSnackbar);
 			console.error('send_mass_mailing:', error);
+		}
+	}
+
+	async function test_message() {
+		var url = main_url + "profkom_bot/test_message";
+		
+		var data = {
+			querys: window.location.search,
+			message: messageValue,
+			user_id: queryParams.vk_user_id,
+		}
+
+		if (countAttachments > 0)
+			data.attachment = attachments.join();
+
+		try {
+			const response = await fetch(url, {
+				method: 'POST',
+				body: JSON.stringify(data),
+				headers: {
+					'Origin': origin
+				}
+			});
+			// const json = await response.json();
+			if (response.ok) {
+				statusSnackbar(200, setSnackbar);
+			} else {
+				statusSnackbar(response.status, setSnackbar);
+				console.error('INDIVIDUAL_MAILING test_message:', data);
+			}
+		} catch (error) {
+			setPopout(null);
+			statusSnackbar(0, setSnackbar);
+			console.error('INDIVIDUAL_MAILING test_message:', error);
 		}
 	}
 
@@ -189,7 +247,7 @@ const App = ({ id, go, goBack,
 					<Button 
 						size="xl" 
 						disabled={!messageValue}
-						onClick={send_mass_mailing}
+						onClick={on_btn_click}
 						after={<Counter>{countSenders}</Counter>}
 					>Отправить</Button>
 				</FormLayout>
