@@ -51,7 +51,6 @@ const App = ({ id, go, goBack,
 			
 			if (type === 'VKWebAppStorageGetKeysResult') {
 				console.log(data, data.keys)
-				repeat_learning(data.keys);
 			}
 			// if (type === 'VKWebAppStorageGetKeysFailed') {
 			// 	console.error(data)
@@ -88,12 +87,14 @@ const App = ({ id, go, goBack,
 			setAttachments([]);
 	}, []);
 
-	function repeat_learning(keys){
-		for(var i in keys){
-			console.log(keys[i])
-			if (keys[i].indexOf("tooltip") > -1){
-				bridge.send("VKWebAppStorageSet", {"key": keys[i], "value": "false"});
-			}
+	function repeat_learning(){
+		var tooltips_names = [
+			"tooltip_payouts_tips",
+			"tooltip_users_contact",
+			"tooltip_users_payout",
+		]
+		for(var i in tooltips_names){
+			bridge.send("VKWebAppStorageSet", {"key": tooltips_names[i], "value": "false"});
 		}
 		setTooltips([]);
 		statusSnackbar(200, setSnackbar);
@@ -123,7 +124,7 @@ const App = ({ id, go, goBack,
 				>Поделиться приложением</SimpleCell>
 				<SimpleCell
 					expandable
-					onClick={() => {bridge.send("VKWebAppStorageGetKeys", {"count": 100, "offset": 0})}}
+					onClick={repeat_learning}
 					before={<Icon28BrainOutline />}
 					description="Сброс информационных плашек"
 				>Повторное обучение</SimpleCell>

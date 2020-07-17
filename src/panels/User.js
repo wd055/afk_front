@@ -63,9 +63,9 @@ const App = ({ id, go, goBack,
 	useEffect(() => {
 		setPlatform(queryParams.vk_platform);
 		
-		if (tooltips.indexOf("tooltip_users_contact") === -1){
-			bridge.send("VKWebAppStorageGet", { "keys": ["tooltip_users_contact"] });
-			tooltips.push("tooltip_users_contact");
+		if (tooltips.indexOf("tooltip_users_payout") === -1){
+			bridge.send("VKWebAppStorageGet", { "keys": ["tooltip_users_payout"] });
+			tooltips.push("tooltip_users_payout");
 		}
 
 		bridge.subscribe(({ detail: { type, data } }) => {
@@ -316,38 +316,30 @@ const App = ({ id, go, goBack,
 							// onClick={() => copy_in_bufer(student.domain)}
 							>{student.domain}</CellButton>
 						</Link>}
-
+						
 					{(student.phone !== null && student.phone.length > 0) &&
-						<SimpleCell
-							before={
-								platform.indexOf("web") > -1 ?
-									<Link href={"tel:" + student.phone} target="_blank">
-										<Icon28PhoneOutline />
-									</Link>
-									: <Icon28PhoneOutline />
-							}
-							onClick={() => copy_in_bufer(student.phone)}
-						>
-							<InfoRow>
-								{student.phone}
-							</InfoRow>
-						</SimpleCell>}
+						<Link href={"tel:" + student.phone} target="_parent">
+							<SimpleCell
+								before={<Icon28PhoneOutline />}
+								// onClick={() => copy_in_bufer(student.phone)}
+							>
+								<InfoRow>
+									{student.phone}
+								</InfoRow>
+							</SimpleCell>
+						</Link>}
 
 					{(student.email !== null && student.email.length > 0) &&
-						<SimpleCell
-							before={
-								platform.indexOf("web") > -1 ?
-									<Link href={"mailto:" + student.email} target="_blank">
-										<Icon28MailOutline />
-									</Link>
-									: <Icon28MailOutline />
-							}
-							onClick={() => copy_in_bufer(student.email)}
-						>
-							<InfoRow>
-								{student.email}
-							</InfoRow>
-						</SimpleCell>}
+						<Link href={"mailto:" + student.email} target="_parent">
+							<SimpleCell
+								before={<Icon28MailOutline />}
+								// onClick={() => copy_in_bufer(student.email)}
+							>
+								<InfoRow>
+									{student.email}
+								</InfoRow>
+							</SimpleCell>
+						</Link>}
 				</Group>
 			</Tooltip>
 
@@ -377,7 +369,7 @@ const App = ({ id, go, goBack,
 					// mode="light"
 					text="Можно потянуть список заявлений вниз, чтобы обновить все списки и данные студента"
 					// header="Контактные данные"
-					isShown={tooltip_users_payout}
+					isShown={tooltip_users_payout && student.name !== "ФИО"}
 					onClose={() => set_tooltip_users_payout(false)}
 					offsetX={80}
 					offsetY={10}

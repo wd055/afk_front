@@ -60,15 +60,15 @@ const App = () => {
 	const [modal, setModal] = useState();
 	const [modalData, setModalData] = useState({
 		payouts_type: "Выплаты профоргам и старостам",
-		id: 11,
-		date: "2020-06-27",
+		id: 1,
+		date: "2001-01-01",
 		status: "accepted",
 		error: "",
 		delete: false,
 		// surname_and_initials: "Власов Д.В.",
-		students_group: "ИУ7-21Б",
-		students_login: "19У153",
-		students_name: "Власов Денис Владимирович",
+		students_group: "Группа",
+		students_login: "Логин",
+		students_name: "ФИО",
 		new: false,
 	});
 
