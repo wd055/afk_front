@@ -37,6 +37,7 @@ import bridge from '@vkontakte/vk-bridge';
 
 import { redIcon, blueIcon, blueBackground, redBackground } from './style';
 import Tooltip from '@vkontakte/vkui/dist/components/Tooltip/Tooltip';
+import Footer from '@vkontakte/vkui/dist/components/Footer/Footer';
 
 var origin = "https://thingworx.asuscomm.com:10888"
 var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
@@ -62,8 +63,8 @@ const App = ({ id, go, goBack,
 
 	useEffect(() => {
 		setPlatform(queryParams.vk_platform);
-		
-		if (tooltips.indexOf("tooltip_users_payout") === -1){
+
+		if (tooltips.indexOf("tooltip_users_payout") === -1) {
 			bridge.send("VKWebAppStorageGet", { "keys": ["tooltip_users_payout"] });
 			tooltips.push("tooltip_users_payout");
 		}
@@ -295,8 +296,8 @@ const App = ({ id, go, goBack,
 				text="VK - кликабелен на всех платформах. Телефон и почта в приложении копируются в буфер при нажатии или можно выделить текст и на некоторых устройствах будет предложено сразу позвонить или написать письмо. В браузере иконки кликабельны."
 				header="Контактные данные"
 				isShown={tooltip_users_contact}
-				onClose={() => {					
-					if (tooltip_users_contact === true && tooltips.indexOf("tooltip_users_payout") === -1){
+				onClose={() => {
+					if (tooltip_users_contact === true && tooltips.indexOf("tooltip_users_payout") === -1) {
 						bridge.send("VKWebAppStorageGet", { "keys": ["tooltip_users_payout"] });
 						tooltips.push("tooltip_users_payout");
 					}
@@ -316,12 +317,12 @@ const App = ({ id, go, goBack,
 							// onClick={() => copy_in_bufer(student.domain)}
 							>{student.domain}</CellButton>
 						</Link>}
-						
+
 					{(student.phone !== null && student.phone.length > 0) &&
 						<Link href={"tel:" + student.phone} target="_parent">
 							<SimpleCell
 								before={<Icon28PhoneOutline />}
-								// onClick={() => copy_in_bufer(student.phone)}
+							// onClick={() => copy_in_bufer(student.phone)}
 							>
 								<InfoRow>
 									{student.phone}
@@ -333,7 +334,7 @@ const App = ({ id, go, goBack,
 						<Link href={"mailto:" + student.email} target="_parent">
 							<SimpleCell
 								before={<Icon28MailOutline />}
-								// onClick={() => copy_in_bufer(student.email)}
+							// onClick={() => copy_in_bufer(student.email)}
 							>
 								<InfoRow>
 									{student.email}
@@ -409,6 +410,8 @@ const App = ({ id, go, goBack,
 								description={post.id}
 							>{post.payouts_type}</Cell>
 						</Group>))}
+					{(student[payoutsShow].filter(payout => payout.delete === false).length === 0) &&
+						<Footer>У студента нет {payoutsShow === "users_payouts" && "актуальных"}{payoutsShow === "users_all_payouts" && "неактуальных"} заявлений</Footer>}
 				</PullToRefresh>
 			</Group>
 			{snackbar}

@@ -16,6 +16,10 @@ import Input from '@vkontakte/vkui/dist/components/Input/Input';
 import Select from '@vkontakte/vkui/dist/components/Select/Select';
 import Checkbox from '@vkontakte/vkui/dist/components/Checkbox/Checkbox';
 import Button from '@vkontakte/vkui/dist/components/Button/Button';
+import Footer from '@vkontakte/vkui/dist/components/Footer/Footer';
+import Link from '@vkontakte/vkui/dist/components/Link/Link';
+import Caption from '@vkontakte/vkui/dist/components/Typography/Caption/Caption';
+import Separator from '@vkontakte/vkui/dist/components/Separator/Separator';
 
 import Icon28CheckCircleOutline from '@vkontakte/icons/dist/28/check_circle_outline';
 import Icon24Error from '@vkontakte/icons/dist/24/error';
@@ -23,6 +27,7 @@ import Icon24Error from '@vkontakte/icons/dist/24/error';
 import bridge from '@vkontakte/vk-bridge';
 
 import { orangeBackground, blueBackground, redBackground } from './style';
+import Div from '@vkontakte/vkui/dist/components/Div/Div';
 
 const check_valid = false;
 const show_valid = true;
@@ -125,7 +130,6 @@ const App = ({
 			  </Snackbar>);
 			return;
 		}
-		var categorys = document.getElementsByName("category");
 		var data = {
 			// token: params['token'],
 			querys: window.location.search,
@@ -134,25 +138,30 @@ const App = ({
 			payments_edu: document.getElementById("payments_edu").value,
 			categories: []
 		}
-
+		
 		if (proforg >= 3) {
 			data.proforg = students_proforg;
 		}
-
+		
 		const phoneNumber = parsePhoneNumberFromString(phone, 'RU')
 		if (phoneNumber) {
 			data.phone = phoneNumber.number;
 		}
-
+		
 		if (login !== null) {
 			data.students_login = login;
-			student.phone = phoneNumber.number;
 			if (phoneNumber) {
 				student.phone = phoneNumber.formatNational();
 			}
 			student.email = email;
 		}
+		
+		if (login === null){
+			var agree = document.getElementById("agree");
+			data.agree = agree.checked
+		}
 
+		var categorys = document.getElementsByName("category");
 		for (var i = 0; i < categorys.length; i++) {
 			if (categorys[i].checked) {
 				data.categories.push(categories[i]);
@@ -217,7 +226,6 @@ const App = ({
 
 	function onLoadCategory() {
 		var categorys = document.getElementsByName("category");
-		console.log(checkedCats)
 		if (!checkedCats){
 			for (var i = 0; i < categorys.length; i++) {
 				categorys[i].checked = getCategories.indexOf(categories[i]) !== -1
@@ -318,10 +326,10 @@ const App = ({
 							// <Checkbox name="category" id={i.toString()} defaultChecked={getCategories.indexOf(categories) !== -1}>{category}</Checkbox>
 						))}
 					</FormLayoutGroup>
-					{/* <Checkbox>Согласен со всем <Link>этим</Link></Checkbox> */}
 
-					{/* <Textarea top="О себе" /> */}
-					<Button size="xl" onClick={onFormClick}>Подтвердить</Button>
+					{login === null && <><Separator />
+						<Checkbox id="agree" defaultChecked={true}>Получать информацию о различных мероприятиях, раздаче билетов и ТП</Checkbox> </>}					
+					<Button size="xl" onClick={onFormClick} top={login === null ? <>При подтверждении Вы соглашаетесь получать автоматические сообщение об изменении Ваших заявлений, а так же с <Link onClick={() => go("POLICY")}>политикой</Link></> : undefined}>Подтвердить</Button>
 				</FormLayout>
 			</Group>
 			{snackbar}

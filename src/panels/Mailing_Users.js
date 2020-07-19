@@ -44,6 +44,7 @@ const App = ({ id, 	go, goBack,
 			search_users('', 0);
 		}
 		if (list_of_users.length !== list_of_login.length){
+			console.log(list_of_users)
 			for (var i = 0; i < list_of_users.length; i++) {
 				list_of_login.push(list_of_users[i].login);
 			}
@@ -52,8 +53,7 @@ const App = ({ id, 	go, goBack,
 	});
 
 	function search_users(value, list_left_end) {
-		check_selected();
-
+		check_selected()
 		var url = main_url + "profkom_bot/search_users/";
 		fetch(url, {
 			method: 'POST',
@@ -70,7 +70,6 @@ const App = ({ id, 	go, goBack,
 			.then(response => response.json())
 			.then((data) => {
 				if (data !== "Error") {
-					console.log(data)
 					setStudents(data)
 					return (data)
 				}
@@ -113,7 +112,7 @@ const App = ({ id, 	go, goBack,
 	function check_selected(){
 		var arr = document.getElementsByName('users');
 		for (var i = 0; i < arr.length; i++) {
-			if (arr[i].checked && list_of_login.indexOf(arr[i].id) === -1){
+			if (arr[i].checked && list_of_login.indexOf(arr[i].id) === -1 && arr[i].dataset.login){
 				list_of_login.push(arr[i].id);
 				list_of_users.push({
 					login:arr[i].dataset.login,
@@ -141,6 +140,7 @@ const App = ({ id, 	go, goBack,
 			<PanelHeader 
 				left={<PanelHeaderBack onClick={() => {
 					search_users('', 0)
+					check_selected();
 					setSearchValue('');
 					set_list_left_end(0);
 					goBack();

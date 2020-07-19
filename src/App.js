@@ -30,6 +30,7 @@ import Snackbar from '@vkontakte/vkui/dist/components/Snackbar/Snackbar';
 import Avatar from '@vkontakte/vkui/dist/components/Avatar/Avatar';
 import ConfigProvider from '@vkontakte/vkui/dist/components/ConfigProvider/ConfigProvider';
 
+import POLICY from './panels/POLICY';
 import Home from './panels/Home';
 import Profkom from './panels/Profkom';
 import User from './panels/User';
@@ -37,6 +38,8 @@ import Settings from './panels/Settings';
 import MASS_MAILING from './panels/MASS_MAILING';
 import INDIVIDUAL_MAILING from './panels/INDIVIDUAL_MAILING';
 import MAILING_USERS from './panels/MAILING_USERS';
+import MAILING from './panels/MAILING';
+import EDIT_MAILING from './panels/EDIT_MAILING';
 import SET_CATEGORIES_MASS_MAILING from './panels/SET_CATEGORIES_MASS_MAILING';
 
 import { redIcon, blueIcon, redBackground } from './panels/style';
@@ -58,11 +61,12 @@ const App = () => {
 	const [history] = useState([])
 
 	const [modal, setModal] = useState();
-	const [modalData, setModalData] = useState({
-		payouts_type: "Выплаты профоргам и старостам",
+
+	const default_modal_data = {
+		payouts_type: "",
 		id: 1,
 		date: "2001-01-01",
-		status: "accepted",
+		status: "filed",
 		error: "",
 		delete: false,
 		// surname_and_initials: "Власов Д.В.",
@@ -70,7 +74,8 @@ const App = () => {
 		students_login: "Логин",
 		students_name: "ФИО",
 		new: false,
-	});
+	}
+	const [modalData, setModalData] = useState(default_modal_data);
 
 	const student_default_value = {
 		birthday: "2001-01-01",
@@ -109,6 +114,7 @@ const App = () => {
 	const [countAttachments, setCountAttachments] = useState(0);
 	const [attachments, setAttachments] = useState([]);
 	const [tooltips, setTooltips] = useState([]);
+	const [payouts_type, set_payouts_type] = useState("");
 
 	const modals_const = [
 		'payout'
@@ -238,6 +244,7 @@ const App = () => {
 		})
 			.then(response => response.json())
 			.then((data) => {
+				console.log(data)
 				setPayouts_type(data)
 			},
 				(error) => {
@@ -653,6 +660,9 @@ const App = () => {
 					attachments={attachments} setAttachments={setAttachments}
 					queryParams={queryParams} proforg={proforg}
 					setTooltips={setTooltips}
+					students={students} setStudents={setStudents}
+					setLogin={setLogin} set_payouts_type={set_payouts_type}
+					setTabsState={setTabsState}
 				/>
 				<MASS_MAILING id='MASS_MAILING' go={go} goBack={goBack}
 					snackbar={snackbar} setPopout={setPopout} setSnackbar={setSnackbar}
@@ -664,6 +674,9 @@ const App = () => {
 					countAttachments={countAttachments} setCountAttachments={setCountAttachments}
 					attachments={attachments} setAttachments={setAttachments}
 					Attachments={Attachments} queryParams={queryParams}
+					payouts_types={payouts_types}
+					payouts_type={payouts_type} set_payouts_type={set_payouts_type}
+					tabsState={tabsState} setTabsState={setTabsState}
 				/>
 				<INDIVIDUAL_MAILING id='INDIVIDUAL_MAILING' go={go} goBack={goBack}
 					setPopout={setPopout} setLogin={setLogin}
@@ -675,16 +688,32 @@ const App = () => {
 					Attachments={Attachments} setStudents={setStudents}
 					queryParams={queryParams}
 				/>
+				<MAILING id='MAILING' go={go} setPopout={setPopout} goBack={goBack}
+					setModal={setModal} setLogin={setLogin}
+					students={students} setStudents={setStudents}
+					snackbar={snackbar} setSnackbar={setSnackbar}
+					setModalData={setModalData}
+				/>
 				<MAILING_USERS id='MAILING_USERS' go={go} goBack={goBack}
 					setLogin={setLogin}
 					students={students} setStudents={setStudents}
 					snackbar={snackbar} setSnackbar={setSnackbar}
-					list_of_users={list_of_users}
+					setModalData={setModalData} list_of_users={list_of_users}
+				/>
+				<EDIT_MAILING id='EDIT_MAILING' go={go} goBack={goBack}
+					snackbar={snackbar} setPopout={setPopout} setSnackbar={setSnackbar}
+					searchValue={searchValue} setSearchValue={setSearchValue}
+					messageValue={messageValue} setMessageValue={setMessageValue}
+					countAttachments={countAttachments} setCountAttachments={setCountAttachments}
+					attachments={attachments} setAttachments={setAttachments}
+					Attachments={Attachments} queryParams={queryParams}
+					modalData={modalData} setStudents={setStudents}
 				/>
 				<SET_CATEGORIES_MASS_MAILING id='SET_CATEGORIES_MASS_MAILING'
 					go={go} goBack={goBack}
 					snackbar={snackbar} categories={categories}
 					setMailingCategories={setMailingCategories} mailingCategories={mailingCategories}
+					payouts_type={payouts_type} payouts_types={payouts_types}
 				/>
 				<User id='User' go={go} goBack={goBack}
 					login={login}
@@ -699,6 +728,10 @@ const App = () => {
 					snackbar={snackbar} setSnackbar={setSnackbar}
 					student={student} categories={categories}
 					proforg={proforg} usersInfo={usersInfo}
+				/>
+				<POLICY id='POLICY' go={go} goBack={goBack}
+					setPopout={setPopout}
+					snackbar={snackbar} setSnackbar={setSnackbar}
 				/>
 			</View>
 		</ConfigProvider>

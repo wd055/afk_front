@@ -12,6 +12,9 @@ import Icon28FavoriteOutline from '@vkontakte/icons/dist/28/favorite_outline';
 import Icon28AddCircleOutline from '@vkontakte/icons/dist/28/add_circle_outline';
 import Icon28ShareOutline from '@vkontakte/icons/dist/28/share_outline';
 import Icon28BrainOutline from '@vkontakte/icons/dist/28/brain_outline';
+import Icon28Users3Outline from '@vkontakte/icons/dist/28/users_3_outline';
+import Icon28UserOutline from '@vkontakte/icons/dist/28/user_outline';
+import Icon28HistoryBackwardOutline from '@vkontakte/icons/dist/28/history_backward_outline';
 
 import { statusSnackbar } from './style';
 
@@ -34,6 +37,8 @@ const App = ({ id, go, goBack,
 	attachments, setAttachments,
 	queryParams, proforg,
 	setTooltips,
+	students, setStudents, setLogin,
+	set_payouts_type, setTabsState,
 }) => {
 
 	const [favorites, setFavorites] = useState(false);
@@ -85,6 +90,11 @@ const App = ({ id, go, goBack,
 			setCountAttachments(0);
 		if (attachments && attachments.length > 0)
 			setAttachments([]);
+		if (students && students.length > 0)
+			setStudents([]);
+		setLogin(null);
+		set_payouts_type("");
+		setTabsState("students");
 	}, []);
 
 	function repeat_learning(){
@@ -130,8 +140,21 @@ const App = ({ id, go, goBack,
 				>Повторное обучение</SimpleCell>
 			</Group>
 			{proforg >= 3 && <Group>
-				<SimpleCell expandable onClick={() => go('MASS_MAILING')}>Массовая рассылка</SimpleCell>
-				<SimpleCell expandable onClick={() => go('INDIVIDUAL_MAILING')}>Индивидуальные сообщения</SimpleCell>
+				<SimpleCell
+					expandable
+					onClick={() => go('MASS_MAILING')}
+					before={<Icon28Users3Outline />}
+				>Массовая рассылка</SimpleCell>
+				<SimpleCell
+					expandable
+					onClick={() => go('INDIVIDUAL_MAILING')}
+					before={<Icon28UserOutline />}
+				>Индивидуальные сообщения</SimpleCell>
+				<SimpleCell
+					expandable
+					onClick={() => go('MAILING')}
+					before={<Icon28HistoryBackwardOutline />}
+				>История рассылок</SimpleCell>
 			</Group>}
 			{snackbar}
 		</Panel>

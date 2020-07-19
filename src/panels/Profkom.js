@@ -32,6 +32,7 @@ import TabsItem from '@vkontakte/vkui/dist/components/TabsItem/TabsItem';
 import Tooltip from '@vkontakte/vkui/dist/components/Tooltip/Tooltip';
 
 import { redIcon, blueIcon, blueBackground, redBackground } from './style';
+import Footer from '@vkontakte/vkui/dist/components/Footer/Footer';
 
 var origin = "https://thingworx.asuscomm.com:10888"
 var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
@@ -55,6 +56,11 @@ const App = ({ id, go, setPopout,
 	const [tooltip_payouts_tips, set_tooltip_payouts_tips] = useState(false);
 
 	useEffect(() => {
+		if (tabsState !== "students" && tabsState !== "payouts"){
+			setTabsState("students")
+			search_users('', 0);
+		}
+
 		if (tabsState === "students" && students.length === 0 && searchValue.length === 0)
 			search_users('', 0);
 		else if (tabsState === "payouts" && searchPayouts.length === 0 && searchValue.length === 0)
@@ -76,14 +82,11 @@ const App = ({ id, go, setPopout,
 			// }
 
 			if (type === 'VKWebAppStorageGetResult') {
-				console.log(data.keys[0], data.request_id)
-				// payouts_tip_click(data.keys[0])
-				if (data.keys[0].key === "tooltip_payouts_tips" && 
-				(data.keys[0].value === false || data.keys[0].value === "false")) {
-					bridge.send("VKWebAppStorageSet", { "key": "tooltip_payouts_tips", "value": "true"});
+				if (data.keys[0].key === "tooltip_payouts_tips" &&
+					(data.keys[0].value === false || data.keys[0].value === "false")) {
+					bridge.send("VKWebAppStorageSet", { "key": "tooltip_payouts_tips", "value": "true" });
 					set_tooltip_payouts_tips(true);
 				}
-				// console.log(data, data.keys[0], data.keys[0].key, data.keys[0].key === "tooltip_payouts_tips")
 			}
 			// if (type === 'VKWebAppStorageGetFailed') {
 			// 	console.error(data)
@@ -109,7 +112,6 @@ const App = ({ id, go, setPopout,
 			.then((data) => {
 				if (data !== "Error") {
 					setSearchPayouts(data)
-					console.log(data)
 					return (data)
 				}
 				else {
@@ -266,13 +268,15 @@ const App = ({ id, go, setPopout,
 			e.target.parentNode.parentNode.getAttribute('class') === "Cell__aside" ||
 			e.target.parentNode.parentNode.parentNode.getAttribute('class') === "Cell__aside") {
 
-			post.new = true;
-			post.students_group = post.group;
-			post.students_login = post.login;
-			post.students_name = post.name;
-			post.error = "";
-
-			setModalData(post);
+			var temp = JSON.parse(JSON.stringify(post));
+			temp.new = true;
+			temp.students_group = post.group;
+			temp.students_login = post.login;
+			temp.students_name = post.name;
+			temp.error = "";
+			console.log(post)
+			console.log(temp)
+			setModalData(temp);
 			go("payout", true);
 		} else {
 			setLogin(post.login);
@@ -339,7 +343,7 @@ const App = ({ id, go, setPopout,
 							setSearchValue("");
 							setSearchPayouts([]);
 							set_list_left_end(0);
-							if (tooltips.indexOf("tooltip_payouts_tips") === -1){
+							if (tooltips.indexOf("tooltip_payouts_tips") === -1) {
 								bridge.send("VKWebAppStorageGet", { "keys": ["tooltip_payouts_tips"] });
 								tooltips.push("tooltip_payouts_tips");
 							}
@@ -350,7 +354,7 @@ const App = ({ id, go, setPopout,
 
 				<Search
 					value={searchValue}
-					placeholder={tabsState === 'payouts' ? "Поиск по номеру заявления" : "Поиск по фамилии, группе или студ. билету"}
+					placeholder={tabsState === 'payouts' ? "Номер заявления" : "Фамилия, группа или студ. билет"}
 					onChange={(e) => {
 						const { value } = e.currentTarget;
 						if (tabsState === "payouts")
@@ -370,7 +374,7 @@ const App = ({ id, go, setPopout,
 				isShown={tooltip_payouts_tips}
 				onClose={() => set_tooltip_payouts_tips(false)}
 				offsetX={100}
-				offsetY={30}
+				offsetY={0}
 				cornerOffset={80}
 			>
 				<Div style={{ paddingTop: 80, paddingBottom: 60 }}>
@@ -419,6 +423,8 @@ const App = ({ id, go, setPopout,
 									</HorizontalScroll>
 								}>{post.payouts_type}</Cell>
 						</Group>))}
+					{((students.length === 0 && tabsState === "students") || (searchPayouts.length === 0 && tabsState === "payouts")) &&
+						<Footer>По вашему запросу ничего не найдено</Footer>}
 				</Div>
 			</Tooltip>
 			<FixedLayout vertical="bottom" filled>

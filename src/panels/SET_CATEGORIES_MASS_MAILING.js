@@ -10,67 +10,81 @@ import FormLayout from '@vkontakte/vkui/dist/components/FormLayout/FormLayout';
 import FormLayoutGroup from '@vkontakte/vkui/dist/components/FormLayoutGroup/FormLayoutGroup';
 import Checkbox from '@vkontakte/vkui/dist/components/Checkbox/Checkbox';
 import Button from '@vkontakte/vkui/dist/components/Button/Button';
+import Footer from '@vkontakte/vkui/dist/components/Footer/Footer';
 
-const App = ({id, go, goBack,
+const App = ({ id, go, goBack,
 	categories, snackbar,
 	setMailingCategories, mailingCategories,
+	payouts_type, payouts_types,
 }) => {
 
 	const [checked, setChecked] = useState(false);
+	const [payouts_types_categories, set_payouts_types_categories] = useState([]);
 
 	useEffect(() => {
-		onLoadCategory();
+		if (payouts_type.length > 0) {
+			var n = 0;
+			for (var i in payouts_types) {
+				if (payouts_types[i].payout_type === payouts_type) n = i;
+			}
+			set_payouts_types_categories(payouts_types[n].categories)
+		} else {
+			set_payouts_types_categories(categories)
+		}
+		// onLoadCategory();
 	});
 
-	function getChecked(){
+	function getChecked() {
 		var temp = [];
 		var categorys = document.getElementsByName("category");
 		for (var i = 0; i < categorys.length; i++) {
 			if (categorys[i].checked) {
-				temp.push(categories[i]);
+				temp.push(payouts_types_categories[i]);
 			}
 		}
 		setChecked(temp);
 		return temp;
 	}
 
-	function clickAll(){
+	function clickAll() {
 		var temp = getChecked();
 		var categorys = document.getElementsByName("category");
 
-		if (temp.length === categories.length) {
+		if (temp.length === payouts_types_categories.length) {
 			for (var i = 0; i < categorys.length; i++) {
 				categorys[i].checked = false;
 			}
-		}else{
+		} else {
 			for (i = 0; i < categorys.length; i++) {
 				categorys[i].checked = true;
 			}
 		}
 	}
-	
-	function onLoadCategory() {
-		if (checked) return;
-		setChecked(true);
 
-		var categorys = document.getElementsByName("category");
-		for (var i = 0; i < categorys.length; i++) {
-			categorys[i].checked = mailingCategories.indexOf(categories[i]) !== -1
-		}
-		if (mailingCategories.indexOf("Студентам без категорий") > -1){
-			document.getElementById("without").checked = true;
-		}
-	}
-	
-	function btnClck(){
+	// function onLoadCategory() {
+	// 	if (checked) return;
+	// 	setChecked(true);
+
+	// 	var categorys = document.getElementsByName("category");
+	// 	console.log(categorys, payouts_types_categories, categorys.length)
+
+	// 	for (var i = 0; i < categorys.length; i++) {
+	// 		categorys[i].checked = mailingCategories.indexOf(payouts_types_categories[i]) !== -1
+	// 	}
+	// 	if (mailingCategories.indexOf("Студентам без категорий") > -1){
+	// 		document.getElementById("without").checked = true;
+	// 	}
+	// }
+
+	function btnClck() {
 		var temp = [];
 		var categorys = document.getElementsByName("category");
 		for (var i = 0; i < categorys.length; i++) {
 			if (categorys[i].checked) {
-				temp.push(categories[i]);
+				temp.push(payouts_types_categories[i]);
 			}
 		}
-		if (document.getElementById("without").checked){
+		if (document.getElementById("without").checked) {
 			temp.push('Студентам без категорий')
 		}
 		setMailingCategories(temp);
@@ -86,11 +100,13 @@ const App = ({id, go, goBack,
 				<Button name="all" onClick={clickAll}>Выбрать все</Button>
 				<Checkbox name="without" id="without">Студентам без категорий</Checkbox>
 
-				<Separator/>
+				<Separator />
 				<FormLayoutGroup top="Выберите подходящие категории">
-					{categories.map((category, i) => (
-						<Checkbox name="category" key={i} id={i.toString()}>{category}</Checkbox>
+					{payouts_types_categories.map((category, i) => (
+						<Checkbox name="category" key={i} id={i.toString()} defaultChecked={mailingCategories.indexOf(payouts_types_categories[i]) !== -1}>{category}</Checkbox>
 					))}
+					{(payouts_types_categories.length === 0) &&
+						<Footer>Нет категорий, удовлетворяющих условию</Footer>}
 				</FormLayoutGroup>
 
 				<Button size="xl" onClick={btnClck}>Подтвердить</Button>

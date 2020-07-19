@@ -6,6 +6,7 @@ import PanelHeaderBack from '@vkontakte/vkui/dist/components/PanelHeaderBack/Pan
 
 import Header from '@vkontakte/vkui/dist/components/Header/Header';
 import Group from '@vkontakte/vkui/dist/components/Group/Group';
+import List from '@vkontakte/vkui/dist/components/List/List';
 import Cell from '@vkontakte/vkui/dist/components/Cell/Cell';
 import SimpleCell from '@vkontakte/vkui/dist/components/SimpleCell/SimpleCell';
 import HorizontalScroll from '@vkontakte/vkui/dist/components/HorizontalScroll/HorizontalScroll';
@@ -21,13 +22,15 @@ import Alert from '@vkontakte/vkui/dist/components/Alert/Alert';
 import Icon28CancelOutline from '@vkontakte/icons/dist/28/cancel_outline';
 
 import { statusSnackbar, redIcon } from './style';
+import Div from '@vkontakte/vkui/dist/components/Div/Div';
+import Footer from '@vkontakte/vkui/dist/components/Footer/Footer';
 
 var origin = "https://thingworx.asuscomm.com:10888"
 var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
 // var main_url = "http://thingworx.asuscomm.com/"
 // var main_url = "http://localhost:8000/"
 
-const App = ({ id, go, goBack, 
+const App = ({ id, go, goBack,
 	setPopout, setLogin,
 	snackbar, setSnackbar,
 	list_of_users, set_list_of_users,
@@ -43,7 +46,7 @@ const App = ({ id, go, goBack,
 	useEffect(() => {
 	});
 
-	function on_btn_click(){
+	function on_btn_click() {
 		test_message();
 		setPopout(<Alert
 			actionsLayout="vertical"
@@ -68,7 +71,7 @@ const App = ({ id, go, goBack,
 
 	async function send_individual_mailing() {
 		var url = main_url + "profkom_bot/individual_mailing";
-		
+
 		var data = {
 			querys: window.location.search,
 			message: messageValue,
@@ -106,7 +109,7 @@ const App = ({ id, go, goBack,
 
 	async function test_message() {
 		var url = main_url + "profkom_bot/test_message";
-		
+
 		var data = {
 			querys: window.location.search,
 			message: messageValue,
@@ -115,6 +118,8 @@ const App = ({ id, go, goBack,
 
 		if (countAttachments > 0)
 			data.attachment = attachments.join();
+
+		console.log('test_message test_message: Success');
 
 		try {
 			const response = await fetch(url, {
@@ -126,15 +131,16 @@ const App = ({ id, go, goBack,
 			});
 			// const json = await response.json();
 			if (response.ok) {
-				statusSnackbar(200, setSnackbar);
+				console.log('test_message test_message: Success');
+				// statusSnackbar(200, setSnackbar);
 			} else {
 				statusSnackbar(response.status, setSnackbar);
-				console.error('INDIVIDUAL_MAILING test_message:', data);
+				console.error('test_message test_message:', data);
 			}
 		} catch (error) {
 			setPopout(null);
 			statusSnackbar(0, setSnackbar);
-			console.error('INDIVIDUAL_MAILING test_message:', error);
+			console.error('test_message test_message:', error);
 		}
 	}
 
@@ -146,8 +152,8 @@ const App = ({ id, go, goBack,
 
 			//delete user
 			console.log("DELETE")
-			for (var i in list_of_users){
-				if (list_of_users[i].login === post.login){
+			for (var i in list_of_users) {
+				if (list_of_users[i].login === post.login) {
 					// var temp = list_of_users;
 					// temp.splice(i, 1);
 					// console.log(temp);
@@ -166,80 +172,85 @@ const App = ({ id, go, goBack,
 
 	const Home =
 		<Panel id={id} style={{ 'maxWidth': 630, margin: 'auto' }}>
-			<PanelHeader 
+			<PanelHeader
 				left={<PanelHeaderBack onClick={() => {
 					set_list_of_users([]);
 					goBack();
 				}} />}
 			>Индивидуальная рассылка</PanelHeader>
 
-			<FormLayout>
-				<Textarea
-					top="Текст сообщения"
-					id="message"
-					onChange={(e) => {
-						const { value } = e.currentTarget;
-						setMessageValue(value);
+			<Div style={{ paddingBottom: 60 }}>
+				<FormLayout>
+					<Textarea
+						top="Текст сообщения"
+						id="message"
+						onChange={(e) => {
+							const { value } = e.currentTarget;
+							setMessageValue(value);
+						}}
+						defaultValue={messageValue}
+					/>
+					<Attachments />
+
+				</FormLayout>
+
+				<Separator />
+				<SimpleCell
+					expandable
+					onClick={() => {
+						go('MAILING_USERS');
+						setStudents([])
 					}}
-					defaultValue={messageValue}
-				/>
-				<Attachments />
+					description="Если студента нельзя выбрать, значит он не авторизовывался в ВК"
+				>Выбор студентов
+				</SimpleCell>
+				<Separator />
 
-			</FormLayout>
+				<Group>
+					<Header
+						mode="secondary"
+						indicator={list_of_users.length > 0 && <Counter>{list_of_users.length}</Counter>}
+					>Выбранные студенты</Header>
+					<List>
+						{list_of_users.map((post, i) =>
+							(
+								<Cell
+									size="l"
+									name="users"
+									id={post.login}
+									key={i}
+									onClick={(e) => { on_students_click(e, post) }}
 
-			<Separator />
-			<SimpleCell
-				expandable
-				onClick={() => {
-					go('MAILING_USERS');
-					setStudents([])
-				}}
-				description="Если студента нельзя выбрать, значит он не авторизовывался в ВК"
-			>Выбор студентов
-			</SimpleCell>
-			<Separator />
+									asideContent={
+										<Icon28CancelOutline style={redIcon} />
+									}
 
-			<Group>
-				<Header 
-					mode="secondary" 
-					indicator={list_of_users.length > 0 && <Counter>{list_of_users.length}</Counter>}
-				>Выбранные студенты</Header>
-
-				{list_of_users.map((post, i) =>
-					(<Group key={i}>
-						<Cell 
-							size="l" 
-							name="users"
-							id={post.login}
-
-							onClick={(e) => {on_students_click(e, post)}}
-
-							asideContent={
-								<Icon28CancelOutline style={redIcon} />
-							}
-
-							bottomContent={
-								<HorizontalScroll>
-									<div style={{ display: 'flex' }}>
-										<Button 
-											size="m" 
-											mode="outline"
-										>{post.group}</Button>
-										<Button 
-											size="m" 
-											mode="outline" 
-											style={{ marginLeft: 8 }}
-										>{post.login}</Button>
-									</div>
-								</HorizontalScroll>
-							}>{post.name}</Cell>
-					</Group>))}
-			</Group>
+									bottomContent={
+										<HorizontalScroll>
+											<div style={{ display: 'flex' }}>
+												<Button
+													size="m"
+													mode="outline"
+												>{post.group}</Button>
+												<Button
+													size="m"
+													mode="outline"
+													style={{ marginLeft: 8 }}
+												>{post.login}</Button>
+											</div>
+										</HorizontalScroll>
+									}>{post.name}</Cell>
+							))}
+					</List>
+				</Group>
+				{(list_of_users.length === 0) &&
+					<Footer>Пока не выбран ни один студент</Footer>}
+			</Div>
 
 			<FixedLayout vertical="bottom" filled>
 				<FormLayout>
-					<Button 
-						size="xl" 
+					<Button
+						size="xl"
 						disabled={list_of_users.length === 0 || !messageValue}
 						onClick={on_btn_click}
 					>Отправить</Button>
