@@ -8,6 +8,11 @@ import PanelHeaderBack from '@vkontakte/vkui/dist/components/PanelHeaderBack/Pan
 import Group from '@vkontakte/vkui/dist/components/Group/Group';
 import SimpleCell from '@vkontakte/vkui/dist/components/SimpleCell/SimpleCell';
 
+import Input from '@vkontakte/vkui/dist/components/Input/Input';
+import Radio from '@vkontakte/vkui/dist/components/Radio/Radio';
+import Button from '@vkontakte/vkui/dist/components/Button/Button';
+import FormLayout from '@vkontakte/vkui/dist/components/FormLayout/FormLayout';
+
 import Icon28FavoriteOutline from '@vkontakte/icons/dist/28/favorite_outline';
 import Icon28AddCircleOutline from '@vkontakte/icons/dist/28/add_circle_outline';
 import Icon28ShareOutline from '@vkontakte/icons/dist/28/share_outline';
@@ -17,6 +22,7 @@ import Icon28UserOutline from '@vkontakte/icons/dist/28/user_outline';
 import Icon28HistoryBackwardOutline from '@vkontakte/icons/dist/28/history_backward_outline';
 
 import { statusSnackbar } from './style';
+import Div from '@vkontakte/vkui/dist/components/Div/Div';
 
 // var origin = "https://thingworx.asuscomm.com:10888"
 // var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
@@ -29,7 +35,7 @@ const App = ({ id, go, goBack,
 	snackbar, setSnackbar,
 	setModalData,
 	messageValue, setMessageValue,
-	list_of_users, set_list_of_users, 
+	list_of_users, set_list_of_users,
 	payments_edu, setPayments_edu,
 	mailingCategories, setMailingCategories,
 	group, setGroup,
@@ -53,9 +59,13 @@ const App = ({ id, go, goBack,
 				setFavorites(true);
 				queryParams.vk_is_favorite = 1;
 			}
-			
-			if (type === 'VKWebAppStorageGetKeysResult') {
-				console.log(data, data.keys)
+
+			if (type === 'VKWebAppOpenPayFormResult') {
+				console.log(data)
+			}
+
+			if (type === 'VKWebAppOpenPayFormFailed ') {
+				console.log(data)
 			}
 			// if (type === 'VKWebAppStorageGetKeysFailed') {
 			// 	console.error(data)
@@ -75,7 +85,7 @@ const App = ({ id, go, goBack,
 			// 	console.error(data)
 			// }
 		}, []);
-		
+
 		console.log(queryParams)
 
 		if (messageValue && messageValue.length > 0)
@@ -97,21 +107,21 @@ const App = ({ id, go, goBack,
 		setTabsState("students");
 	}, []);
 
-	function repeat_learning(){
+	function repeat_learning() {
 		var tooltips_names = [
 			"tooltip_payouts_tips",
 			"tooltip_users_contact",
 			"tooltip_users_payout",
 		]
-		for(var i in tooltips_names){
-			bridge.send("VKWebAppStorageSet", {"key": tooltips_names[i], "value": "false"});
+		for (var i in tooltips_names) {
+			bridge.send("VKWebAppStorageSet", { "key": tooltips_names[i], "value": "false" });
 		}
 		setTooltips([]);
 		statusSnackbar(200, setSnackbar);
 	}
 	const Home =
 		<Panel id={id} style={{ 'maxWidth': 630, margin: 'auto' }}>
-			<PanelHeader 
+			<PanelHeader
 				left={<PanelHeaderBack onClick={goBack} />}
 			>Настройки</PanelHeader>
 			<Group>
@@ -156,6 +166,31 @@ const App = ({ id, go, goBack,
 					before={<Icon28HistoryBackwardOutline />}
 				>История рассылок</SimpleCell>
 			</Group>}
+			{/* <Div>
+				<form method="POST" action="https://money.yandex.ru/quickpay/confirm.xml" target="_blank">
+					<input type="hidden" name="receiver" value="410013037147495" />
+					<input type="hidden" name="formcomment" value="Оплата профвзноса" />
+					<input type="hidden" name="short-dest" value="Оплата профвзноса" />
+					<input type="hidden" name="quickpay-form" value="small" />
+					<input type="hidden" name="targets" value="Оплата профвзноса" />
+					<input type="hidden" name="sum" value="1" data-type="number" />
+					<input type="hidden" name="paymentType" value="PC" />
+					<Button mode="commerce" type="submit" value="Перевести">Оплатить профвзнос через Яндекс.Деньги</Button>
+				</form>
+			</Div>
+			<Div>
+				<Button
+					mode="commerce"
+					type="submit"
+					value="Перевести"
+					onClick={() => bridge.send("VKWebAppOpenPayForm",
+						{
+							"app_id": 7446946,
+							"action": "pay-to-group",
+							"params": { "group_id": 195888448, "amount": 1, "aid": 7446946 }
+						})}
+				>Оплатить профвзнос через VK Pay</Button>
+			</Div> */}
 			{snackbar}
 		</Panel>
 	return Home;

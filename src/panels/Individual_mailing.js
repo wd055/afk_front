@@ -20,6 +20,7 @@ import Textarea from '@vkontakte/vkui/dist/components/Textarea/Textarea';
 import Alert from '@vkontakte/vkui/dist/components/Alert/Alert';
 
 import Icon28CancelOutline from '@vkontakte/icons/dist/28/cancel_outline';
+import Icon28ClearDataOutline from '@vkontakte/icons/dist/28/clear_data_outline';
 
 import { statusSnackbar, redIcon } from './style';
 import Div from '@vkontakte/vkui/dist/components/Div/Div';
@@ -210,6 +211,7 @@ const App = ({ id, go, goBack,
 					<Header
 						mode="secondary"
 						indicator={list_of_users.length > 0 && <Counter>{list_of_users.length}</Counter>}
+						aside={<Icon28ClearDataOutline style={redIcon} onClick={() => set_list_of_users([])}/>}
 					>Выбранные студенты</Header>
 					<List>
 						{list_of_users.map((post, i) =>

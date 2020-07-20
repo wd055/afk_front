@@ -210,7 +210,6 @@ const App = ({ id, go, goBack,
 				left={<PanelHeaderBack onClick={goBack} />}
 			>Массовая рассылка</PanelHeader>
 
-			<Div style={{ paddingBottom: 60 }}>
 				<FormLayout>
 					<Textarea
 						top="Текст сообщения"
@@ -312,8 +311,6 @@ const App = ({ id, go, goBack,
 					<Checkbox id="agree" onClick={mass_mailing_count}>Отправить только тем, кто дал согласие на рассылку</Checkbox>
 
 				</FormLayout>
-			</Div>
-			<FixedLayout vertical="bottom" filled>
 				<FormLayout>
 					<Button
 						size="xl"
@@ -322,7 +319,6 @@ const App = ({ id, go, goBack,
 						after={<Counter>{countSenders[0]}</Counter>}
 					>Отправить</Button>
 				</FormLayout>
-			</FixedLayout>
 			{snackbar}
 		</Panel>
 	return Home;

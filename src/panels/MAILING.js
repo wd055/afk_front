@@ -129,7 +129,7 @@ const App = ({ id, go, setPopout, goBack,
 			<Div style={{ paddingBottom: 60 }}>
 				{students.slice(0, count_on_page).map((post, i) =>
 					(<Group key={i}>
-						<Cell size="l" multiline onClick={(e) => {
+						<Cell size="l" onClick={(e) => {
 							setModalData(post);
 							go("EDIT_MAILING");
 						}}

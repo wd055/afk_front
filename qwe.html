@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="utf-8">
+	<title>Яндекс деньги</title>
+
+</head>
+
+<body>
+    <form method="POST" action="https://money.yandex.ru/quickpay/confirm.xml">
+        <input type="hidden" name="receiver" value="410013037147495"/>
+        <input type="hidden" name="formcomment" value="Оплата профвзноса"/>
+        <input type="hidden" name="short-dest" value="Оплата профвзноса"/>
+        <input type="hidden" name="quickpay-form" value="small"/>
+        <input type="hidden" name="targets" value="Оплата профвзноса"/>
+        <input type="hidden" name="sum" value="10" data-type="number"/>
+        <label><input type="radio" name="paymentType" value="PC"/>Яндекс.Деньгами</label>
+        <label><input type="radio" name="paymentType" value="AC"/>Банковской картой</label>
+        <input type="submit" value="Перевести"/>
+    </form>
+</body>
+
+</html>
