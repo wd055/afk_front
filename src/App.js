@@ -30,8 +30,7 @@ import Snackbar from '@vkontakte/vkui/dist/components/Snackbar/Snackbar';
 import Avatar from '@vkontakte/vkui/dist/components/Avatar/Avatar';
 import ConfigProvider from '@vkontakte/vkui/dist/components/ConfigProvider/ConfigProvider';
 
-import POLICY from './panels/POLICY';
-import Home from './panels/Home';
+import {Home, POLICY} from './panels/Home';
 import Profkom from './panels/Profkom';
 import User from './panels/User';
 import Settings from './panels/Settings';
@@ -39,8 +38,10 @@ import MASS_MAILING from './panels/MASS_MAILING';
 import INDIVIDUAL_MAILING from './panels/INDIVIDUAL_MAILING';
 import MAILING_USERS from './panels/MAILING_USERS';
 import MAILING from './panels/MAILING';
+import MASS_MAILING_USERS from './panels/MASS_MAILING_USERS';
 import EDIT_MAILING from './panels/EDIT_MAILING';
 import SET_CATEGORIES_MASS_MAILING from './panels/SET_CATEGORIES_MASS_MAILING';
+import MESSAGE_HISTORY from './panels/MESSAGE_HISTORY';
 
 import { redIcon, blueIcon, redBackground } from './panels/style';
 import FormLayout from '@vkontakte/vkui/dist/components/FormLayout/FormLayout';
@@ -351,14 +352,14 @@ const App = () => {
 				mode="secondary"
 				aside={<Tabs mode="buttons">
 					<TabsItem selected={true} onClick={() => { setCountAttachments(countAttachments + 1) }}>+</TabsItem>
-					<TabsItem selected={true} onClick={() => { 
+					<TabsItem selected={true} onClick={() => {
 						setCountAttachments(Math.max(countAttachments - 1, 0));
 						setAttachments(attachments.slice(0, -1));
 					}}>-</TabsItem>
 				</Tabs>}
 			>Прикрепить</Header>}
 			description="Ссылку ВК на документ (саму ссылку, начинающуюся с photo-... или doc-... и тп)"
-			>
+		>
 			{rows}
 		</Group>;
 	}
@@ -693,6 +694,22 @@ const App = () => {
 					students={students} setStudents={setStudents}
 					snackbar={snackbar} setSnackbar={setSnackbar}
 					setModalData={setModalData}
+				/>
+				<MASS_MAILING_USERS id='MASS_MAILING_USERS' go={go} setPopout={setPopout} goBack={goBack}
+					setModal={setModal} setLogin={setLogin}
+					students={students} setStudents={setStudents}
+					snackbar={snackbar} setSnackbar={setSnackbar}
+					setModalData={setModalData}					
+					mailingCategories={mailingCategories} payments_edu={payments_edu}
+					group={group} countAttachments={countAttachments}
+					payouts_type={payouts_type} attachments={attachments}
+				/>
+				<MESSAGE_HISTORY id='MESSAGE_HISTORY' go={go} setPopout={setPopout} goBack={goBack}
+					setModal={setModal} setLogin={setLogin}
+					snackbar={snackbar} setSnackbar={setSnackbar}
+					setMessageValue={setMessageValue}
+					setCountAttachments={setCountAttachments}
+					setAttachments={setAttachments}
 				/>
 				<MAILING_USERS id='MAILING_USERS' go={go} goBack={goBack}
 					setLogin={setLogin}

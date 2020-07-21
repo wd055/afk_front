@@ -16,12 +16,18 @@ import Select from '@vkontakte/vkui/dist/components/Select/Select';
 import Textarea from '@vkontakte/vkui/dist/components/Textarea/Textarea';
 import Alert from '@vkontakte/vkui/dist/components/Alert/Alert';
 
-import { statusSnackbar } from './style';
+import { statusSnackbar, blueIcon } from './style';
 import Div from '@vkontakte/vkui/dist/components/Div/Div';
 import Checkbox from '@vkontakte/vkui/dist/components/Checkbox/Checkbox';
 import Tabs from '@vkontakte/vkui/dist/components/Tabs/Tabs';
 import TabsItem from '@vkontakte/vkui/dist/components/TabsItem/TabsItem';
 import Footer from '@vkontakte/vkui/dist/components/Footer/Footer';
+
+import Icon28MessagesOutline from '@vkontakte/icons/dist/28/messages_outline';
+import Icon28Users3Outline from '@vkontakte/icons/dist/28/users_3_outline';
+import Icon28ListOutline from '@vkontakte/icons/dist/28/list_outline';
+import Icon24Education from '@vkontakte/icons/dist/24/education';
+import Icon28TagOutline from '@vkontakte/icons/dist/28/tag_outline';
 
 var origin = "https://thingworx.asuscomm.com:10888"
 var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
@@ -93,7 +99,7 @@ const App = ({ id, go, goBack,
 
 		var agree = document.getElementById("agree");
 		data.agree = agree.checked
-		
+
 		console.log(data)
 		try {
 			const response = await fetch(url, {
@@ -106,14 +112,14 @@ const App = ({ id, go, goBack,
 			// const json = await response.json();
 			if (response.ok) {
 				statusSnackbar(200, setSnackbar);
-				setMessageValue();
-				setCountAttachments(0);
-				setAttachments([]);
-				setMailingCategories([]);
-				setPayments_edu();
-				setGroup();
-				setTabsState("students");
-				goBack();
+				// setMessageValue();
+				// setCountAttachments(0);
+				// setAttachments([]);
+				// setMailingCategories([]);
+				// setPayments_edu();
+				// setGroup();
+				// setTabsState("students");
+				// goBack();
 			} else {
 				statusSnackbar(response.status, setSnackbar);
 				console.error('send_mass_mailing:', data);
@@ -203,6 +209,20 @@ const App = ({ id, go, goBack,
 		}
 	}
 
+	function Draw_div(node, icon = undefined, top = undefined, bottom = undefined){
+		return (<Div 
+			style={{ display: "flex", alignItems: "center", padding: 0, paddingLeft: 12 }}
+			top={top}
+			bottom={bottom}
+		>
+			<Div style={{ display: "block", flexShrink: 0, paddingRight: 12, paddingLeft: 4 }}>
+				{icon}				
+			</Div>
+			<Div style={{ display: "block", flexGrow: 1, flexShrink: 1, padding: 0}}>
+				{node}
+			</Div>
+		</Div>)
+	}
 
 	const Home =
 		<Panel id={id} style={{ 'maxWidth': 630, margin: 'auto' }}>
@@ -210,77 +230,87 @@ const App = ({ id, go, goBack,
 				left={<PanelHeaderBack onClick={goBack} />}
 			>Массовая рассылка</PanelHeader>
 
-				<FormLayout>
-					<Textarea
-						top="Текст сообщения"
-						id="text"
-						onChange={(e) => {
-							const { value } = e.currentTarget;
-							setMessageValue(value);
-						}}
-						defaultValue={messageValue}
-					/>
-					<Attachments />
+			<FormLayout>
+				<Textarea
+					top="Текст сообщения"
+					id="text"
+					onChange={(e) => {
+						const { value } = e.currentTarget;
+						setMessageValue(value);
+					}}
+					defaultValue={messageValue}
+				/>
+				<Attachments />
 
-					<Separator />
+				<SimpleCell
+					expandable
+					onClick={() => {
+						go('MESSAGE_HISTORY');
+					}}
+					description="Последние 20 сообщений"
+					before={<Icon28MessagesOutline />}
+				>Выбор сообщения из переписки с ботом</SimpleCell>
+
+				<Separator />
+				<Select
+					top="Тип заявление"
+					placeholder="Выберите тип заявление"
+					bottom="При изменении типа заявления категории сбрасываются"
+					onChange={(e) => {
+						const { value } = e.currentTarget;
+						set_payouts_type(value);
+						var temp = [];
+						setMailingCategories([]);
+						mass_mailing_count('payouts_type', value);
+					}}
+					defaultValue={payouts_type}
+				>
+					{payouts_types.map((payouts_type, i) => (
+						<option
+							key={payouts_type.payout_type}
+							value={payouts_type.payout_type}
+							id={payouts_type.payout_type}
+						>{payouts_type.payout_type}</option>
+					))}
+				</Select>
+				{payouts_type.length > 0 &&
+					<>
+						<Tabs mode="buttons">
+							<TabsItem
+								onClick={() => {
+									setTabsState('all');
+								}}
+								selected={tabsState === 'all'}
+							>Всем</TabsItem>
+							<TabsItem
+								onClick={() => {
+									setTabsState('submit');
+								}}
+								selected={tabsState === 'submit'}
+							>Кто подал</TabsItem>
+							<TabsItem
+								onClick={() => {
+									setTabsState('not_submit');
+								}}
+								selected={tabsState === 'not_submit'}
+							>Кто НЕ подал</TabsItem>
+						</Tabs>
+						<Footer>Заявление подало {countSenders[1]} из {countSenders[0]} (с учетом других фильтров)</Footer>
+					</>}
+				<Separator />
+
+				<SimpleCell
+					expandable
+					onClick={() => go('SET_CATEGORIES_MASS_MAILING')}
+					bottom="У студента есть хоть одна выбранная категория (не забудьте подтвердить выбор)"
+					before={<Icon28ListOutline />}
+					indicator={mailingCategories && mailingCategories.length > 0 && <Counter>{mailingCategories.length}</Counter>}
+				>Выбор категорий</SimpleCell>
+
+				<Separator />
+				
+				{Draw_div(
 					<Select
-						top="Тип заявление"
-						placeholder="Выберите тип заявление"
-						bottom="При изменении типа заявления категории сбрасываются"
-						onChange={(e) => {
-							const { value } = e.currentTarget;
-							set_payouts_type(value);
-							var temp = [];
-							setMailingCategories([]);
-							mass_mailing_count('payouts_type', value);
-						}}
-						defaultValue={payouts_type}
-					>
-						{payouts_types.map((payouts_type, i) => (
-							<option
-								key={payouts_type.payout_type}
-								value={payouts_type.payout_type}
-								id={payouts_type.payout_type}
-							>{payouts_type.payout_type}</option>
-						))}
-					</Select>
-					{payouts_type.length > 0 &&
-						<>
-							<Tabs mode="buttons">
-								<TabsItem
-									onClick={() => {
-										setTabsState('all');
-									}}
-									selected={tabsState === 'all'}
-								>Всем</TabsItem>
-								<TabsItem
-									onClick={() => {
-										setTabsState('submit');
-									}}
-									selected={tabsState === 'submit'}
-								>Кто подал</TabsItem>
-								<TabsItem
-									onClick={() => {
-										setTabsState('not_submit');
-									}}
-									selected={tabsState === 'not_submit'}
-								>Кто НЕ подал</TabsItem>
-							</Tabs>
-							<Footer>Заявление подало {countSenders[1]} из {countSenders[0]} (с учетом других фильтров)</Footer>
-						</>}
-					<Separator />
-
-					<SimpleCell
-						expandable
-						onClick={() => go('SET_CATEGORIES_MASS_MAILING')}
-						bottom="У студента есть хоть одна выбранная категория (не забудьте подтвердить выбор)"
-						indicator={mailingCategories && mailingCategories.length > 0 && <Counter>{mailingCategories.length}</Counter>}
-					>Выбор категорий</SimpleCell>
-
-					<Separator />
-
-					<Select
-						top="Форма обучения"
 						placeholder="Не учитывать форму обучения"
 						id='payments_edu'
 						name="payments_edu"
@@ -293,32 +323,48 @@ const App = ({ id, go, goBack,
 					>
 						<option value="free" id="select_free">Бюджетная</option>
 						<option value="paid" id="select_paid">Платная</option>
-					</Select>
+					</Select>,
+					<Icon24Education style={blueIcon} size={28} />,
+					"Форма обучения",
+				)}
 
+				{Draw_div(
 					<Input
 						type="text"
-						top="Префикс группы"
 						name="group"
 						id="group"
-						bottom='Можно использовать для факультетов, кафедр, потоков или групп, пример: "ИУ", "ИУ7", "ИУ7-2", "ИУ7-21Б"'
 						onChange={(e) => {
 							const { value } = e.currentTarget;
 							setGroup(value);
 							mass_mailing_count("group", value);
 						}}
 						defaultValue={group}
-					/>
-					<Checkbox id="agree" onClick={mass_mailing_count}>Отправить только тем, кто дал согласие на рассылку</Checkbox>
+					/>,
+					<Icon28TagOutline style={blueIcon} />,
+					"Префикс группы",
+					'Можно использовать для факультетов, кафедр, потоков или групп, пример: "ИУ", "ИУ7", "ИУ7-2", "ИУ7-21Б"',
+					)}
+			
+				<Checkbox id="agree" onClick={mass_mailing_count}>Отправить только тем, кто дал согласие на рассылку</Checkbox>
 
-				</FormLayout>
-				<FormLayout>
-					<Button
-						size="xl"
-						disabled={!messageValue}
-						onClick={on_btn_click}
-						after={<Counter>{countSenders[0]}</Counter>}
-					>Отправить</Button>
-				</FormLayout>
+			</FormLayout>
+
+			<SimpleCell
+				expandable
+				onClick={() => {
+					go('MASS_MAILING_USERS');
+				}}
+				before={<Icon28Users3Outline />}
+			>Студенты, участвующие в рассылки</SimpleCell>
+
+			<FormLayout>
+				<Button
+					size="xl"
+					disabled={!messageValue}
+					onClick={on_btn_click}
+					after={<Counter>{countSenders[0]}</Counter>}
+				>Отправить</Button>
+			</FormLayout>
 			{snackbar}
 		</Panel>
 	return Home;

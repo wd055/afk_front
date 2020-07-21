@@ -102,6 +102,8 @@ const App = ({ id, go, goBack,
 			setAttachments([]);
 		if (students && students.length > 0)
 			setStudents([]);
+		if (group && group.length > 0)
+			setGroup();
 		setLogin(null);
 		set_payouts_type("");
 		setTabsState("students");

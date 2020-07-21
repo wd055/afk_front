@@ -21,6 +21,8 @@ import Alert from '@vkontakte/vkui/dist/components/Alert/Alert';
 
 import Icon28CancelOutline from '@vkontakte/icons/dist/28/cancel_outline';
 import Icon28ClearDataOutline from '@vkontakte/icons/dist/28/clear_data_outline';
+import Icon28MessagesOutline from '@vkontakte/icons/dist/28/messages_outline';
+import Icon28Users3Outline from '@vkontakte/icons/dist/28/users_3_outline';
 
 import { statusSnackbar, redIcon } from './style';
 import Div from '@vkontakte/vkui/dist/components/Div/Div';
@@ -92,11 +94,11 @@ const App = ({ id, go, goBack,
 			// const json = await response.json();
 			if (response.ok) {
 				statusSnackbar(200, setSnackbar);
-				setCountAttachments(0);
-				setAttachments([]);
-				setMessageValue();
-				set_list_of_users([]);
-				goBack();
+				// setCountAttachments(0);
+				// setAttachments([]);
+				// setMessageValue();
+				// set_list_of_users([]);
+				// goBack();
 			} else {
 				statusSnackbar(response.status, setSnackbar);
 				console.error('INDIVIDUAL_MAILING:', data);
@@ -119,8 +121,6 @@ const App = ({ id, go, goBack,
 
 		if (countAttachments > 0)
 			data.attachment = attachments.join();
-
-		console.log('test_message test_message: Success');
 
 		try {
 			const response = await fetch(url, {
@@ -193,25 +193,36 @@ const App = ({ id, go, goBack,
 					/>
 					<Attachments />
 
-				</FormLayout>
+					<SimpleCell
+						expandable
+						onClick={() => {
+							go('MESSAGE_HISTORY');
+						}}
+						description="Последние 20 сообщений"
+						before={<Icon28MessagesOutline />}
+					>Выбор сообщения из переписки с ботом</SimpleCell>
 
-				<Separator />
-				<SimpleCell
-					expandable
-					onClick={() => {
-						go('MAILING_USERS');
-						setStudents([])
-					}}
-					description="Если студента нельзя выбрать, значит он не авторизовывался в ВК"
-				>Выбор студентов
+					<Separator />
+
+					<SimpleCell
+						expandable
+						onClick={() => {
+							go('MAILING_USERS');
+							setStudents([])
+						}}
+						description="Если студента нельзя выбрать, значит он не авторизовывался в ВК"
+						before={<Icon28Users3Outline />}
+					>Выбор студентов
 				</SimpleCell>
-				<Separator />
+					<Separator />
+				</FormLayout>
 
 				<Group>
 					<Header
 						mode="secondary"
 						indicator={list_of_users.length > 0 && <Counter>{list_of_users.length}</Counter>}
-						aside={<Icon28ClearDataOutline style={redIcon} onClick={() => set_list_of_users([])}/>}
+						aside={<Icon28ClearDataOutline style={redIcon} onClick={() => set_list_of_users([])} />}
+						before={<Icon28Users3Outline />}
 					>Выбранные студенты</Header>
 					<List>
 						{list_of_users.map((post, i) =>

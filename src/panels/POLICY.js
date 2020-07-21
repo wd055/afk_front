@@ -15,7 +15,7 @@ import Header from '@vkontakte/vkui/dist/components/Header/Header';
 // var main_url = "http://thingworx.asuscomm.com/"
 // var main_url = "http://localhost:8000/"
 
-const App = ({ id, go, goBack,
+export const POLICY = ({ id, go, goBack,
 	setPopout,
 	snackbar, setSnackbar,
 }) => {
@@ -42,6 +42,4 @@ const App = ({ id, go, goBack,
 			{snackbar}
 		</Panel>
 	return Home;
-}
-
-export default App;
+};

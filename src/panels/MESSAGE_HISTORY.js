@@ -42,30 +42,28 @@ var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
 
 const App = ({ id, go, setPopout, goBack,
 	setModal, setLogin,
-	students, setStudents,
 	snackbar, setSnackbar,
-	setModalData,
+	setMessageValue,
+	setCountAttachments,
+	setAttachments,
 }) => {
 
-	const count_on_page = 6;
-	const [list_left_end, set_list_left_end] = useState(0);
+	const [messages, set_messages] = useState([]);
 
 	useEffect(() => {
-		if (students.length === 0)
-			get_mailing(0);
+		if (messages.length === 0)
+			get_history();
 	}, []);
 
-	async function get_mailing(list_left_end) {
+	async function get_history() {
 
-		var url = main_url + "profkom_bot/get_mailing/";
+		var url = main_url + "profkom_bot/get_history/";
 
 		try {
 			const response = await fetch(url, {
 				method: 'POST',
 				body: JSON.stringify({
-					querys: window.location.search,
-					from: list_left_end,
-					to: list_left_end + count_on_page + 1,
+					querys: window.location.search
 				}),
 				headers: {
 					'Origin': origin
@@ -73,75 +71,49 @@ const App = ({ id, go, setPopout, goBack,
 			});
 			const json = await response.json();
 			if (response.ok) {
-				for (var i in json) {
-					json[i].date = new Date(json[i].date).toLocaleString()
-
-					if (json[i].mailing_type === 'mass')
-						json[i].mailing_type = 'Массовая'
-					else if (json[i].mailing_type === "individual")
-						json[i].mailing_type = 'Индивидуальная'
-				}
-				setStudents(json)
+				console.log(JSON.parse(json).response.items)
+				set_messages(JSON.parse(json).response.items)
 			} else {
 				statusSnackbar(response.status, setSnackbar);
-				console.error('MAILING test_message:');
+				console.error('MESSAGE_HISTORY get_history:');
 			}
 		} catch (error) {
 			setPopout(null);
 			statusSnackbar(0, setSnackbar);
-			console.error('MAILING test_message:', error);
+			console.error('MESSAGE_HISTORY get_history:', error);
 		}
-	}
-
-	function button_list_click(value) {
-		set_list_left_end(list_left_end + value);
-		get_mailing(list_left_end + value)
 	}
 
 	const Home =
 		<Panel id={id} style={{ 'maxWidth': 630, margin: 'auto' }}>
 			<PanelHeader
 				left={<PanelHeaderBack onClick={goBack} />}
-			>История рассылок</PanelHeader>
+			>Выбор из переписки с ботом</PanelHeader>
 
-			<Div style={{ paddingBottom: 60 }}>
-				{students.slice(0, count_on_page).map((post, i) =>
-					(<Group key={i}>
-						<Cell size="l" onClick={(e) => {
-							setModalData(post);
-							go("EDIT_MAILING");
-						}}
-							bottomContent={
-								<HorizontalScroll>
-									<div style={{ display: 'flex' }}>
-										<Button size="m" mode="outline">{post.date}</Button>
-										<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{post.mailing_type}</Button>
-									</div>
-								</HorizontalScroll>
-							}>{post.message}</Cell>
-					</Group>))}
-				{(students.length === 0) &&
-					<Footer>Пока не было ни одной рассылки</Footer>}
-			</Div>
-
-			<FixedLayout vertical="bottom" filled>
-				<Separator wide />
-				<Div style={{ display: 'flex' }}>
-					{list_left_end > 0 ?
-						<Button size="l" before={<Icon24BrowserBack />}
-							stretched mode="secondary" style={{ marginRight: 8 }}
-							onClick={() => button_list_click(-count_on_page)}
-						>Назад</Button>
-						: <Button size="l" stretched mode="tertiary" style={{ marginRight: 8 }} ></Button>}
-
-					{students.length > count_on_page ?
-						<Button size="l" after={<Icon24BrowserForward />}
-							stretched mode="secondary"
-							onClick={() => button_list_click(count_on_page)}
-						>Вперед</Button>
-						: <Button size="l" stretched mode="tertiary"></Button>}
-				</Div>
-			</FixedLayout>
+			{messages.map((post, i) =>
+				(<Group key={i}>
+					<Cell size="l" onClick={(e) => {
+						var attachments = post.attachments.map((item, i) => {
+							var type = item.type
+							var owner_id = item[item.type].owner_id
+							var media_id = item[item.type].id
+							var access_key = item[item.type].access_key
+							return type + owner_id + "_" + media_id + "_" + access_key
+						})
+						setMessageValue(post.text);
+						setCountAttachments(attachments.length);
+						setAttachments(attachments);
+						goBack();
+					}}
+						bottomContent={
+							<HorizontalScroll>
+								<div style={{ display: 'flex' }}>
+									{post.attachments.map((post, j) =>
+										<Button key={"buuton_" + String(i) + "_" + String(j)} size="m" mode="outline" style={j > 0 ? { marginLeft: 8 } : undefined}>{post.type}</Button>)}
+								</div>
+							</HorizontalScroll>}
+					>{post.text}</Cell>
+				</Group>))}
 
 			{snackbar}
 		</Panel>

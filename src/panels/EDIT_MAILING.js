@@ -42,6 +42,9 @@ const App = ({ id, go, goBack,
 		console.log(modalData, modalData.message);
 		setMessageValue(modalData.message);
 		var attachments_arr = modalData.attachment.split(',');
+		console.log(attachments_arr)
+		if (attachments_arr.length === 1 && attachments_arr[0] === "")
+			attachments_arr = []
 		setAttachments(attachments_arr);
 		setCountAttachments(attachments_arr.length)
 	}, [modalData]);

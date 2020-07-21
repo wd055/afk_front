@@ -45,6 +45,9 @@ const App = ({ id, go, setPopout, goBack,
 	students, setStudents,
 	snackbar, setSnackbar,
 	setModalData,
+	mailingCategories,payments_edu,
+	group,countAttachments,
+	payouts_type, attachments,
 }) => {
 
 	const count_on_page = 6;
@@ -52,35 +55,34 @@ const App = ({ id, go, setPopout, goBack,
 
 	useEffect(() => {
 		if (students.length === 0)
-			get_mailing(0);
+		get_mass_mailing_users(0);
 	}, []);
 
-	async function get_mailing(list_left_end) {
+	async function get_mass_mailing_users(list_left_end) {
 
-		var url = main_url + "profkom_bot/get_mailing/";
+		var url = main_url + "profkom_bot/get_mass_mailing_users/";
+
+		var data = {
+			querys: window.location.search,
+			from: list_left_end,
+			to: list_left_end + count_on_page + 1,
+		}
+		if (mailingCategories.length > 0) data.mailingCategories = mailingCategories;
+		if (payments_edu) data.payments_edu = payments_edu;
+		if (group) data.group = group;
+		if (countAttachments > 0) data.attachment = attachments.join();
+		if (payouts_type.length > 0) data.payouts_type = payouts_type;
 
 		try {
 			const response = await fetch(url, {
 				method: 'POST',
-				body: JSON.stringify({
-					querys: window.location.search,
-					from: list_left_end,
-					to: list_left_end + count_on_page + 1,
-				}),
+				body: JSON.stringify(data),
 				headers: {
 					'Origin': origin
 				}
 			});
 			const json = await response.json();
 			if (response.ok) {
-				for (var i in json) {
-					json[i].date = new Date(json[i].date).toLocaleString()
-
-					if (json[i].mailing_type === 'mass')
-						json[i].mailing_type = 'Массовая'
-					else if (json[i].mailing_type === "individual")
-						json[i].mailing_type = 'Индивидуальная'
-				}
 				setStudents(json)
 			} else {
 				statusSnackbar(response.status, setSnackbar);
@@ -95,33 +97,33 @@ const App = ({ id, go, setPopout, goBack,
 
 	function button_list_click(value) {
 		set_list_left_end(list_left_end + value);
-		get_mailing(list_left_end + value)
+		get_mass_mailing_users(list_left_end + value)
 	}
 
 	const Home =
 		<Panel id={id} style={{ 'maxWidth': 630, margin: 'auto' }}>
 			<PanelHeader
 				left={<PanelHeaderBack onClick={goBack} />}
-			>История рассылок</PanelHeader>
+			>Рассылки</PanelHeader>
 
 			<Div style={{ paddingBottom: 60 }}>
 				{students.slice(0, count_on_page).map((post, i) =>
 					(<Group key={i}>
 						<Cell size="l" onClick={(e) => {
-							setModalData(post);
-							go("EDIT_MAILING");
+							setLogin(post.login);
+							go("User");
 						}}
 							bottomContent={
 								<HorizontalScroll>
 									<div style={{ display: 'flex' }}>
-										<Button size="m" mode="outline">{post.date}</Button>
-										<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{post.mailing_type}</Button>
+										<Button size="m" mode="outline">{post.group}</Button>
+										<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{post.login}</Button>
 									</div>
 								</HorizontalScroll>
-							}>{post.message}</Cell>
+							}>{post.name}</Cell>
 					</Group>))}
 				{(students.length === 0) &&
-					<Footer>Пока не было ни одной рассылки</Footer>}
+					<Footer>В рассылке нет ни одного студента</Footer>}
 			</Div>
 
 			<FixedLayout vertical="bottom" filled>
