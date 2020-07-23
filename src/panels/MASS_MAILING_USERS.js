@@ -45,8 +45,8 @@ const App = ({ id, go, setPopout, goBack,
 	students, setStudents,
 	snackbar, setSnackbar,
 	setModalData,
-	mailingCategories,payments_edu,
-	group,countAttachments,
+	mailingCategories, payments_edu,
+	group, countAttachments,
 	payouts_type, attachments,
 }) => {
 
@@ -55,7 +55,7 @@ const App = ({ id, go, setPopout, goBack,
 
 	useEffect(() => {
 		if (students.length === 0)
-		get_mass_mailing_users(0);
+			get_mass_mailing_users(0);
 	}, []);
 
 	async function get_mass_mailing_users(list_left_end) {
@@ -104,7 +104,7 @@ const App = ({ id, go, setPopout, goBack,
 		<Panel id={id} style={{ 'maxWidth': 630, margin: 'auto' }}>
 			<PanelHeader
 				left={<PanelHeaderBack onClick={goBack} />}
-			>Рассылки</PanelHeader>
+			>Студенты рассылки</PanelHeader>
 
 			<Div style={{ paddingBottom: 60 }}>
 				{students.slice(0, count_on_page).map((post, i) =>

@@ -191,31 +191,32 @@ const App = ({ id, go, goBack,
 						}}
 						defaultValue={messageValue}
 					/>
-					<Attachments />
-
-					<SimpleCell
-						expandable
-						onClick={() => {
-							go('MESSAGE_HISTORY');
-						}}
-						description="Последние 20 сообщений"
-						before={<Icon28MessagesOutline />}
-					>Выбор сообщения из переписки с ботом</SimpleCell>
-
-					<Separator />
-
-					<SimpleCell
-						expandable
-						onClick={() => {
-							go('MAILING_USERS');
-							setStudents([])
-						}}
-						description="Если студента нельзя выбрать, значит он не авторизовывался в ВК"
-						before={<Icon28Users3Outline />}
-					>Выбор студентов
-				</SimpleCell>
-					<Separator />
 				</FormLayout>
+
+				<Attachments />
+
+				<SimpleCell
+					expandable
+					onClick={() => {
+						go('MESSAGE_HISTORY');
+					}}
+					description="Последние 20 сообщений"
+					before={<Icon28MessagesOutline />}
+					multiline
+				>Выбор сообщения из переписки с ботом</SimpleCell>
+
+				<SimpleCell
+					expandable
+					onClick={() => {
+						go('MAILING_USERS');
+						setStudents([])
+					}}
+					description="Если студента нельзя выбрать, значит он не авторизовывался в ВК"
+					before={<Icon28Users3Outline />}
+				>Выбор студентов
+				</SimpleCell>
+
+				<Separator />
 
 				<Group>
 					<Header

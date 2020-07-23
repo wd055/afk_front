@@ -268,7 +268,7 @@ const App = ({ id, go, goBack,
 			<PanelHeader
 				// left={<PanelHeaderBack onClick={goBack} />}
 				left={<PanelHeaderBack onClick={goBack} />}
-			>Профком МГТУ</PanelHeader>
+			>Студент</PanelHeader>
 			<Group>
 				<Cell size="l"
 					before={(student.photo_100 && student.photo_100.length > 0) && <Avatar size={40} src={student.photo_100} />}

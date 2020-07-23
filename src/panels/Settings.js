@@ -129,23 +129,19 @@ const App = ({ id, go, goBack,
 			<Group>
 				{!favorites &&
 					<SimpleCell
-						expandable
 						onClick={() => { bridge.send("VKWebAppAddToFavorites", {}) }}
 						before={<Icon28FavoriteOutline />}
 					>Добавить в избранное</SimpleCell>}
 				{platform === "mobile_android" &&
 					<SimpleCell
-						expandable
 						onClick={() => { bridge.send("VKWebAppAddToHomeScreen") }}
 						before={<Icon28AddCircleOutline />}
 					>Добавить ярлык на рабочий стол</SimpleCell>}
 				<SimpleCell
-					expandable
 					onClick={() => { bridge.send("VKWebAppShare") }}
 					before={<Icon28ShareOutline />}
 				>Поделиться приложением</SimpleCell>
 				<SimpleCell
-					expandable
 					onClick={repeat_learning}
 					before={<Icon28BrainOutline />}
 					description="Сброс информационных плашек"

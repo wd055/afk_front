@@ -145,12 +145,12 @@ const App = ({ id, 	go, goBack,
 					set_list_left_end(0);
 					goBack();
 				}} />}
-			>Выбор студентов для рассылки</PanelHeader>
+			>Выбор студентов</PanelHeader>
 
 			<FixedLayout vertical="top">
 				<Search
 					value={searchValue}
-					placeholder={"Поиск по фамилии, группе или студ. билету"}
+					placeholder={"Фамилия, группа или студ. билет"}
 					onChange={(e) => {
 						const { value } = e.currentTarget;
 						search_users(value, 0)

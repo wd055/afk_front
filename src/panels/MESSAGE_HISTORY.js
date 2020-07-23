@@ -52,7 +52,7 @@ const App = ({ id, go, setPopout, goBack,
 
 	useEffect(() => {
 		if (messages.length === 0)
-			get_history();
+			get_history();		
 	}, []);
 
 	async function get_history() {
@@ -92,22 +92,25 @@ const App = ({ id, go, setPopout, goBack,
 
 			{messages.map((post, i) =>
 				(<Group key={i}>
-					<Cell size="l" onClick={(e) => {
-						var attachments = post.attachments.map((item, i) => {
-							var type = item.type
-							var owner_id = item[item.type].owner_id
-							var media_id = item[item.type].id
-							var access_key = item[item.type].access_key
-							return type + owner_id + "_" + media_id + "_" + access_key
-						})
-						setMessageValue(post.text);
-						setCountAttachments(attachments.length);
-						setAttachments(attachments);
-						goBack();
-					}}
+					<Cell
+						size="l"
+						style={post.from_id > 0 ? { textAlign: "right" } : undefined}
+						onClick={(e) => {
+							var attachments = post.attachments.map((item, i) => {
+								var type = item.type
+								var owner_id = item[item.type].owner_id
+								var media_id = item[item.type].id
+								var access_key = item[item.type].access_key
+								return type + owner_id + "_" + media_id + "_" + access_key
+							})
+							setMessageValue(post.text);
+							setCountAttachments(attachments.length);
+							setAttachments(attachments);
+							goBack();
+						}}
 						bottomContent={
 							<HorizontalScroll>
-								<div style={{ display: 'flex' }}>
+								<div style={{ display: 'flex'}}>
 									{post.attachments.map((post, j) =>
 										<Button key={"buuton_" + String(i) + "_" + String(j)} size="m" mode="outline" style={j > 0 ? { marginLeft: 8 } : undefined}>{post.type}</Button>)}
 								</div>

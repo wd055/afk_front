@@ -28,6 +28,7 @@ import Icon28Users3Outline from '@vkontakte/icons/dist/28/users_3_outline';
 import Icon28ListOutline from '@vkontakte/icons/dist/28/list_outline';
 import Icon24Education from '@vkontakte/icons/dist/24/education';
 import Icon28TagOutline from '@vkontakte/icons/dist/28/tag_outline';
+import Header from '@vkontakte/vkui/dist/components/Header/Header';
 
 var origin = "https://thingworx.asuscomm.com:10888"
 var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
@@ -209,17 +210,19 @@ const App = ({ id, go, goBack,
 		}
 	}
 
-	function Draw_div(node, icon = undefined, top = undefined, bottom = undefined){
-		return (<Div 
-			style={{ display: "flex", alignItems: "center", padding: 0, paddingLeft: 12 }}
-			top={top}
-			bottom={bottom}
+	function Draw_div(node, icon = undefined, top = undefined, bottom = undefined) {
+		return (<Div
+			style={{ display: "flex", alignItems: "center", padding: 0, paddingLeft: 12, paddingTop: 8, paddingBottom: 8 }}
 		>
 			<Div style={{ display: "block", flexShrink: 0, paddingRight: 12, paddingLeft: 4 }}>
-				{icon}				
+				{icon}
 			</Div>
-			<Div style={{ display: "block", flexGrow: 1, flexShrink: 1, padding: 0}}>
+			<Div style={{ display: "block", flexGrow: 1, flexShrink: 1, padding: 0 }}>
+				<Header mode="secondary" >{top}</Header>
 				{node}
+				<div class="SimpleCell__description" style={{ marginLeft: 12, marginRight: 12 }} >
+					{bottom}
+				</div>
 			</Div>
 		</Div>)
 	}
@@ -240,6 +243,8 @@ const App = ({ id, go, goBack,
 					}}
 					defaultValue={messageValue}
 				/>
+			</FormLayout>
+				
 				<Attachments />
 
 				<SimpleCell
@@ -249,9 +254,11 @@ const App = ({ id, go, goBack,
 					}}
 					description="Последние 20 сообщений"
 					before={<Icon28MessagesOutline />}
+					multiline
 				>Выбор сообщения из переписки с ботом</SimpleCell>
 
 				<Separator />
+				<FormLayout>
 				<Select
 					top="Тип заявление"
 					placeholder="Выберите тип заявление"
@@ -273,6 +280,7 @@ const App = ({ id, go, goBack,
 						>{payouts_type.payout_type}</option>
 					))}
 				</Select>
+				</FormLayout>
 				{payouts_type.length > 0 &&
 					<>
 						<Tabs mode="buttons">
@@ -297,17 +305,15 @@ const App = ({ id, go, goBack,
 						</Tabs>
 						<Footer>Заявление подало {countSenders[1]} из {countSenders[0]} (с учетом других фильтров)</Footer>
 					</>}
-				<Separator />
 
 				<SimpleCell
 					expandable
 					onClick={() => go('SET_CATEGORIES_MASS_MAILING')}
-					bottom="У студента есть хоть одна выбранная категория (не забудьте подтвердить выбор)"
+					description="У студента есть хоть одна выбранная категория (не забудьте подтвердить выбор)"
 					before={<Icon28ListOutline />}
 					indicator={mailingCategories && mailingCategories.length > 0 && <Counter>{mailingCategories.length}</Counter>}
 				>Выбор категорий</SimpleCell>
 
-				<Separator />
 				
 				{Draw_div(
 					<Select
@@ -344,6 +350,8 @@ const App = ({ id, go, goBack,
 					"Префикс группы",
 					'Можно использовать для факультетов, кафедр, потоков или групп, пример: "ИУ", "ИУ7", "ИУ7-2", "ИУ7-21Б"',
 					)}
+
+			<FormLayout>
 			
 				<Checkbox id="agree" onClick={mass_mailing_count}>Отправить только тем, кто дал согласие на рассылку</Checkbox>
 
