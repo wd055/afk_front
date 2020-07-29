@@ -51,6 +51,7 @@ import Input from '@vkontakte/vkui/dist/components/Input/Input';
 import Header from '@vkontakte/vkui/dist/components/Header/Header';
 import TabsItem from '@vkontakte/vkui/dist/components/TabsItem/TabsItem';
 import Tabs from '@vkontakte/vkui/dist/components/Tabs/Tabs';
+import { object } from 'prop-types';
 
 var origin = "https://thingworx.asuscomm.com:10888"
 var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
@@ -135,10 +136,23 @@ const App = () => {
 			}, {})
 	};
 
-	bridge.send("VKWebAppGetUserInfo", {});
+	// bridge.send("VKWebAppGetUserInfo", {});
 	const queryParams = parseQueryString(window.location.search);
 	const hashParams = parseQueryString(window.location.hash);
 	useEffect(() => {
+		bridge.subscribe(({ detail: { type, data } }) => {
+			if (type === 'VKWebAppUpdateConfig') {
+			}
+			if (type === 'VKWebAppOpenAppResult') {
+				console.error("VKWebAppOpenAppResult")
+			}
+			if (type === 'VKWebAppCloseFailed') {
+				console.error("VKWebAppCloseFailed")
+			}
+			if (type === 'VKWebAppGetUserInfoResult') {
+			}
+		});
+
 		console.log(queryParams)
 		// console.log(hashParams)
 		if (hashParams["activePanel"] && activePanel !== hashParams["activePanel"]) {
@@ -153,22 +167,10 @@ const App = () => {
 		get_all_payouts_type();
 		// get_all_users();
 
-		bridge.subscribe(({ detail: { type, data } }) => {
-			if (type === 'VKWebAppUpdateConfig') {
-				const schemeAttribute = document.createAttribute('scheme');
-				schemeAttribute.value = data.scheme ? data.scheme : 'client_light';
-				document.body.attributes.setNamedItem(schemeAttribute);
-			}
-			if (type === 'VKWebAppOpenAppResult') {
-				console.error("VKWebAppOpenAppResult")
-			}
-			if (type === 'VKWebAppCloseFailed') {
-				console.error("VKWebAppCloseFailed")
-			}
-			if (type === 'VKWebAppGetUserInfoResult') {
-			}
-		});
+
 	}, []);
+
+	// bridge.send("VKWebAppInit");
 
 
 	function goBack() {
