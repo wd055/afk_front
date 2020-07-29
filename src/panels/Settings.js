@@ -7,6 +7,9 @@ import PanelHeaderBack from '@vkontakte/vkui/dist/components/PanelHeaderBack/Pan
 
 import Group from '@vkontakte/vkui/dist/components/Group/Group';
 import SimpleCell from '@vkontakte/vkui/dist/components/SimpleCell/SimpleCell';
+import Card from '@vkontakte/vkui/dist/components/Card/Card';
+import CardGrid from '@vkontakte/vkui/dist/components/CardGrid/CardGrid';
+import Div from '@vkontakte/vkui/dist/components/Div/Div';
 
 import Input from '@vkontakte/vkui/dist/components/Input/Input';
 import Radio from '@vkontakte/vkui/dist/components/Radio/Radio';
@@ -22,7 +25,6 @@ import Icon28UserOutline from '@vkontakte/icons/dist/28/user_outline';
 import Icon28HistoryBackwardOutline from '@vkontakte/icons/dist/28/history_backward_outline';
 
 import { statusSnackbar } from './style';
-import Div from '@vkontakte/vkui/dist/components/Div/Div';
 
 // var origin = "https://thingworx.asuscomm.com:10888"
 // var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
@@ -121,11 +123,43 @@ const App = ({ id, go, goBack,
 		setTooltips([]);
 		statusSnackbar(200, setSnackbar);
 	}
+
+	function kitcut(text, limit) {
+		text = text.trim();
+		if (text.length <= limit) return text;
+
+		text = text.slice(0, limit);
+
+		return text.trim() + "...";
+	}
+
 	const Home =
 		<Panel id={id} style={{ 'maxWidth': 630, margin: 'auto' }}>
 			<PanelHeader
 				left={<PanelHeaderBack onClick={goBack} />}
 			>Настройки</PanelHeader>
+			<Group separator="hide">
+				<CardGrid>
+					<Card size="m">
+						<img
+							style={{ width: "100%", borderRadius: "10px" }} 
+							src="https://sun9-32.userapi.com/impf/c824201/v824201969/173424/ayWCFmi538s.jpg?size=200x0&quality=90&sign=b461a01af900c4374512c2b13455c25d&ava=1"/>
+					</Card>
+					<Card size="m">
+						<img
+							style={{ width: "100%", borderRadius: "10px" }} 
+							src="https://sun9-32.userapi.com/impf/c824201/v824201969/173424/ayWCFmi538s.jpg?size=200x0&quality=90&sign=b461a01af900c4374512c2b13455c25d&ava=1"/>
+					</Card>
+				<CardGrid>
+				</CardGrid>
+					<Card size="m">
+						<img
+							style={{ width: "100%", borderRadius: "10px" }} 
+							src="https://sun9-32.userapi.com/impf/c824201/v824201969/173424/ayWCFmi538s.jpg?size=200x0&quality=90&sign=b461a01af900c4374512c2b13455c25d&ava=1"/>
+						<Div style={{ position: "absolute", bottom: 20, left: 12, borderRadius: "10px", backgroundColor: 'var(--content_tint_background)', padding: 6}}>{kitcut("Справка о состоянии семьи на 2020 учебный год", 15)}</Div>
+					</Card>
+				</CardGrid>
+			</Group>
 			<Group>
 				{!favorites &&
 					<SimpleCell

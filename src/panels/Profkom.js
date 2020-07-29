@@ -15,6 +15,7 @@ import HorizontalScroll from '@vkontakte/vkui/dist/components/HorizontalScroll/H
 import FixedLayout from '@vkontakte/vkui/dist/components/FixedLayout/FixedLayout';
 import Button from '@vkontakte/vkui/dist/components/Button/Button';
 import Separator from '@vkontakte/vkui/dist/components/Separator/Separator';
+import File from '@vkontakte/vkui/dist/components/File/File';
 
 import Icon24Error from '@vkontakte/icons/dist/24/error';
 import Icon28AddOutline from '@vkontakte/icons/dist/28/add_outline';
@@ -350,8 +351,7 @@ const App = ({ id, go, setPopout,
 						}}
 						selected={tabsState === 'payouts'}
 					>Заявления</TabsItem>
-				</Tabs>
-
+				</Tabs>				
 				<Search
 					value={searchValue}
 					placeholder={tabsState === 'payouts' ? "Номер заявления" : "Фамилия, группа или студ. билет"}

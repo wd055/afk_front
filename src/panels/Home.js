@@ -21,14 +21,17 @@ import Footer from '@vkontakte/vkui/dist/components/Footer/Footer';
 import Link from '@vkontakte/vkui/dist/components/Link/Link';
 import Caption from '@vkontakte/vkui/dist/components/Typography/Caption/Caption';
 import Separator from '@vkontakte/vkui/dist/components/Separator/Separator';
+import List from '@vkontakte/vkui/dist/components/List/List';
 
 import Icon28CheckCircleOutline from '@vkontakte/icons/dist/28/check_circle_outline';
 import Icon24Error from '@vkontakte/icons/dist/24/error';
+import Icon28AttachOutline from '@vkontakte/icons/dist/28/attach_outline';
 
 import bridge from '@vkontakte/vk-bridge';
 
-import { orangeBackground, blueBackground, redBackground } from './style';
+import { orangeBackground, blueBackground, redBackground, blueIcon } from './style';
 import Div from '@vkontakte/vkui/dist/components/Div/Div';
+import SimpleCell from '@vkontakte/vkui/dist/components/SimpleCell/SimpleCell';
 
 const check_valid = false;
 const show_valid = true;
@@ -319,14 +322,35 @@ export const Home = ({
 						<option value="paid" id="select_paid">Платная</option>
 					</Select>
 
-					<FormLayoutGroup top="Выберите подходящие категории" onLoad={onLoadCategory()}>
-						{/* <Radio name="type">Паспорт</Radio>
+					<SimpleCell
+						// onClick={repeat_learning}
+						before={<Icon28AttachOutline />}
+						description="Прикрепление добровольно. Без них не получится удаленно формировать заявления."
+					>Прикрепить документы</SimpleCell>
+
+					{/* <FormLayoutGroup top="Выберите подходящие категории" onLoad={onLoadCategory()}> */}
+					{/* <Radio name="type">Паспорт</Radio>
 				<Radio name="type">Загран</Radio> */}
+				<Header mode="secondary" >Выберите подходящие категории</Header>
+					<List onLoad={onLoadCategory()}>
 						{categories.map((category, i) => (
-							<Checkbox name="category" key={i} id={i.toString()}>{category}</Checkbox>
+							// <Checkbox 
+							// 	name="category" 
+							// 	key={i} 
+							// 	id={i.toString()}
+							// 	after={<Icon28AttachOutline />}
+							// >{category}</Checkbox>
+							<Cell
+								selectable
+								name="category"
+								key={i}
+								id={i.toString()}
+								multiline
+							>{category}</Cell>
 							// <Checkbox name="category" id={i.toString()} defaultChecked={getCategories.indexOf(categories) !== -1}>{category}</Checkbox>
 						))}
-					</FormLayoutGroup>
+					</List>
+					{/* </FormLayoutGroup> */}
 
 					{login === null && <><Separator />
 						<Checkbox id="agree" defaultChecked={true}>Получать информацию о различных мероприятиях, раздаче билетов и ТП</Checkbox> </>}					
