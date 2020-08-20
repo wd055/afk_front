@@ -7,14 +7,6 @@ import PanelHeaderBack from '@vkontakte/vkui/dist/components/PanelHeaderBack/Pan
 
 import Group from '@vkontakte/vkui/dist/components/Group/Group';
 import SimpleCell from '@vkontakte/vkui/dist/components/SimpleCell/SimpleCell';
-import Card from '@vkontakte/vkui/dist/components/Card/Card';
-import CardGrid from '@vkontakte/vkui/dist/components/CardGrid/CardGrid';
-import Div from '@vkontakte/vkui/dist/components/Div/Div';
-
-import Input from '@vkontakte/vkui/dist/components/Input/Input';
-import Radio from '@vkontakte/vkui/dist/components/Radio/Radio';
-import Button from '@vkontakte/vkui/dist/components/Button/Button';
-import FormLayout from '@vkontakte/vkui/dist/components/FormLayout/FormLayout';
 
 import Icon28FavoriteOutline from '@vkontakte/icons/dist/28/favorite_outline';
 import Icon28AddCircleOutline from '@vkontakte/icons/dist/28/add_circle_outline';
@@ -23,8 +15,13 @@ import Icon28BrainOutline from '@vkontakte/icons/dist/28/brain_outline';
 import Icon28Users3Outline from '@vkontakte/icons/dist/28/users_3_outline';
 import Icon28UserOutline from '@vkontakte/icons/dist/28/user_outline';
 import Icon28HistoryBackwardOutline from '@vkontakte/icons/dist/28/history_backward_outline';
+import Icon28SmartphoneOutline from '@vkontakte/icons/dist/28/smartphone_outline';
+import Icon24Copy from '@vkontakte/icons/dist/24/copy';
+import Icon28EmployeeOutline from '@vkontakte/icons/dist/28/employee_outline';
 
-import { statusSnackbar } from './style';
+import { statusSnackbar, responseEdit, blueBackground } from './style';
+import Snackbar from '@vkontakte/vkui/dist/components/Snackbar/Snackbar';
+import Avatar from '@vkontakte/vkui/dist/components/Avatar/Avatar';
 
 // var origin = "https://thingworx.asuscomm.com:10888"
 // var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
@@ -47,16 +44,31 @@ const App = ({ id, go, goBack,
 	setTooltips,
 	students, setStudents, setLogin,
 	set_payouts_type, setTabsState,
+	set_proforg_mailing,
 }) => {
 
 	const [favorites, setFavorites] = useState(false);
 	const [platform, setPlatform] = useState("");
+	const [showAddToHomeScreen, setShowAddToHomeScreen] = useState(false);
 
 	useEffect(() => {
 		setFavorites(queryParams.vk_is_favorite === 1);
 		setPlatform(queryParams.vk_platform);
+		if (queryParams.vk_platform === "mobile_android"){
+			bridge.send("VKWebAppAddToHomeScreenInfo");
+		}
 
 		bridge.subscribe(({ detail: { type, data } }) => {
+			if (type === 'VKWebAppCopyTextResult') {
+				console.log("QWE")
+				setSnackbar(<Snackbar
+					layout="vertical"
+					onClose={() => setSnackbar(null)}
+					before={<Avatar size={24} style={blueBackground}><Icon24Copy fill="#fff" width={14} height={14} /></Avatar>}
+				>
+					Скопировано в буфер обмена
+				  </Snackbar>);
+			}
 			if (type === 'VKWebAppAddToFavoritesResult') {
 				setFavorites(true);
 				queryParams.vk_is_favorite = 1;
@@ -66,26 +78,17 @@ const App = ({ id, go, goBack,
 				console.log(data)
 			}
 
-			if (type === 'VKWebAppOpenPayFormFailed ') {
-				console.log(data)
+			if (type === 'VKWebAppOpenPayFormFailed') {
+				console.error(data)
 			}
-			// if (type === 'VKWebAppStorageGetKeysFailed') {
-			// 	console.error(data)
-			// }
-
-			// if (type === 'VKWebAppStorageSetResult') {
-			// 	console.log(data)
-			// }
-			// if (type === 'VKWebAppStorageSetFailed') {
-			// 	console.error(data)
-			// }
-
-			// if (type === 'VKWebAppStorageGetResult') {
-			// 	console.log(data)
-			// }
-			// if (type === 'VKWebAppStorageGetFailed') {
-			// 	console.error(data)
-			// }
+			if (type === 'VKWebAppAddToHomeScreenInfoResult') {
+				if (data.is_feature_supported === true
+					&& data.is_added_to_home_screen === false)
+					setShowAddToHomeScreen(true);
+			}
+			if (type === 'VKWebAppAddToHomeScreenResult') {
+				if(data.result === true) setShowAddToHomeScreen(false);
+			}
 		}, []);
 
 		console.log(queryParams)
@@ -109,7 +112,9 @@ const App = ({ id, go, goBack,
 		setLogin(null);
 		set_payouts_type("");
 		setTabsState("students");
+		set_proforg_mailing();
 	}, []);
+
 
 	function repeat_learning() {
 		var tooltips_names = [
@@ -122,51 +127,20 @@ const App = ({ id, go, goBack,
 		}
 		setTooltips([]);
 		statusSnackbar(200, setSnackbar);
-	}
-
-	function kitcut(text, limit) {
-		text = text.trim();
-		if (text.length <= limit) return text;
-
-		text = text.slice(0, limit);
-
-		return text.trim() + "...";
-	}
+	}	
 
 	const Home =
 		<Panel id={id} style={{ 'maxWidth': 630, margin: 'auto' }}>
 			<PanelHeader
 				left={<PanelHeaderBack onClick={goBack} />}
 			>Настройки</PanelHeader>
-			<Group separator="hide">
-				<CardGrid>
-					<Card size="m">
-						<img
-							style={{ width: "100%", borderRadius: "10px" }} 
-							src="https://sun9-32.userapi.com/impf/c824201/v824201969/173424/ayWCFmi538s.jpg?size=200x0&quality=90&sign=b461a01af900c4374512c2b13455c25d&ava=1"/>
-					</Card>
-					<Card size="m">
-						<img
-							style={{ width: "100%", borderRadius: "10px" }} 
-							src="https://sun9-32.userapi.com/impf/c824201/v824201969/173424/ayWCFmi538s.jpg?size=200x0&quality=90&sign=b461a01af900c4374512c2b13455c25d&ava=1"/>
-					</Card>
-				<CardGrid>
-				</CardGrid>
-					<Card size="m">
-						<img
-							style={{ width: "100%", borderRadius: "10px" }} 
-							src="https://sun9-32.userapi.com/impf/c824201/v824201969/173424/ayWCFmi538s.jpg?size=200x0&quality=90&sign=b461a01af900c4374512c2b13455c25d&ava=1"/>
-						<Div style={{ position: "absolute", bottom: 20, left: 12, borderRadius: "10px", backgroundColor: 'var(--content_tint_background)', padding: 6}}>{kitcut("Справка о состоянии семьи на 2020 учебный год", 15)}</Div>
-					</Card>
-				</CardGrid>
-			</Group>
 			<Group>
 				{!favorites &&
 					<SimpleCell
 						onClick={() => { bridge.send("VKWebAppAddToFavorites", {}) }}
 						before={<Icon28FavoriteOutline />}
 					>Добавить в избранное</SimpleCell>}
-				{platform === "mobile_android" &&
+				{showAddToHomeScreen === true &&
 					<SimpleCell
 						onClick={() => { bridge.send("VKWebAppAddToHomeScreen") }}
 						before={<Icon28AddCircleOutline />}
@@ -180,6 +154,11 @@ const App = ({ id, go, goBack,
 					before={<Icon28BrainOutline />}
 					description="Сброс информационных плашек"
 				>Повторное обучение</SimpleCell>
+				{platform.indexOf("web") > -1 &&
+					<SimpleCell
+						onClick={() => bridge.send("VKWebAppSendToClient")}
+						before={<Icon28SmartphoneOutline />}
+					>Открыть на телефоне</SimpleCell>}
 			</Group>
 			{proforg >= 3 && <Group>
 				<SimpleCell
@@ -197,6 +176,11 @@ const App = ({ id, go, goBack,
 					onClick={() => go('MAILING')}
 					before={<Icon28HistoryBackwardOutline />}
 				>История рассылок</SimpleCell>
+				<SimpleCell
+					expandable
+					onClick={() => go('REGISTRATRION_PROFORG')}
+					before={<Icon28EmployeeOutline />}
+				>Добавление профоргов</SimpleCell>
 			</Group>}
 			{/* <Div>
 				<form method="POST" action="https://money.yandex.ru/quickpay/confirm.xml" target="_blank">

@@ -31,9 +31,11 @@ import Avatar from '@vkontakte/vkui/dist/components/Avatar/Avatar';
 import ConfigProvider from '@vkontakte/vkui/dist/components/ConfigProvider/ConfigProvider';
 
 import {Home, POLICY} from './panels/Home';
+import ATTACH_DOCUMENTS from './panels/ATTACH_DOCUMENTS';
 import Profkom from './panels/Profkom';
 import User from './panels/User';
 import Settings from './panels/Settings';
+import REGISTRATRION_PROFORG from './panels/REGISTRATRION_PROFORG';
 import MASS_MAILING from './panels/MASS_MAILING';
 import INDIVIDUAL_MAILING from './panels/INDIVIDUAL_MAILING';
 import MAILING_USERS from './panels/MAILING_USERS';
@@ -43,7 +45,7 @@ import EDIT_MAILING from './panels/EDIT_MAILING';
 import SET_CATEGORIES_MASS_MAILING from './panels/SET_CATEGORIES_MASS_MAILING';
 import MESSAGE_HISTORY from './panels/MESSAGE_HISTORY';
 
-import { redIcon, blueIcon, redBackground } from './panels/style';
+import { redIcon, blueIcon, redBackground, blueBackground, statusSnackbar } from './panels/style';
 import FormLayout from '@vkontakte/vkui/dist/components/FormLayout/FormLayout';
 import FormLayoutGroup from '@vkontakte/vkui/dist/components/FormLayoutGroup/FormLayoutGroup';
 import Div from '@vkontakte/vkui/dist/components/Div/Div';
@@ -52,6 +54,10 @@ import Header from '@vkontakte/vkui/dist/components/Header/Header';
 import TabsItem from '@vkontakte/vkui/dist/components/TabsItem/TabsItem';
 import Tabs from '@vkontakte/vkui/dist/components/Tabs/Tabs';
 import { object } from 'prop-types';
+import Icon28CheckCircleOutline from '@vkontakte/icons/dist/28/check_circle_outline';
+import Icon28DoneOutline from '@vkontakte/icons/dist/28/done_outline';
+import Icon24Done from '@vkontakte/icons/dist/24/done';
+import Icon16Done from '@vkontakte/icons/dist/16/done';
 
 var origin = "https://thingworx.asuscomm.com:10888"
 var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
@@ -112,6 +118,7 @@ const App = () => {
 	const [mailingCategories, setMailingCategories] = useState([]);
 	const [messageValue, setMessageValue] = useState();
 	const [payments_edu, setPayments_edu] = useState();
+	const [proforg_mailing, set_proforg_mailing] = useState();
 	const [group, setGroup] = useState();
 	const [countAttachments, setCountAttachments] = useState(0);
 	const [attachments, setAttachments] = useState([]);
@@ -129,10 +136,10 @@ const App = () => {
 				return { key: kvp[0], value: kvp[1] }
 			})
 			.reduce((query, kvp) => {
-				if (parseInt(kvp.value) || kvp.value === "0")
-					query[kvp.key] = parseInt(kvp.value);
-				else
-					query[kvp.key] = kvp.value;
+				// if (parseInt(kvp.value) || kvp.value === "0")
+				// 	query[kvp.key] = parseInt(kvp.value);
+				// else
+				query[kvp.key] = kvp.value;
 				return query
 			}, {})
 	};
@@ -154,11 +161,14 @@ const App = () => {
 			}
 		});
 
-		console.log(queryParams)
+		// console.log(queryParams)
 		// console.log(hashParams)
 		if (hashParams["activePanel"] && activePanel !== hashParams["activePanel"]) {
 			setActivePanel(hashParams["activePanel"]);
 			setPopout(null);
+		} else if (hashParams["registrationProforg"]){
+			console.log(hashParams["registrationProforg"])
+			registrationProforg(hashParams["registrationProforg"]);
 		} else {
 			get_form();
 		}
@@ -171,8 +181,7 @@ const App = () => {
 
 	}, []);
 
-	// bridge.send("VKWebAppInit");
-
+	// bridge.send("VKWebAppInit");	
 
 	function goBack() {
 		// console.log('history goBack 1', history)
@@ -248,7 +257,7 @@ const App = () => {
 		})
 			.then(response => response.json())
 			.then((data) => {
-				console.log(data)
+				// console.log(data)
 				setPayouts_type(data)
 			},
 				(error) => {
@@ -270,7 +279,7 @@ const App = () => {
 		}
 		if (login !== null)
 			data.students_login = login
-		console.log(data)
+		// console.log(data)
 		fetch(url, {
 			method: 'POST',
 			body: JSON.stringify(data),
@@ -280,14 +289,14 @@ const App = () => {
 		})
 			.then(response => response.json())
 			.then((data) => {
-				console.log("end req")
+				// console.log("end req")
 				setPopout(null);
 				if (data !== "Error") {
 					for (var i in data) {
 						if (data[i] === null || data[i] === 'none')
 							data[i] = ""
 					}
-					console.log('app get form:', data);
+					// console.log('app get form:', data);
 
 					// if (data.phone) {
 					// 	const phoneNumber = parsePhoneNumberFromString(data.phone, 'RU')
@@ -330,6 +339,53 @@ const App = () => {
 				})
 	}
 
+	function registrationProforg(token) {
+		var url = main_url + "profkom_bot/registrationProforg/";
+		console.log(token)
+
+		fetch(url, {
+			method: 'POST',
+			body: JSON.stringify({
+				querys: window.location.search,
+				token: token,
+			}),
+			headers: {
+				'Origin': origin
+			}
+		})
+			.then(function(response) {
+				if (!response.ok) {
+					// setSnackbar(<Snackbar
+					// 	layout="vertical"
+					// 	onClose={() => setSnackbar(null)}
+					// 	before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
+					// >
+					// 	Ошибка авторизации
+					// </Snackbar>);
+					statusSnackbar(response.code, setSnackbar);
+
+					console.error('registrationProforg form:')
+					throw Error(response.statusText);
+				}else{
+					get_form();
+					return response.json();
+				}
+			})
+			.then((data) => {
+				// console.log(data)
+				// get_form();
+			},
+				(error) => {
+					setSnackbar(<Snackbar
+						layout="vertical"
+						onClose={() => setSnackbar(null)}
+						before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
+					>
+						Ошибка подключения
+					</Snackbar>);
+					console.error('registrationProforg form:', error)
+				})
+	}
 	
 	function Attachments() {
 		var rows = [];
@@ -370,7 +426,7 @@ const App = () => {
 	//modals funcs
 	function on_modals_dutton_click() {
 		check_radio_buttons();
-		console.log(modalData)
+		// console.log(modalData)
 		if (modalData.new === true) {
 			add_payout();
 		} else {
@@ -400,6 +456,12 @@ const App = () => {
 					if (student.users_payouts) {
 						student.users_payouts.push(data);
 					}
+					// console.log(data);
+					setSnackbar(<Snackbar
+						layout="vertical"
+						onClose={() => setSnackbar(null)}
+						before={<Avatar size={24} style={blueBackground}><Icon16Done fill="#fff" width={14} height={14} /></Avatar>}
+					>Успешно! Номер заявления: {data.id}</Snackbar>);
 					goBack();
 				}
 				else {
@@ -600,7 +662,11 @@ const App = () => {
 							onChange={(e) => {
 								const { value } = e.currentTarget;
 								modalData.payouts_type = value;
+								set_help_temp(help_temp + 1);
 							}}
+							status={(modalData.payouts_type !== undefined && modalData.payouts_type !== "") ? 'valid' : 'error'}
+							bottom={(modalData.payouts_type !== undefined && modalData.payouts_type !== "") ?
+								'' : 'Выберите тип заявления'}
 							required
 						>
 							{payouts_types.map((payouts_type, i) => (
@@ -665,7 +731,67 @@ const App = () => {
 							</Alert>)}
 						>Удалить заявление
 							</CellButton>}
-						<Button size="xl" onClick={on_modals_dutton_click}>Сохранить</Button>
+						<Button 
+							size="xl" 
+							onClick={on_modals_dutton_click}
+							disabled={(modalData.payouts_type === undefined && modalData.payouts_type === "")}
+						>Сохранить</Button>
+					</FormLayout>
+				</Group>
+			</ModalPage>
+			<ModalPage
+				id={'сontributions'}
+				header={
+					<ModalPageHeader
+					//   left={IS_PLATFORM_ANDROID && <PanelHeaderButton onClick={this.modalBack}><Icon24Cancel /></PanelHeaderButton>}
+					//   right={IS_PLATFORM_IOS && <PanelHeaderButton onClick={this.modalBack}><Icon24Dismiss /></PanelHeaderButton>}
+					>Профвзнос</ModalPageHeader>}
+			>
+				<Group>
+					<Cell size="l"
+						onClick={() =>{
+							setLogin(modalData.login);
+							goBack();
+							go("User");
+						}}
+						bottomContent={
+							<HorizontalScroll>
+								<div style={{ display: 'flex' }}>
+									<Button size="m" mode="outline">
+										{modalData.group}
+									</Button>
+									<Button size="m" mode="outline" style={{ marginLeft: 8 }}>
+										{modalData.login}
+									</Button>
+								</div>
+							</HorizontalScroll>
+						}>{modalData.name}</Cell>
+				</Group>
+				<Group>
+					<FormLayout>
+						<FormLayoutGroup top="Статус">
+							<Radio
+								name="status_сontributions" value="none"
+								id="status_none"
+								defaultChecked={modalData.сontributions === "none"}
+							>none</Radio>
+							<Radio
+								name="status_сontributions" value="studentship"
+								id="status_studentship"
+								defaultChecked={modalData.сontributions === "studentship"}
+							>Стипендия</Radio>
+							<Radio
+								name="status_сontributions" value="paid"
+								id="status_paid"
+								defaultChecked={modalData.сontributions === "paid"}
+							>Оплачено</Radio>
+							<Radio
+								name="status_сontributions" value="deny"
+								id="status_deny"
+								defaultChecked={modalData.сontributions === "deny"}
+							>Отказ</Radio>
+						</FormLayoutGroup>
+						<Button size="xl" onClick={edit_сontributions}>Сохранить</Button>
 					</FormLayout>
 				</Group>
 			</ModalPage>
@@ -683,6 +809,7 @@ const App = () => {
 			>
 				<Panel id="spinner">
 					<PanelHeader>Загрузка</PanelHeader>
+					{snackbar}
 				</Panel>
 				<Panel id="Success">
 					<PanelHeader>Успешная авторизация</PanelHeader>
@@ -712,7 +839,7 @@ const App = () => {
 					setModalData={setModalData}
 					tabsState={tabsState} setTabsState={setTabsState}
 					searchPayouts={searchPayouts} setSearchPayouts={setSearchPayouts}
-					tooltips={tooltips}
+					tooltips={tooltips} proforg={proforg}
 				/>
 				<Settings id='Settings' go={go} goBack={goBack}
 					setPopout={setPopout} setModal={setModal}
@@ -730,6 +857,7 @@ const App = () => {
 					students={students} setStudents={setStudents}
 					setLogin={setLogin} set_payouts_type={set_payouts_type}
 					setTabsState={setTabsState}
+					set_proforg_mailing={set_proforg_mailing}
 				/>
 				<MASS_MAILING id='MASS_MAILING' go={go} goBack={goBack}
 					snackbar={snackbar} setPopout={setPopout} setSnackbar={setSnackbar}
@@ -744,6 +872,8 @@ const App = () => {
 					payouts_types={payouts_types}
 					payouts_type={payouts_type} set_payouts_type={set_payouts_type}
 					tabsState={tabsState} setTabsState={setTabsState}
+					setStudents={setStudents}
+					proforg_mailing={proforg_mailing} set_proforg_mailing={set_proforg_mailing}
 				/>
 				<INDIVIDUAL_MAILING id='INDIVIDUAL_MAILING' go={go} goBack={goBack}
 					setPopout={setPopout} setLogin={setLogin}
@@ -804,13 +934,24 @@ const App = () => {
 					setModalData={setModalData}
 					student={student} setStudent={setStudent}
 					queryParams={queryParams}
-					tooltips={tooltips}
+					tooltips={tooltips} proforg={proforg}
 				/>
 				<Home id='Home' go={go} goBack={goBack}
 					setPopout={setPopout} login={login}
 					snackbar={snackbar} setSnackbar={setSnackbar}
 					student={student} categories={categories}
 					proforg={proforg} usersInfo={usersInfo}
+				/>
+				<ATTACH_DOCUMENTS id='ATTACH_DOCUMENTS' go={go} goBack={goBack}
+					setPopout={setPopout} login={login}
+					snackbar={snackbar} setSnackbar={setSnackbar}
+					student={student} usersInfo={usersInfo}
+				/>
+				<REGISTRATRION_PROFORG id='REGISTRATRION_PROFORG' go={go} goBack={goBack}
+					setPopout={setPopout} login={login}
+					snackbar={snackbar} setSnackbar={setSnackbar}
+					student={student} usersInfo={usersInfo}
+					queryParams={queryParams}
 				/>
 				<POLICY id='POLICY' go={go} goBack={goBack}
 					setPopout={setPopout}
