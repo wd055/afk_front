@@ -25,13 +25,11 @@ import List from '@vkontakte/vkui/dist/components/List/List';
 
 import Icon28CheckCircleOutline from '@vkontakte/icons/dist/28/check_circle_outline';
 import Icon24Error from '@vkontakte/icons/dist/24/error';
-import Icon28AttachOutline from '@vkontakte/icons/dist/28/attach_outline';
 
 import bridge from '@vkontakte/vk-bridge';
 
 import { orangeBackground, blueBackground, redBackground, blueIcon } from './style';
 import Div from '@vkontakte/vkui/dist/components/Div/Div';
-import SimpleCell from '@vkontakte/vkui/dist/components/SimpleCell/SimpleCell';
 
 const check_valid = false;
 const show_valid = true;
@@ -57,11 +55,14 @@ export const Home = ({
 	const [email, setEmail] = useState("");
 	const [phone, setPhone] = useState("");
 	const [payments_edu, setPayments_edu] = useState();
+	const [contribution, set_contribution] = useState();
 	const [name, setName] = useState("");
 	const [group, setGroup] = useState("");
 	const [students_login, set_students_login] = useState("");
 	const [students_proforg, set_students_proforg] = useState(0);
 	const [checkedCats, setCheckedCats] = useState(false);
+
+	const [editName, setEditName] = useState(false);
 
 	useEffect(() => {
 		if (usersInfo !== null && students_login !== usersInfo.login) {
@@ -74,6 +75,7 @@ export const Home = ({
 			setGetCategories(usersInfo.categories);
 			setPayments_edu(usersInfo.payments_edu);
 			set_students_proforg(usersInfo.proforg);
+			set_contribution(usersInfo.contribution);
 
 			setCheckedCats(false);
 		}
@@ -247,15 +249,39 @@ export const Home = ({
 			<Group>
 				<Group>
 					<Cell size="l"
+						// asideContent={proforg > 0 && 
+						// 	<Icon28EditOutline
+						// 		style={blueIcon}
+						// 		onClick={() => setEditName(true)}
+						// 	/>}
 						bottomContent={
 							<div style={{ display: 'flex' }}>
 								<Button size="m" mode="outline">{group}</Button>
-								<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{students_login}</Button>
+								<Button size="m"
+									mode="outline" style={{ marginLeft: 8 }}>
+									{students_login}
+								</Button>
 							</div>
 						}>{name}</Cell>
 				</Group>
 				<FormLayout>
-					{proforg >= 3 && <Input
+					{proforg >= 3 && 
+						<Select
+							top="Уровень профорга"
+							id='proforg'
+							name="proforg"
+							onChange={(e) => {
+								const { value } = e.currentTarget;
+								set_students_proforg(value);
+							}}
+							value={students_proforg}
+						>
+							<option value="0" id="select_proforg">Не профорг</option>
+							<option value="1" id="select_proforg">Профорг группы</option>
+							<option value="2" id="select_proforg">Дежурный</option>
+							<option value="3" id="select_proforg">Председатель</option>
+						</Select>}
+					{/* <Input
 						type="number"
 						top="Уровень профорга"
 						name="proforg"
@@ -265,7 +291,7 @@ export const Home = ({
 							set_students_proforg(value);
 						}}
 						value={students_proforg}>
-					</Input>}
+					</Input> */}
 					<FormLayoutGroup
 						top="Контактные данные"
 						bottom={login === null && contacts_bottom}
@@ -322,11 +348,11 @@ export const Home = ({
 						<option value="paid" id="select_paid">Платная</option>
 					</Select>
 
-					<SimpleCell
-						// onClick={repeat_learning}
+					{/* <SimpleCell
+						onClick={() => go("ATTACH_DOCUMENTS")}
 						before={<Icon28AttachOutline />}
 						description="Прикрепление добровольно. Без них не получится удаленно формировать заявления."
-					>Прикрепить документы</SimpleCell>
+					>Прикрепить документы</SimpleCell> */}
 
 					{/* <FormLayoutGroup top="Выберите подходящие категории" onLoad={onLoadCategory()}> */}
 					{/* <Radio name="type">Паспорт</Radio>

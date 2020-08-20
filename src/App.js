@@ -119,7 +119,8 @@ const App = () => {
 	const [payouts_type, set_payouts_type] = useState("");
 
 	const modals_const = [
-		'payout'
+		'payout',
+		'сontributions'
 	]
 	const parseQueryString = (string) => {
 		return string.slice(1).split('&')
@@ -472,6 +473,48 @@ const App = () => {
 				})
 	}
 
+	function edit_сontributions() {
+		check_сontributions_radio_buttons();
+		var url = main_url + "profkom_bot/edit_contributions/";
+		fetch(url, {
+			method: 'POST',
+			body: JSON.stringify({
+				querys: window.location.search,
+				students_login: modalData.login,
+				status: modalData.сontributions,
+			}),
+			headers: {
+				'Origin': origin
+			}
+		})
+			.then(response => response.json())
+			.then((data) => {
+				console.log(modalData)
+				var temp = JSON.parse(JSON.stringify(students));
+				for (var i in students){
+					if (temp[i].login === modalData.login){
+						console.log(temp[i], i)
+						temp[i].сontributions = modalData.сontributions;
+						break;
+					}
+				}
+				console.log(temp)
+				setStudents(temp);
+				goBack();
+			},
+				(error) => {
+					setSnackbar(<Snackbar
+						layout="vertical"
+						onClose={() => setSnackbar(null)}
+						before={<Avatar size={24} style={redBackground}><Icon24Error fill="#fff" width={14} height={14} /></Avatar>}
+					>
+						Ошибка подключения
+						</Snackbar>);
+					console.error('edit_contributions:', error)
+					return null
+				})
+	}
+
 	function check_radio_buttons() {
 		var arr = document.getElementsByName('status');
 		var status_id = -1;
@@ -488,6 +531,27 @@ const App = () => {
 			modalData.status = "err";
 		}
 	}
+
+	function check_сontributions_radio_buttons() {
+		var arr = document.getElementsByName('status_сontributions');
+		var status_id = -1;
+		for (var i = 0; i < arr.length; i++) {
+			if (arr[i].checked) {
+				status_id = i;
+			}
+		}
+		if (status_id === 0) {
+			modalData.сontributions = "none";
+		} else if (status_id === 1) {
+			modalData.сontributions = "studentship";
+		} else if (status_id === 2) {
+			modalData.сontributions = "paid";
+		} else if (status_id === 3) {
+			modalData.сontributions = "deny";
+		}
+	}
+
+	const [help_temp, set_help_temp] = useState(0);
 
 	const modals = (
 		<ModalRoot

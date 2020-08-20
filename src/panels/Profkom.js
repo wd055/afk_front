@@ -27,13 +27,18 @@ import Icon28DoneOutline from '@vkontakte/icons/dist/28/done_outline';
 import Icon28ErrorOutline from '@vkontakte/icons/dist/28/error_outline';
 import Icon28CheckCircleOutline from '@vkontakte/icons/dist/28/check_circle_outline';
 import Icon28SettingsOutline from '@vkontakte/icons/dist/28/settings_outline';
+import Icon28MoneyCircleOutline from '@vkontakte/icons/dist/28/money_circle_outline';
+import Icon28CancelCircleOutline from '@vkontakte/icons/dist/28/cancel_circle_outline';
 
 import Tabs from '@vkontakte/vkui/dist/components/Tabs/Tabs';
 import TabsItem from '@vkontakte/vkui/dist/components/TabsItem/TabsItem';
 import Tooltip from '@vkontakte/vkui/dist/components/Tooltip/Tooltip';
 
-import { redIcon, blueIcon, blueBackground, redBackground } from './style';
+import { redIcon, blueIcon, greenIcon, blueBackground, redBackground } from './style';
 import Footer from '@vkontakte/vkui/dist/components/Footer/Footer';
+
+import circle from "../img/circle_outline_28.svg"
+import education_circle from "../img/education_circle_outline_28.svg"
 
 var origin = "https://thingworx.asuscomm.com:10888"
 var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
@@ -48,7 +53,7 @@ const App = ({ id, go, setPopout,
 	setModalData,
 	tabsState, setTabsState,
 	searchPayouts, setSearchPayouts,
-	tooltips,
+	tooltips, proforg,
 }) => {
 
 	const count_on_page = 6;
@@ -264,21 +269,45 @@ const App = ({ id, go, setPopout,
 	}
 
 	function on_students_click(e, post) {
+		// console.log(e.target.getAttribute('class') === "Cell__aside",
+		// 	e.target.parentNode.getAttribute('class') === "Cell__aside",
+		// 	e.target.parentNode.parentNode.getAttribute('class') === "Cell__aside",
+		// 	e.target.parentNode.parentNode.parentNode.getAttribute('class') === "Cell__aside")
+
 		if (e.target.getAttribute('class') === "Cell__aside" ||
 			e.target.parentNode.getAttribute('class') === "Cell__aside" ||
 			e.target.parentNode.parentNode.getAttribute('class') === "Cell__aside" ||
-			e.target.parentNode.parentNode.parentNode.getAttribute('class') === "Cell__aside") {
+			e.target.parentNode.parentNode.parentNode.getAttribute('class') === "Cell__aside" ||
+			e.target.parentNode.parentNode.parentNode.parentNode.getAttribute('class') === "Cell__aside") {
 
-			var temp = JSON.parse(JSON.stringify(post));
-			temp.new = true;
-			temp.students_group = post.group;
-			temp.students_login = post.login;
-			temp.students_name = post.name;
-			temp.error = "";
+			var name = "add";
+			
+			if (e.target.getAttribute('name') !== null) name = e.target.getAttribute('name')
+			else if (e.target.parentNode.getAttribute('name') !== null) name = e.target.parentNode.getAttribute('name')
+			else if (e.target.parentNode.parentNode.getAttribute('name') !== null) name = e.target.parentNode.parentNode.getAttribute('name')
+			console.log(name)
+			if (name === "add"){
+				var temp = JSON.parse(JSON.stringify(post));
+				temp.new = true;
+				temp.students_group = post.group;
+				temp.students_login = post.login;
+				temp.students_name = post.name;
+				temp.error = "";
 			console.log(post)
 			console.log(temp)
 			setModalData(temp);
 			go("payout", true);
+			}else if (name === "сontributions"){
+				var temp = JSON.parse(JSON.stringify(post));
+				temp.group = post.group;
+				temp.login = post.login;
+				temp.name = post.name;
+				temp.сontributions = post.сontributions;
+				// console.log(post)
+				// console.log(temp)
+				setModalData(temp);
+				go("сontributions", true);
+			}
 		} else {
 			setLogin(post.login);
 			go("User");
@@ -312,6 +341,18 @@ const App = ({ id, go, setPopout,
 		}
 	}
 
+	const proforg_levels = [
+		"Не профорг",
+		"Профорг группы",
+		"Дежурный",
+		"Председатель",
+	]
+	const сontributions_icon = {
+		"none": <img src={circle} style={{ width:28, height:28 }} name="сontributions" />,
+		"studentship": <img src={education_circle} style={{ width:28, height:28 }} name="сontributions" />,
+		"paid": <Icon28MoneyCircleOutline name="icon" style={greenIcon} name="сontributions" />,
+		"deny": <Icon28CancelCircleOutline name="icon" style={redIcon} name="сontributions" />,
+	}
 	// function payouts_tip_click(keys) {
 	// 	if (keys.value === false || keys.value === "false") {
 	// 		bridge.send("VKWebAppStorageSet", { "key": "tooltip_payouts_tips", "value": "true"});
@@ -383,8 +424,11 @@ const App = ({ id, go, setPopout,
 							<Cell size="l" onClick={(e) => {
 								on_students_click(e, post);
 							}}
-								asideContent={
-									<Icon28AddOutline name="icon" style={blueIcon} />
+								asideContent={proforg > 1 &&
+									<div style={{ display: 'flex' }}>
+										{сontributions_icon[post.сontributions]}
+										<Icon28AddOutline name="add" style={{ color: 'var(--accent)', marginLeft: 8}} />
+									</div>
 								}
 								bottomContent={
 									<HorizontalScroll>
