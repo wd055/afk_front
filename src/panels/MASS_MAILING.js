@@ -28,6 +28,7 @@ import Icon28Users3Outline from '@vkontakte/icons/dist/28/users_3_outline';
 import Icon28ListOutline from '@vkontakte/icons/dist/28/list_outline';
 import Icon24Education from '@vkontakte/icons/dist/24/education';
 import Icon28TagOutline from '@vkontakte/icons/dist/28/tag_outline';
+import Icon28EmployeeOutline from '@vkontakte/icons/dist/28/employee_outline';
 import Header from '@vkontakte/vkui/dist/components/Header/Header';
 
 var origin = "https://thingworx.asuscomm.com:10888"
@@ -40,6 +41,7 @@ const App = ({ id, go, goBack,
 	mailingCategories, setMailingCategories,
 	messageValue, setMessageValue,
 	payments_edu, setPayments_edu,
+	proforg_mailing, set_proforg_mailing,
 	group, setGroup,
 	countAttachments, setCountAttachments,
 	attachments, setAttachments,
@@ -47,6 +49,7 @@ const App = ({ id, go, goBack,
 	payouts_types,
 	payouts_type, set_payouts_type,
 	tabsState, setTabsState,
+	setStudents,
 }) => {
 
 	const [countSenders, setCountSenders] = useState([,]);
@@ -56,11 +59,12 @@ const App = ({ id, go, goBack,
 		'not_submit',
 	]
 	useEffect(() => {
+		setStudents([]);
 		if (countSenders.length === 1)
 			mass_mailing_count();
 		if (tabsStates.indexOf(tabsState) === -1)
 			setTabsState('all');
-	});
+	}, []);
 
 	function on_btn_click() {
 		test_message();
@@ -175,6 +179,7 @@ const App = ({ id, go, goBack,
 		}
 		if (mailingCategories.length > 0 && name !== "mailingCategories") data.mailingCategories = mailingCategories;
 		if (payments_edu && name !== "payments_edu") data.payments_edu = payments_edu;
+		if (proforg_mailing && name !== "proforg") data.proforg = proforg_mailing;
 		if (group && name !== "group") data.group = group;
 		if (countAttachments > 0 && name !== "countAttachments") data.attachment = attachments.join();
 		if (payouts_type.length > 0 && name !== "payouts_type") data.payouts_type = payouts_type;
@@ -333,6 +338,26 @@ const App = ({ id, go, goBack,
 					<Icon24Education style={blueIcon} size={28} />,
 					"Форма обучения",
 				)}
+				{Draw_div(
+					<Select
+						placeholder="Все студенты"
+						id='proforg'
+						name="proforg"
+						onChange={(e) => {
+							const { value } = e.currentTarget;
+							set_proforg_mailing(value);
+							mass_mailing_count('proforg', value);
+						}}
+						defaultValue={String(proforg_mailing)}
+					>
+						<option value="0" id="select_proforg">Не профорги</option>
+						<option value="1" id="select_proforg">Профорг группы</option>
+						<option value="2" id="select_proforg">Дежурный</option>
+						<option value="3" id="select_proforg">Председатель</option>
+					</Select>,
+					<Icon28EmployeeOutline style={blueIcon} />,
+					"Профорг",
+				)}
 
 				{Draw_div(
 					<Input
@@ -368,7 +393,7 @@ const App = ({ id, go, goBack,
 			<FormLayout>
 				<Button
 					size="xl"
-					disabled={!messageValue}
+					disabled={!messageValue && countAttachments === 0}
 					onClick={on_btn_click}
 					after={<Counter>{countSenders[0]}</Counter>}
 				>Отправить</Button>

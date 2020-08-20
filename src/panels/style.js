@@ -4,7 +4,7 @@ import Snackbar from '@vkontakte/vkui/dist/components/Snackbar/Snackbar';
 import Avatar from '@vkontakte/vkui/dist/components/Avatar/Avatar';
 
 import Icon24Error from '@vkontakte/icons/dist/24/error';
-import Icon28CheckCircleOutline from '@vkontakte/icons/dist/28/check_circle_outline';
+import Icon16Done from '@vkontakte/icons/dist/16/done';
 
 export const redIcon = {
     color: 'var(--field_error_border)'
@@ -12,6 +12,9 @@ export const redIcon = {
 };
 export const blueIcon = {
     color: 'var(--accent)'
+};
+export const greenIcon = {
+    color: 'var(--field_valid_border)'
 };
 export const orangeBackground = {
     backgroundImage: 'linear-gradient(135deg, #ffb73d, #ffa000)'
@@ -35,7 +38,7 @@ export function statusSnackbar(status, setSnackbar) {
     const successSnackbar = <Snackbar
         layout="vertical"
         onClose={() => setSnackbar(null)}
-        before={<Avatar size={24} style={blueBackground}><Icon28CheckCircleOutline fill="#fff" width={14} height={14} /></Avatar>}
+        before={<Avatar size={24} style={blueBackground}><Icon16Done fill="#fff" width={14} height={14} /></Avatar>}
     >
         Успешно!
         </Snackbar>;

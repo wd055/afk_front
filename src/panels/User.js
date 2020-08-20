@@ -32,6 +32,8 @@ import Icon28MailOutline from '@vkontakte/icons/dist/28/mail_outline';
 import Icon28PhoneOutline from '@vkontakte/icons/dist/28/phone_outline';
 import Icon16Chevron from '@vkontakte/icons/dist/16/chevron';
 import Icon24Copy from '@vkontakte/icons/dist/24/copy';
+import Icon16Done from '@vkontakte/icons/dist/16/done';
+import Icon28MessageOutline from '@vkontakte/icons/dist/28/message_outline';
 
 import bridge from '@vkontakte/vk-bridge';
 
@@ -50,6 +52,7 @@ const App = ({ id, go, goBack,
 	setModalData,
 	student, setStudent,
 	queryParams, tooltips,
+	proforg,
 }) => {
 
 	const [set_accepted_temp, set_set_accepted_temp] = useState(0);
@@ -198,7 +201,7 @@ const App = ({ id, go, goBack,
 							setSnackbar(<Snackbar
 								layout="vertical"
 								onClose={() => setSnackbar(null)}
-								before={<Avatar size={24} style={blueBackground}><Icon28CheckCircleOutline fill="#fff" width={14} height={14} /></Avatar>}
+								before={<Avatar size={24} style={blueBackground}><Icon16Done fill="#fff" width={14} height={14} /></Avatar>}
 							>
 								Успешно!
 							  </Snackbar>);
@@ -311,12 +314,21 @@ const App = ({ id, go, goBack,
 
 
 					{(student.domain && student.domain.length > 0) &&
-						<Link href={"https://vk.com/" + student.domain} target="_blank">
-							<CellButton
-								before={<Icon28LogoVkOutline />}
-							// onClick={() => copy_in_bufer(student.domain)}
-							>{student.domain}</CellButton>
-						</Link>}
+						<div>
+							<Link href={"https://vk.com/" + student.domain} target="_blank">
+								<CellButton
+									before={<Icon28LogoVkOutline />}
+								// onClick={() => copy_in_bufer(student.domain)}
+								>{student.domain}</CellButton>
+							</Link>
+							<Link href={"https://vk.com/gim195888448?sel=" + student.vk_id} target="_blank">
+								<CellButton
+									before={<Icon28MessageOutline />}
+								// onClick={() => copy_in_bufer(student.domain)}
+								>Открыть переписку</CellButton>
+							</Link>
+						</div>
+					}
 
 					{(student.phone !== null && student.phone.length > 0) &&
 						<Link href={"tel:" + student.phone} target="_parent">
@@ -344,7 +356,7 @@ const App = ({ id, go, goBack,
 				</Group>
 			</Tooltip>
 
-			<Group separator={"hide"}>
+			{proforg > 1 && <Group separator={"hide"}>
 				<Div>
 					<Button
 						stretched
@@ -362,7 +374,7 @@ const App = ({ id, go, goBack,
 						}}
 					>Добавить заявление</Button>
 				</Div>
-			</Group>
+			</Group>}
 
 			<Group>
 

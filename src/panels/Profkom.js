@@ -164,6 +164,7 @@ const App = ({ id, go, setPopout,
 			.then((data) => {
 				if (data !== "Error") {
 					setStudents(data)
+					console.log(data)
 					return (data)
 				}
 				else {
@@ -293,10 +294,10 @@ const App = ({ id, go, setPopout,
 				temp.students_login = post.login;
 				temp.students_name = post.name;
 				temp.error = "";
-			console.log(post)
-			console.log(temp)
-			setModalData(temp);
-			go("payout", true);
+				// console.log(post)
+				// console.log(temp)
+				setModalData(temp);
+				go("payout", true);
 			}else if (name === "сontributions"){
 				var temp = JSON.parse(JSON.stringify(post));
 				temp.group = post.group;
@@ -367,7 +368,7 @@ const App = ({ id, go, setPopout,
 			>Профком МГТУ</PanelHeader>
 
 			<FixedLayout vertical="top">
-				<Tabs mode="buttons">
+				{proforg > 1 && <Tabs mode="buttons">
 					<TabsItem
 						onClick={() => {
 							search_users('', 0);
@@ -392,7 +393,7 @@ const App = ({ id, go, setPopout,
 						}}
 						selected={tabsState === 'payouts'}
 					>Заявления</TabsItem>
-				</Tabs>				
+				</Tabs>}
 				<Search
 					value={searchValue}
 					placeholder={tabsState === 'payouts' ? "Номер заявления" : "Фамилия, группа или студ. билет"}
@@ -435,6 +436,7 @@ const App = ({ id, go, setPopout,
 										<div style={{ display: 'flex' }}>
 											<Button size="m" mode="outline">{post.group}</Button>
 											<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{post.login}</Button>
+											{post.proforg > 0 && <Button size="m" mode="outline" style={{ marginLeft: 8 }}>{proforg_levels[post.proforg]}</Button>}
 										</div>
 									</HorizontalScroll>
 								}>{post.name}</Cell>

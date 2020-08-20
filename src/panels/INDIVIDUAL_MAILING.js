@@ -223,7 +223,6 @@ const App = ({ id, go, goBack,
 						mode="secondary"
 						indicator={list_of_users.length > 0 && <Counter>{list_of_users.length}</Counter>}
 						aside={<Icon28ClearDataOutline style={redIcon} onClick={() => set_list_of_users([])} />}
-						before={<Icon28Users3Outline />}
 					>Выбранные студенты</Header>
 					<List>
 						{list_of_users.map((post, i) =>
@@ -265,7 +264,7 @@ const App = ({ id, go, goBack,
 				<FormLayout>
 					<Button
 						size="xl"
-						disabled={list_of_users.length === 0 || !messageValue}
+						disabled={list_of_users.length === 0 || (!messageValue && countAttachments === 0)}
 						onClick={on_btn_click}
 					>Отправить</Button>
 				</FormLayout>
