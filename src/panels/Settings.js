@@ -54,9 +54,7 @@ const App = ({ id, go, goBack,
 	useEffect(() => {
 		setFavorites(queryParams.vk_is_favorite === 1);
 		setPlatform(queryParams.vk_platform);
-		if (queryParams.vk_platform === "mobile_android"){
-			bridge.send("VKWebAppAddToHomeScreenInfo");
-		}
+		bridge.send("VKWebAppAddToHomeScreenInfo");
 
 		bridge.subscribe(({ detail: { type, data } }) => {
 			if (type === 'VKWebAppCopyTextResult') {
@@ -82,6 +80,7 @@ const App = ({ id, go, goBack,
 				console.error(data)
 			}
 			if (type === 'VKWebAppAddToHomeScreenInfoResult') {
+				console.log(data)
 				if (data.is_feature_supported === true
 					&& data.is_added_to_home_screen === false)
 					setShowAddToHomeScreen(true);
@@ -180,7 +179,7 @@ const App = ({ id, go, goBack,
 					expandable
 					onClick={() => go('REGISTRATRION_PROFORG')}
 					before={<Icon28EmployeeOutline />}
-				>Добавление профоргов</SimpleCell>
+				>Приглашения по ссылке</SimpleCell>
 			</Group>}
 			{/* <Div>
 				<form method="POST" action="https://money.yandex.ru/quickpay/confirm.xml" target="_blank">

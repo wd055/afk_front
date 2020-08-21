@@ -147,7 +147,7 @@ const App = ({ id, go, goBack,
 		<Panel id={id} style={{ 'maxWidth': 630, margin: 'auto' }}>
 			<PanelHeader
 				left={<PanelHeaderBack onClick={goBack} />}
-			>Добавление профоргов</PanelHeader>
+			>Приглашения</PanelHeader>
 			<Group>
 					<Header
 						mode="secondary"
@@ -173,7 +173,7 @@ const App = ({ id, go, goBack,
 								text="Председатель"
 							><Icon28AddOutline /></TabbarItem>
 						</div>}
-					>Ссылки на добавление</Header>
+					>Приглашения</Header>
 					{tokens.map((post, i) =>
 						(<Group key={i}>
 							<Cell
