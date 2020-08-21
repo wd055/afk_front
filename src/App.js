@@ -278,6 +278,7 @@ const App = () => {
 
 	function get_form() {
 
+		setPopout(<ScreenSpinner size='large' />);
 		var url = main_url + "profkom_bot/get_form/";
 
 		var data = {
