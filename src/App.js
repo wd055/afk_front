@@ -929,7 +929,7 @@ const App = () => {
 					payouts_type={payouts_type} payouts_types={payouts_types}
 				/>
 				<User id='User' go={go} goBack={goBack}
-					login={login}
+					login={login} setPopout={setPopout}
 					snackbar={snackbar} setSnackbar={setSnackbar}
 					setModalData={setModalData}
 					student={student} setStudent={setStudent}

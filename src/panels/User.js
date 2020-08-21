@@ -20,6 +20,7 @@ import HorizontalScroll from '@vkontakte/vkui/dist/components/HorizontalScroll/H
 import Button from '@vkontakte/vkui/dist/components/Button/Button';
 import CellButton from '@vkontakte/vkui/dist/components/CellButton/CellButton';
 import PullToRefresh from '@vkontakte/vkui/dist/components/PullToRefresh/PullToRefresh';
+import ScreenSpinner from '@vkontakte/vkui/dist/components/ScreenSpinner/ScreenSpinner';
 
 import Icon24Error from '@vkontakte/icons/dist/24/error';
 import Icon28DeleteOutline from '@vkontakte/icons/dist/28/delete_outline';
@@ -47,7 +48,7 @@ var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
 // var main_url = "http://localhost:8000/"
 
 const App = ({ id, go, goBack,
-	login,
+	login, setPopout,
 	snackbar, setSnackbar,
 	setModalData,
 	student, setStudent,
@@ -117,6 +118,7 @@ const App = ({ id, go, goBack,
 
 	function get_users_info() {
 		var url = main_url + "profkom_bot/get_users_info/";
+		setPopout(<ScreenSpinner />)
 		fetch(url, {
 			method: 'POST',
 			body: JSON.stringify({
@@ -129,6 +131,7 @@ const App = ({ id, go, goBack,
 		})
 			.then(response => response.json())
 			.then((data) => {
+				setPopout(null);
 				if (data !== "Error") {
 					setFetching(false);
 					console.log("users get_users_info", data)

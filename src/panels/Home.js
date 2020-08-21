@@ -66,7 +66,7 @@ export const Home = ({
 
 	useEffect(() => {
 		if (usersInfo !== null && students_login !== usersInfo.login) {
-			console.log("!!!!!!!!!!!!", usersInfo)
+			console.log("usersInfo:", usersInfo)
 			setGroup(usersInfo.group);
 			set_students_login(usersInfo.login);
 			setName(usersInfo.name);
