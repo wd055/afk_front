@@ -90,7 +90,7 @@ const App = () => {
 		categories: [],
 		domain: null,
 		email: null,
-		group: "",
+		group: "Загрузка...",
 		name: "ФИО",
 		payments_edu: "free",
 		phone: null,
@@ -124,6 +124,7 @@ const App = () => {
 	const [attachments, setAttachments] = useState([]);
 	const [tooltips, setTooltips] = useState([]);
 	const [payouts_type, set_payouts_type] = useState("");
+	const [students_documents, set_students_documents] = useState([]);
 
 	const modals_const = [
 		'payout',
@@ -189,10 +190,13 @@ const App = () => {
 			bridge.send("VKWebAppClose", { "status": "success" });
 		} else if (history.length > 1) {
 			if (modals_const.indexOf(history[history.length - 1]) > -1) {
-				setSearchPayouts([]);
-				setSearchValue("");
+				// setSearchPayouts([]);
+				// setSearchValue("");
 				setModal(null);
 			} else if (modals_const.indexOf(history[history.length - 2]) === -1) {
+				if (history[history.length - 2] === "Profkom") {
+					setStudent(student_default_value);
+				}
 				setActivePanel(history[history.length - 2]);
 			} else {
 				setModal(history[history.length - 2]);
@@ -212,7 +216,9 @@ const App = () => {
 			if (itsModal) {
 				setModal(name);
 			} else {
-				setStudent(student_default_value);
+				// if (name !== "Home") {
+				// 	setStudent(student_default_value);
+				// }
 				setActivePanel(name);
 			}
 			history.push(name);
@@ -941,11 +947,13 @@ const App = () => {
 					snackbar={snackbar} setSnackbar={setSnackbar}
 					student={student} categories={categories}
 					proforg={proforg} usersInfo={usersInfo}
+					students_documents={students_documents} set_students_documents={set_students_documents}
 				/>
 				<ATTACH_DOCUMENTS id='ATTACH_DOCUMENTS' go={go} goBack={goBack}
 					setPopout={setPopout} login={login}
 					snackbar={snackbar} setSnackbar={setSnackbar}
 					student={student} usersInfo={usersInfo}
+					students_documents={students_documents} set_students_documents={set_students_documents}
 				/>
 				<REGISTRATRION_PROFORG id='REGISTRATRION_PROFORG' go={go} goBack={goBack}
 					setPopout={setPopout} login={login}

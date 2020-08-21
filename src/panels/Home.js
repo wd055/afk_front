@@ -22,9 +22,12 @@ import Link from '@vkontakte/vkui/dist/components/Link/Link';
 import Caption from '@vkontakte/vkui/dist/components/Typography/Caption/Caption';
 import Separator from '@vkontakte/vkui/dist/components/Separator/Separator';
 import List from '@vkontakte/vkui/dist/components/List/List';
+import SimpleCell from '@vkontakte/vkui/dist/components/SimpleCell/SimpleCell';
+import Counter from '@vkontakte/vkui/dist/components/Counter/Counter';
 
 import Icon28CheckCircleOutline from '@vkontakte/icons/dist/28/check_circle_outline';
 import Icon24Error from '@vkontakte/icons/dist/24/error';
+import Icon28AttachOutline from '@vkontakte/icons/dist/28/attach_outline';
 
 import bridge from '@vkontakte/vk-bridge';
 
@@ -46,7 +49,8 @@ export const Home = ({
 	setPopout, login,
 	snackbar, setSnackbar,
 	student, categories,
-	proforg, usersInfo,
+	proforg, usersInfo,	
+	students_documents, set_students_documents,
 }) => {
 
 	const [getCategories, setGetCategories] = useState([]);
@@ -76,6 +80,7 @@ export const Home = ({
 			setPayments_edu(usersInfo.payments_edu);
 			set_students_proforg(usersInfo.proforg);
 			set_contribution(usersInfo.contribution);
+			set_students_documents(usersInfo.documents)
 
 			setCheckedCats(false);
 		}
@@ -347,12 +352,12 @@ export const Home = ({
 						<option value="free" id="select_free">Бюджетная</option>
 						<option value="paid" id="select_paid">Платная</option>
 					</Select>
-
-					{/* <SimpleCell
+					<SimpleCell
 						onClick={() => go("ATTACH_DOCUMENTS")}
 						before={<Icon28AttachOutline />}
 						description="Прикрепление добровольно. Без них не получится удаленно формировать заявления."
-					>Прикрепить документы</SimpleCell> */}
+						indicator={students_documents.length > 0 && <Counter>{students_documents.length}</Counter>}
+					>Прикрепить документы</SimpleCell>
 
 					{/* <FormLayoutGroup top="Выберите подходящие категории" onLoad={onLoadCategory()}> */}
 					{/* <Radio name="type">Паспорт</Radio>
