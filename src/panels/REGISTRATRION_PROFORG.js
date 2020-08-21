@@ -184,19 +184,25 @@ const App = ({ id, go, goBack,
 											name="QR"
 											style={{ color: 'var(--accent)' }}
 											onClick={() =>
-												bridge.send("VKWebAppShare",
-													{ "link": `https://vk.com/app7446946#registrationProforg=${post.token}` })
+												bridge.send("VKWebAppCopyText",
+													{ "text": `https://vk.com/app7446946#registrationProforg=${post.token}` })
 											}
-										/> */}										
-										{(platform === "mobile_android" || platform === "mobile_iphone") && <Icon28ShareOutline
+										/>	 */}
+										<Icon28ShareOutline
 											name="share"
 											style={{ color: 'var(--accent)', marginLeft: 8 }}
 											onClick={() =>
-												// bridge.send("VKWebAppCopyText", {"text": `https://vk.com/app7446946#registrationProforg=${post.token}`})
-												bridge.send("VKWebAppShare",
-													{ "link": `https://vk.com/app7446946#registrationProforg=${post.token}` })
+											// bridge.send("VKWebAppCopyText", {"text": `https://vk.com/app7446946#registrationProforg=${post.token}`})
+											{
+												if (platform === "mobile_android" || platform === "mobile_iphone")
+													bridge.send("VKWebAppShare",
+														{ "link": `https://vk.com/app7446946#registrationProforg=${post.token}` })
+												else
+													bridge.send("VKWebAppCopyText",
+														{ "text": `https://vk.com/app7446946#registrationProforg=${post.token}` })
 											}
-										/>}
+											}
+										/>
 										<Icon28DeleteOutline
 											name="delete"
 											style={{ color: 'var(--destructive)', marginLeft: 8 }}
