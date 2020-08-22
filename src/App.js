@@ -781,7 +781,7 @@ const App = () => {
 								name="status_сontributions" value="none"
 								id="status_none"
 								defaultChecked={modalData.сontributions === "none"}
-							>none</Radio>
+							>Не заполнено</Radio>
 							<Radio
 								name="status_сontributions" value="studentship"
 								id="status_studentship"
@@ -955,6 +955,7 @@ const App = () => {
 					snackbar={snackbar} setSnackbar={setSnackbar}
 					student={student} usersInfo={usersInfo}
 					students_documents={students_documents} set_students_documents={set_students_documents}
+					queryParams={queryParams}
 				/>
 				<REGISTRATRION_PROFORG id='REGISTRATRION_PROFORG' go={go} goBack={goBack}
 					setPopout={setPopout} login={login}
