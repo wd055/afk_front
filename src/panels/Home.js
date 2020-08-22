@@ -49,7 +49,7 @@ export const Home = ({
 	setPopout, login,
 	snackbar, setSnackbar,
 	student, categories,
-	proforg, usersInfo,	
+	proforg, usersInfo,
 	students_documents, set_students_documents,
 }) => {
 
@@ -89,17 +89,19 @@ export const Home = ({
 			if (type === 'VKWebAppGetEmailResult') {
 				document.getElementById('email').value = data.email;
 				setEmail(data.email);
+				usersInfo.email = data.email;
 			}
 			if (type === 'VKWebAppGetPhoneNumberResult') {
 				document.getElementById('phone').value = data.phone_number;
 				setPhone(data.phone_number);
+				usersInfo.phone = data.phone_number;
 			}
 		});
 	});
 
 	const [clickEmail, setClickEmail] = useState(true);
 	const [clickPhone, setClickPhone] = useState(true);
-
+	  
 	const onEmailClick = e => {
 		if (clickEmail && login === null && email.length === 0) {
 			setClickEmail(false);
@@ -149,16 +151,16 @@ export const Home = ({
 			payments_edu: document.getElementById("payments_edu").value,
 			categories: []
 		}
-		
+
 		if (proforg >= 3) {
 			data.proforg = students_proforg;
 		}
-		
+
 		const phoneNumber = parsePhoneNumberFromString(phone, 'RU')
 		if (phoneNumber) {
 			data.phone = phoneNumber.number;
 		}
-		
+
 		if (login !== null) {
 			data.students_login = login;
 			if (phoneNumber) {
@@ -166,8 +168,8 @@ export const Home = ({
 			}
 			student.email = email;
 		}
-		
-		if (login === null){
+
+		if (login === null) {
 			var agree = document.getElementById("agree");
 			data.agree = agree.checked
 		}
@@ -180,6 +182,7 @@ export const Home = ({
 		}
 
 		setGetCategories(data.categories)
+		usersInfo.categories = data.categories;
 
 		var url = main_url + "profkom_bot/form/";
 
@@ -237,7 +240,7 @@ export const Home = ({
 
 	function onLoadCategory() {
 		var categorys = document.getElementsByName("category");
-		if (!checkedCats){
+		if (!checkedCats) {
 			for (var i = 0; i < categorys.length; i++) {
 				categorys[i].checked = getCategories.indexOf(categories[i]) !== -1
 			}
@@ -270,9 +273,9 @@ export const Home = ({
 						}>{name}</Cell>
 				</Group>
 				<FormLayout>
-					{proforg >= 3 && 
+					{proforg >= 3 &&
 						<Select
-							top="Уровень профорга"
+							top="Уровень доступа"
 							id='proforg'
 							name="proforg"
 							onChange={(e) => {
@@ -311,6 +314,7 @@ export const Home = ({
 							onChange={(e) => {
 								const { value } = e.currentTarget;
 								setEmail(value.slice(0, 100));
+								usersInfo.email = value.slice(0, 100);
 							}}
 							value={email}
 							status={(show_valid && login === null) && (validateEmail(email) ? 'valid' : 'error')}
@@ -328,6 +332,7 @@ export const Home = ({
 							onChange={(e) => {
 								const { value } = e.currentTarget;
 								setPhone(value.slice(0, 50));
+								usersInfo.phone = value.slice(0, 50);
 							}}
 							value={phone}
 							status={(show_valid && login === null) && (validatePhone(phone) ? 'valid' : 'error')}
@@ -343,6 +348,7 @@ export const Home = ({
 						onChange={(e) => {
 							const { value } = e.currentTarget;
 							setPayments_edu(value);
+							usersInfo.payments_edu = value;
 						}}
 						value={String(payments_edu)}
 						status={login === null && (payments_edu ? 'valid' : 'error')}
@@ -362,8 +368,8 @@ export const Home = ({
 					{/* <FormLayoutGroup top="Выберите подходящие категории" onLoad={onLoadCategory()}> */}
 					{/* <Radio name="type">Паспорт</Radio>
 				<Radio name="type">Загран</Radio> */}
-				<Header mode="secondary" >Выберите подходящие категории</Header>
-					<List onLoad={onLoadCategory()}>
+					<Header mode="secondary" >Выберите подходящие категории</Header>
+					<List onLoad={onLoadCategory()} >
 						{categories.map((category, i) => (
 							// <Checkbox 
 							// 	name="category" 
@@ -384,8 +390,11 @@ export const Home = ({
 					{/* </FormLayoutGroup> */}
 
 					{login === null && <><Separator />
-						<Checkbox id="agree" defaultChecked={true}>Получать информацию о различных мероприятиях, раздаче билетов и ТП</Checkbox> </>}					
-					<Button size="xl" onClick={onFormClick} top={login === null ? <>При подтверждении Вы соглашаетесь получать автоматические сообщение об изменении Ваших заявлений, а так же с <Link onClick={() => go("POLICY")}>политикой</Link></> : undefined}>Подтвердить</Button>
+						<Checkbox id="agree" defaultChecked={true}>Получать информацию о различных мероприятиях, раздаче билетов и ТП</Checkbox> </>}
+					<Button
+						size="xl"
+						onClick={onFormClick}
+						top={login === null ? <>При подтверждении Вы соглашаетесь получать автоматические сообщение об изменении Ваших заявлений, а так же с <Link onClick={() => go("POLICY")}>политикой</Link></> : undefined}>Подтвердить</Button>
 				</FormLayout>
 			</Group>
 			{snackbar}
@@ -393,7 +402,7 @@ export const Home = ({
 	return Home;
 }
 
-export const  POLICY = ({ id, go, goBack,
+export const POLICY = ({ id, go, goBack,
 	setPopout,
 	snackbar, setSnackbar,
 }) => {
