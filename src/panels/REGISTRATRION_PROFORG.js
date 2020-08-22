@@ -102,7 +102,10 @@ const App = ({ id, go, goBack,
 			})
 			.then((data) => {
 				// console.log(data);
-				tokens.push(data);
+				data.proforg_level = proforg_level;
+				var temp = JSON.parse(JSON.stringify(tokens));
+				temp.push(data);
+				setTokens(temp);
 			},
 				(error) => {
 					statusSnackbar(0, setSnackbar)
@@ -218,7 +221,7 @@ const App = ({ id, go, goBack,
 											<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{new Date(post.date_create).toLocaleString()}</Button>
 										</div>
 									</HorizontalScroll>}
-							>{post.token}</Cell>
+							/>
 						</Group>))}
 				</Group>
 			{snackbar}
