@@ -314,7 +314,7 @@ export const Home = ({
 							onChange={(e) => {
 								const { value } = e.currentTarget;
 								setEmail(value.slice(0, 100));
-								usersInfo.email = value.slice(0, 100);
+								usersInfo.email = value.slice(0, 100);																
 							}}
 							value={email}
 							status={(show_valid && login === null) && (validateEmail(email) ? 'valid' : 'error')}
@@ -383,6 +383,16 @@ export const Home = ({
 								key={i}
 								id={i.toString()}
 								multiline
+								data-category={category}
+								onClick={(e) => {
+									var this_category = e.currentTarget.childNodes[0].childNodes[0].dataset['category']
+									var this_local = usersInfo.categories.indexOf(this_category)
+									if (this_local > -1)
+										usersInfo.categories.splice(this_local, 1);
+									else
+										usersInfo.categories.push(this_category)
+									console.log(usersInfo.categories)
+								}}
 							>{category}</Cell>
 							// <Checkbox name="category" id={i.toString()} defaultChecked={getCategories.indexOf(categories) !== -1}>{category}</Checkbox>
 						))}

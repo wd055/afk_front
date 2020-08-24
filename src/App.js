@@ -361,6 +361,7 @@ const App = () => {
 			}
 		})
 			.then(function(response) {
+				get_form();
 				if (!response.ok) {
 					// setSnackbar(<Snackbar
 					// 	layout="vertical"
@@ -374,7 +375,6 @@ const App = () => {
 					console.error('registrationProforg form:')
 					throw Error(response.statusText);
 				}else{
-					get_form();
 					return response.json();
 				}
 			})
