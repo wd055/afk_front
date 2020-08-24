@@ -15,7 +15,7 @@ import HorizontalScroll from '@vkontakte/vkui/dist/components/HorizontalScroll/H
 import FixedLayout from '@vkontakte/vkui/dist/components/FixedLayout/FixedLayout';
 import Button from '@vkontakte/vkui/dist/components/Button/Button';
 import Separator from '@vkontakte/vkui/dist/components/Separator/Separator';
-import File from '@vkontakte/vkui/dist/components/File/File';
+import Spinner from '@vkontakte/vkui/dist/components/Spinner/Spinner';
 
 import Icon24Error from '@vkontakte/icons/dist/24/error';
 import Icon28AddOutline from '@vkontakte/icons/dist/28/add_outline';
@@ -54,21 +54,42 @@ const App = ({ id, go, setPopout,
 	tabsState, setTabsState,
 	searchPayouts, setSearchPayouts,
 	tooltips, proforg,
+	usersInfo,
 }) => {
 
-	const count_on_page = 6;
+	var count_on_page = 6;
+	var paddingTop = 80;
+	const infinite_scroll = true
+	if (infinite_scroll) var count_on_page = 8;
+	if (proforg === 1) paddingTop = 40;
+
 	const [set_accepted_temp, set_set_accepted_temp] = useState(0);
 	const [list_left_end, set_list_left_end] = useState(0);
 	const [tooltip_payouts_tips, set_tooltip_payouts_tips] = useState(false);
+	const [download, set_downaload] = useState(false);
+	const [end_of_search_list, set_end_of_search_list] = useState(false);
 
 	useEffect(() => {
-		if (tabsState !== "students" && tabsState !== "payouts"){
+		if (tabsState !== "students" && tabsState !== "payouts") {
 			setTabsState("students")
 			search_users('', 0);
 		}
 
-		if (tabsState === "students" && students.length === 0 && searchValue.length === 0)
-			search_users('', 0);
+		if (tabsState === "students" && students.length === 0 && searchValue.length === 0){
+			if (usersInfo.payments_edu !== ""){
+				search_users('', 0);
+			}
+			else{
+				setSearchValue(usersInfo.name);
+				search_users(usersInfo.name, 0);
+				setSnackbar(<Snackbar
+					layout="vertical"
+					onClose={() => setSnackbar(null)}
+				>
+					Вы не заполнили свою форму, прежде чем приступать к работе, пожалуйста, заполните!
+				</Snackbar>)
+			}
+		}
 		else if (tabsState === "payouts" && searchPayouts.length === 0 && searchValue.length === 0)
 			search_payouts('', 0);
 
@@ -108,7 +129,7 @@ const App = ({ id, go, setPopout,
 				querys: window.location.search,
 				payouts_id: value,
 				from: list_left_end,
-				to: list_left_end + count_on_page + 1,
+				to: list_left_end + count_on_page,
 			}),
 			headers: {
 				'Origin': origin
@@ -117,7 +138,21 @@ const App = ({ id, go, setPopout,
 			.then(response => response.json())
 			.then((data) => {
 				if (data !== "Error") {
-					setSearchPayouts(data)
+					var temp = data;
+					if (infinite_scroll && list_left_end > 0)
+						temp = searchPayouts.concat(data);
+
+					if (data.length < count_on_page)
+						set_end_of_search_list(true);						
+					else set_end_of_search_list(false);
+
+					if (data.length === 0){
+						set_list_left_end(Math.max(list_left_end - count_on_page, 0))
+					}else{
+						setSearchPayouts(temp);
+					}
+					
+					set_downaload(false);
 					return (data)
 				}
 				else {
@@ -153,7 +188,7 @@ const App = ({ id, go, setPopout,
 			body: JSON.stringify({
 				querys: window.location.search,
 				from: list_left_end,
-				to: list_left_end + count_on_page + 1,
+				to: list_left_end + count_on_page,
 				value: value,
 			}),
 			headers: {
@@ -163,8 +198,22 @@ const App = ({ id, go, setPopout,
 			.then(response => response.json())
 			.then((data) => {
 				if (data !== "Error") {
-					setStudents(data)
-					console.log(data)
+					// console.log(data)
+					var temp = data;
+					if (infinite_scroll && list_left_end > 0)
+						temp = students.concat(data);
+
+					if (data.length < count_on_page)
+						set_end_of_search_list(true);						
+					else set_end_of_search_list(false);
+
+					if (data.length === 0){
+						set_list_left_end(Math.max(list_left_end - count_on_page, 0))
+					}else{
+						setStudents(temp);
+					}
+
+					set_downaload(false);
 					return (data)
 				}
 				else {
@@ -175,7 +224,7 @@ const App = ({ id, go, setPopout,
 					>
 						Ошибка подключения
 						</Snackbar>);
-					console.error('search_payouts:', data)
+					console.error('search_users:', data)
 					return null
 				}
 			},
@@ -187,7 +236,7 @@ const App = ({ id, go, setPopout,
 					>
 						Ошибка подключения
 						</Snackbar>);
-					console.error('search_payouts:', error)
+					console.error('search_users:', error)
 					return null
 				})
 	}
@@ -261,6 +310,7 @@ const App = ({ id, go, setPopout,
 	}
 
 	function button_list_click(value) {
+		set_downaload(true);
 		set_list_left_end(list_left_end + value);
 
 		if (tabsState === "payouts")
@@ -282,12 +332,12 @@ const App = ({ id, go, setPopout,
 			e.target.parentNode.parentNode.parentNode.parentNode.getAttribute('class') === "Cell__aside") {
 
 			var name = "add";
-			
+
 			if (e.target.getAttribute('name') !== null) name = e.target.getAttribute('name')
 			else if (e.target.parentNode.getAttribute('name') !== null) name = e.target.parentNode.getAttribute('name')
 			else if (e.target.parentNode.parentNode.getAttribute('name') !== null) name = e.target.parentNode.parentNode.getAttribute('name')
 			console.log(name)
-			if (name === "add"){
+			if (name === "add") {
 				var temp = JSON.parse(JSON.stringify(post));
 				temp.new = true;
 				temp.students_group = post.group;
@@ -298,7 +348,7 @@ const App = ({ id, go, setPopout,
 				// console.log(temp)
 				setModalData(temp);
 				go("payout", true);
-			}else if (name === "сontributions"){
+			} else if (name === "сontributions") {
 				var temp = JSON.parse(JSON.stringify(post));
 				temp.group = post.group;
 				temp.login = post.login;
@@ -349,8 +399,8 @@ const App = ({ id, go, setPopout,
 		"Председатель",
 	]
 	const сontributions_icon = {
-		"none": <img src={circle} style={{ width:28, height:28 }} name="сontributions" />,
-		"studentship": <img src={education_circle} style={{ width:28, height:28 }} name="сontributions" />,
+		"none": <img src={circle} style={{ width: 28, height: 28 }} name="сontributions" />,
+		"studentship": <img src={education_circle} style={{ width: 28, height: 28 }} name="сontributions" />,
 		"paid": <Icon28MoneyCircleOutline name="icon" style={greenIcon} name="сontributions" />,
 		"deny": <Icon28CancelCircleOutline name="icon" style={redIcon} name="сontributions" />,
 	}
@@ -362,7 +412,7 @@ const App = ({ id, go, setPopout,
 	// }
 
 	const Home =
-		<Panel id={id} style={{ 'maxWidth': 630, margin: 'auto' }}>
+		<Panel id={id} style={{ 'maxWidth': 630, margin: 'auto' }} >
 			<PanelHeader
 				left={<PanelHeaderButton><Icon28SettingsOutline onClick={() => go("Settings")} /></PanelHeaderButton>}
 			>Профком МГТУ</PanelHeader>
@@ -396,7 +446,7 @@ const App = ({ id, go, setPopout,
 				</Tabs>}
 				<Search
 					value={searchValue}
-					placeholder={tabsState === 'payouts' ? "Номер заявления" : "Фамилия, группа или студ. билет"}
+					placeholder={tabsState === 'payouts' ? "Номер заявления" : "ФИО, группа или студ. билет"}
 					onChange={(e) => {
 						const { value } = e.currentTarget;
 						if (tabsState === "payouts")
@@ -419,8 +469,20 @@ const App = ({ id, go, setPopout,
 				offsetY={0}
 				cornerOffset={80}
 			>
-				<Div style={{ paddingTop: 80, paddingBottom: 60 }}>
-					{tabsState === "students" && students.slice(0, count_on_page).map((post, i) =>
+				<Div
+					style={{
+						paddingTop: paddingTop,
+						// paddingBottom: 60,
+						height: "630px", overflow: "auto",
+					}}
+					onScroll={(e) => {
+						var element = e.currentTarget
+						if (element.scrollTop + element.clientHeight >= element.scrollHeight &&
+							infinite_scroll && !end_of_search_list && !download) {
+							button_list_click(count_on_page);
+						}
+					}}>
+					{tabsState === "students" && students.map((post, i) =>
 						(<Group key={i}>
 							<Cell size="l" onClick={(e) => {
 								on_students_click(e, post);
@@ -428,7 +490,7 @@ const App = ({ id, go, setPopout,
 								asideContent={proforg > 1 &&
 									<div style={{ display: 'flex' }}>
 										{сontributions_icon[post.сontributions]}
-										<Icon28AddOutline name="add" style={{ color: 'var(--accent)', marginLeft: 8}} />
+										<Icon28AddOutline name="add" style={{ color: 'var(--accent)', marginLeft: 8 }} />
 									</div>
 								}
 								bottomContent={
@@ -442,7 +504,7 @@ const App = ({ id, go, setPopout,
 								}>{post.name}</Cell>
 						</Group>))}
 					{/* {tabsState === "payouts" && get_payouts().map((post) => */}
-					{tabsState === "payouts" && searchPayouts.slice(0, count_on_page).map((post, i) =>
+					{tabsState === "payouts" && searchPayouts.map((post, i) =>
 						(<Group key={i}>
 							<Cell size="l" onClick={(e) => {
 								on_payouts_click(e, post);
@@ -469,28 +531,31 @@ const App = ({ id, go, setPopout,
 									</HorizontalScroll>
 								}>{post.payouts_type}</Cell>
 						</Group>))}
-					{((students.length === 0 && tabsState === "students") || (searchPayouts.length === 0 && tabsState === "payouts")) &&
-						<Footer>По вашему запросу ничего не найдено</Footer>}
+					
+					{((students.length === 0 && tabsState === "students") || (searchPayouts.length === 0 && tabsState === "payouts")) ?
+						<Footer>По вашему запросу ничего не найдено</Footer>
+					: end_of_search_list &&
+						<Footer>По вашему запросу больше ничего нет</Footer>}
 				</Div>
 			</Tooltip>
-			<FixedLayout vertical="bottom" filled>
-				<Separator wide />
-				<Div style={{ display: 'flex' }}>
-					{list_left_end > 0 ?
-						<Button size="l" before={<Icon24BrowserBack />}
-							stretched mode="secondary" style={{ marginRight: 8 }}
-							onClick={() => button_list_click(-count_on_page)}
-						>Назад</Button>
-						: <Button size="l" stretched mode="tertiary" style={{ marginRight: 8 }} ></Button>}
+			<FixedLayout vertical="bottom" filled={!infinite_scroll} >
+				{(!infinite_scroll && !download) && <div> <Separator wide />
+					<Div style={{ display: 'flex' }}>
+						{list_left_end > 0 ?
+							<Button size="l" before={<Icon24BrowserBack />}
+								stretched mode="secondary" style={{ marginRight: 8 }}
+								onClick={() => button_list_click(-count_on_page)}
+							>Назад</Button>
+							: <Button size="l" stretched mode="tertiary" style={{ marginRight: 8 }} ></Button>}
 
-					{(students.length > count_on_page && tabsState === "students") ||
-						(searchPayouts.length > count_on_page && tabsState === "payouts") ?
-						<Button size="l" after={<Icon24BrowserForward />}
-							stretched mode="secondary"
-							onClick={() => button_list_click(count_on_page)}
-						>Вперед</Button>
-						: <Button size="l" stretched mode="tertiary"></Button>}
-				</Div>
+						{!end_of_search_list ?
+							<Button size="l" after={<Icon24BrowserForward />}
+								stretched mode="secondary"
+								onClick={() => button_list_click(count_on_page)}
+							>Вперед</Button>
+							: <Button size="l" stretched mode="tertiary"></Button>}
+					</Div></div>}
+				{download && <Spinner size="medium" style={{ marginBottom: 20 }} />}
 			</FixedLayout>
 
 			{snackbar}
