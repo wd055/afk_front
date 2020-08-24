@@ -315,14 +315,13 @@ const App = ({ id, go, goBack,
 			>
 				<Group separator={"hide"}>
 
-
 					{(student.domain && student.domain.length > 0) &&
 						<div>
 							<Link href={"https://vk.com/" + student.domain} target="_blank">
 								<CellButton
 									before={<Icon28LogoVkOutline />}
 								// onClick={() => copy_in_bufer(student.domain)}
-								>{student.domain}</CellButton>
+								>{"@" + student.domain}</CellButton>
 							</Link>
 							<Link href={"https://vk.com/gim195888448?sel=" + student.vk_id} target="_blank">
 								<CellButton
@@ -330,6 +329,7 @@ const App = ({ id, go, goBack,
 								// onClick={() => copy_in_bufer(student.domain)}
 								>Открыть переписку</CellButton>
 							</Link>
+							<Header subtitle="Переписка доступна только админам группы"/>
 						</div>
 					}
 
@@ -416,10 +416,10 @@ const App = ({ id, go, goBack,
 					{student[payoutsShow].map((post, i) => post.delete === false &&
 						(<Group key={i} separator={"show"}>
 							<Cell size="l" onClick={(e) => {
-								on_payouts_click(e, post);
+								if (proforg > 1) on_payouts_click(e, post);
 							}}
 								before={get_before_payouts(post.delete, post.status)}
-								asideContent={post.status === "filed" &&
+								asideContent={(post.status === "filed" && proforg > 1) &&
 									<Icon28DoneOutline style={blueIcon} />}
 								// bottomContent={<Button size="m" mode="outline">{post.id}</Button>}
 								description={post.id}

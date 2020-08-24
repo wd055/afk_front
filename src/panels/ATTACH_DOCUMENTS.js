@@ -23,6 +23,8 @@ import Div from '@vkontakte/vkui/dist/components/Div/Div';
 import Avatar from '@vkontakte/vkui/dist/components/Avatar/Avatar';
 import HorizontalScroll from '@vkontakte/vkui/dist/components/HorizontalScroll/HorizontalScroll';
 import Footer from '@vkontakte/vkui/dist/components/Footer/Footer';
+import FormStatus from '@vkontakte/vkui/dist/components/FormStatus/FormStatus';
+import FormLayout from '@vkontakte/vkui/dist/components/FormLayout/FormLayout';
 
 var origin = "https://thingworx.asuscomm.com:10888"
 var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
@@ -70,7 +72,6 @@ const App = ({ id, go, goBack,
 
 		var reader = new FileReader();
 		reader.onload = function (e) {
-			// document.getElementById("test").setAttribute('src', e.target.result);
 			document.getElementById("image_scrol").innerHTML += `<div id=${file_name.replace(/ /g, "_")}
 			style='margin:8px; width:100px; height:150px; background-color:rgba(0, 57, 115, 0.50); border-radius:10px; display: flex; justify-content: center; align-items: center;' >
 			<img style='margin:5px; padding:5px; max-width: 95%; max-height: 95%;'
@@ -268,8 +269,12 @@ const App = ({ id, go, goBack,
 			<PanelHeader
 				left={<PanelHeaderBack onClick={goBack} />}
 			>Документы</PanelHeader>
+			<FormLayout>
+				<FormStatus header="Внимание" mode="error">
+				Раздел находится на стадии разработки, есть ошибки, не все функции пока доступны!
+				</FormStatus>
+			</FormLayout>
 			<Group separator="hide">
-				<img id="test" />
 				{Grid}
 			</Group>
 			<FixedLayout vertical="bottom">

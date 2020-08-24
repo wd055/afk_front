@@ -152,7 +152,7 @@ export const Home = ({
 			categories: []
 		}
 
-		if (proforg >= 3) {
+		if (proforg >= 3 && usersInfo.proforg !== students_proforg) {
 			data.proforg = students_proforg;
 		}
 

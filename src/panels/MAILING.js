@@ -98,6 +98,7 @@ const App = ({ id, go, setPopout, goBack,
 							bottomContent={
 								<HorizontalScroll>
 									<div style={{ display: 'flex' }}>
+										<Button size="m" mode="outline">{post.student}</Button>
 										<Button size="m" mode="outline">{post.date}</Button>
 										<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{post.mailing_type}</Button>
 									</div>
