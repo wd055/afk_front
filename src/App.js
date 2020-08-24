@@ -466,6 +466,7 @@ const App = () => {
 					// console.log(data);
 					setSnackbar(<Snackbar
 						layout="vertical"
+						duration={1000*10}
 						onClose={() => setSnackbar(null)}
 						before={<Avatar size={24} style={blueBackground}><Icon16Done fill="#fff" width={14} height={14} /></Avatar>}
 					>Успешно! Номер заявления: {data.id}</Snackbar>);
@@ -704,7 +705,7 @@ const App = () => {
 							>Ошибка в документах</Radio>
 						</FormLayoutGroup>
 						<Textarea
-							top="Описание ошибки"
+							top="Комментарий"
 							id="error"
 							defaultValue={modalData.error}
 							// value={modalData.error} 
@@ -847,6 +848,7 @@ const App = () => {
 					tabsState={tabsState} setTabsState={setTabsState}
 					searchPayouts={searchPayouts} setSearchPayouts={setSearchPayouts}
 					tooltips={tooltips} proforg={proforg}
+					usersInfo={usersInfo}
 				/>
 				<Settings id='Settings' go={go} goBack={goBack}
 					setPopout={setPopout} setModal={setModal}
