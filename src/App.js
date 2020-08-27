@@ -36,14 +36,16 @@ import Profkom from './panels/Profkom';
 import User from './panels/User';
 import Settings from './panels/Settings';
 import REGISTRATRION_PROFORG from './panels/REGISTRATRION_PROFORG';
-import MASS_MAILING from './panels/MASS_MAILING';
-import INDIVIDUAL_MAILING from './panels/INDIVIDUAL_MAILING';
-import MAILING_USERS from './panels/MAILING_USERS';
-import MAILING from './panels/MAILING';
-import MASS_MAILING_USERS from './panels/MASS_MAILING_USERS';
-import EDIT_MAILING from './panels/EDIT_MAILING';
-import SET_CATEGORIES_MASS_MAILING from './panels/SET_CATEGORIES_MASS_MAILING';
-import MESSAGE_HISTORY from './panels/MESSAGE_HISTORY';
+import DOWNLOAD_CSV from './panels/DOWNLOAD_CSV';
+
+import MESSAGE_HISTORY from './panels/mailing/MESSAGE_HISTORY';
+import INDIVIDUAL_MAILING from './panels/mailing/INDIVIDUAL_MAILING';
+import MAILING_USERS from './panels/mailing/MAILING_USERS';
+import MASS_MAILING from './panels/mailing/MASS_MAILING';
+import MASS_MAILING_USERS from './panels/mailing/MASS_MAILING_USERS';
+import SET_CATEGORIES_MASS_MAILING from './panels/mailing/SET_CATEGORIES_MASS_MAILING';
+import MAILING from './panels/mailing/MAILING';
+import EDIT_MAILING from './panels/mailing/EDIT_MAILING';
 
 import { redIcon, blueIcon, redBackground, blueBackground, statusSnackbar } from './panels/style';
 import FormLayout from '@vkontakte/vkui/dist/components/FormLayout/FormLayout';
@@ -59,10 +61,10 @@ import Icon28DoneOutline from '@vkontakte/icons/dist/28/done_outline';
 import Icon24Done from '@vkontakte/icons/dist/24/done';
 import Icon16Done from '@vkontakte/icons/dist/16/done';
 
-var origin = "https://thingworx.asuscomm.com:10888"
-var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
-// var main_url = "http://thingworx.asuscomm.com/"
-// var main_url = "http://localhost:8000/"
+const origin = "https://thingworx.asuscomm.com:10888"
+const main_url = "https://profkom-bot-bmstu.herokuapp.com/"
+// const main_url = "http://thingworx.asuscomm.com/"
+// const main_url = "http://localhost:8000/"
 
 const App = () => {
 	const [activePanel, setActivePanel] = useState('spinner');
@@ -125,10 +127,12 @@ const App = () => {
 	const [tooltips, setTooltips] = useState([]);
 	const [payouts_type, set_payouts_type] = useState("");
 	const [students_documents, set_students_documents] = useState([]);
+	const [tokens, setTokens] = useState([]);
 
 	const modals_const = [
 		'payout',
-		'сontributions'
+		'сontributions',
+		'add_registrationProforg'
 	]
 	const parseQueryString = (string) => {
 		return string.slice(1).split('&')
@@ -238,6 +242,7 @@ const App = () => {
 		})
 			.then(response => response.json())
 			.then((data) => {
+				// console.log(data)
 				setCategories(data)
 			},
 				(error) => {
@@ -443,7 +448,6 @@ const App = () => {
 
 	function add_payout() {
 		var url = main_url + "profkom_bot/add_payout/";
-		
 		fetch(url, {
 			method: 'POST',
 			body: JSON.stringify({
@@ -452,6 +456,7 @@ const App = () => {
 				payouts_type: modalData.payouts_type,
 				status: modalData.status,
 				error: modalData.error,
+				category: modalData.category,
 			}),
 			headers: {
 				'Origin': origin
@@ -621,8 +626,61 @@ const App = () => {
 		}
 	}
 
-	const [help_temp, set_help_temp] = useState(0);
+	function check_add_registrationProforg_radio_buttons() {
+		var arr = document.getElementsByName('radio_registrationProforg');
+		var status_id = -1;
+		for (var i = 0; i < arr.length; i++) {
+			if (arr[i].checked) {
+				status_id = i;
+			}
+		}
+		add_registrationProforg(status_id + 1)
+	}
 
+	function add_registrationProforg(proforg_level) {
+		var url = main_url + "profkom_bot/add_registrationProforg/";
+		console.log(document.getElementById('datetime_registrationProforg').value)
+		fetch(url, {
+			method: 'POST',
+			body: JSON.stringify({
+				querys: window.location.search,
+				proforg_level: proforg_level,
+				date_delete: document.getElementById('datetime_registrationProforg').value
+			}),
+			headers: {
+				'Origin': origin
+			}
+		})
+			.then(function(response) {
+				if (!response.ok) {
+					statusSnackbar(response.code, setSnackbar);
+					console.error('add_registrationProforg:', response)
+					throw Error(response.statusText);
+				}
+				return response.json();				
+			})
+			.then((data) => {
+				// console.log(data);
+				data.proforg_level = proforg_level;
+				var temp = JSON.parse(JSON.stringify(tokens));
+				temp.push(data);
+				setTokens(temp);
+				goBack();
+			},
+				(error) => {
+					statusSnackbar(0, setSnackbar)
+					console.error('add_registrationProforg:', error)
+				})
+	}
+
+	const [help_temp, set_help_temp] = useState(0);
+	function getDateAdd_registrationProforg(){
+		var now = new Date();
+		now.setDate(now.getDate()+1);
+		now.setHours(now.getHours()+3);
+		return now.toISOString().slice(0,16);
+	}
+	
 	const modals = (
 		<ModalRoot
 			activeModal={modal}
@@ -635,7 +693,7 @@ const App = () => {
 					//   right={IS_PLATFORM_IOS && <PanelHeaderButton onClick={this.modalBack}><Icon24Dismiss /></PanelHeaderButton>}
 					>Заявление</ModalPageHeader>}
 			>
-				<Group>
+				{/* <Group>
 					<Cell size="l"
 						onClick={() =>{
 							setLogin(modalData.students_login);
@@ -655,7 +713,7 @@ const App = () => {
 								</div>
 							</HorizontalScroll>
 						}>{modalData.students_name}</Cell>
-				</Group>
+				</Group> */}
 				<Group>
 					{/* {!modalData.new && <Cell>
 						<InfoRow header="Дата">
@@ -683,6 +741,28 @@ const App = () => {
 									value={payouts_type.payout_type}
 									id={payouts_type.payout_type}
 								>{payouts_type.payout_type}</option>
+							))}
+						</Select>
+						<Select
+							top="Причина"
+							placeholder="Выберите причину"
+							defaultValue={modalData.category}
+							onChange={(e) => {
+								const { value } = e.currentTarget;
+								modalData.category = value;
+								set_help_temp(help_temp + 1);
+							}}
+							status={(modalData.category !== undefined && modalData.category !== "") ? 'valid' : 'error'}
+							bottom={(modalData.category !== undefined && modalData.category !== "") ?
+								'' : 'Выберите причину'}
+							required
+						>
+							{categories.map((category, i) => (
+								<option
+									key={category}
+									value={category}
+									id={category}
+								>{category}</option>
 							))}
 						</Select>
 						<FormLayoutGroup top="Статус">
@@ -803,6 +883,67 @@ const App = () => {
 					</FormLayout>
 				</Group>
 			</ModalPage>
+			<ModalPage
+				id={'add_registrationProforg'}
+				header={
+					<ModalPageHeader
+					//   left={IS_PLATFORM_ANDROID && <PanelHeaderButton onClick={this.modalBack}><Icon24Cancel /></PanelHeaderButton>}
+					//   right={IS_PLATFORM_IOS && <PanelHeaderButton onClick={this.modalBack}><Icon24Dismiss /></PanelHeaderButton>}
+					>Приглашение</ModalPageHeader>}
+			>
+				<FormLayout>
+					<FormLayoutGroup top="Роль">
+						<Radio
+							name="radio_registrationProforg" value={1}
+							id="radio_1"
+							defaultChecked={true}
+						>Профорг</Radio>
+						<Radio
+							name="radio_registrationProforg" value={2}
+							id="radio_2"
+						>Дежурный</Radio>
+						<Radio
+							name="radio_registrationProforg" value={3}
+							id="radio_3"
+						>Председатель</Radio>
+					</FormLayoutGroup>
+					<FormLayoutGroup top="Окончание действия приглашения">
+						<div						
+							style={{
+								marginRight: 40,
+								marginLeft: 12,
+							}}
+						>
+							<input
+								style={{
+									fontSize: "16px",
+									display: "block",
+									position: "relative",
+									alignItems: "center",
+									left: "0",
+									top: "0",
+									width: "100%",
+									height: "100%",
+									borderRadius: "10px",
+									padding: "12px",
+									border: "1px solid var(--field_border)",
+									background: "var(--field_background)",
+									color: "var(--text_primary)",
+								}}
+								id="datetime_registrationProforg"
+								type="datetime-local"
+								required
+								defaultValue={getDateAdd_registrationProforg()}
+								onChange={(e) => {
+									const { value } = e.currentTarget;
+									console.log(value);
+								}}
+							/>
+						</div>
+					</FormLayoutGroup>
+					<Button size="xl" onClick={check_add_registrationProforg_radio_buttons}>Создать</Button>
+				</FormLayout>
+			</ModalPage>
 		</ModalRoot>
 	);
 
@@ -849,6 +990,7 @@ const App = () => {
 					searchPayouts={searchPayouts} setSearchPayouts={setSearchPayouts}
 					tooltips={tooltips} proforg={proforg}
 					usersInfo={usersInfo}
+					main_url={main_url} origin={origin}
 				/>
 				<Settings id='Settings' go={go} goBack={goBack}
 					setPopout={setPopout} setModal={setModal}
@@ -883,6 +1025,18 @@ const App = () => {
 					tabsState={tabsState} setTabsState={setTabsState}
 					setStudents={setStudents}
 					proforg_mailing={proforg_mailing} set_proforg_mailing={set_proforg_mailing}
+					main_url={main_url} origin={origin}
+				/>
+				<DOWNLOAD_CSV id='DOWNLOAD_CSV' go={go} goBack={goBack}
+					snackbar={snackbar} setPopout={setPopout} setSnackbar={setSnackbar}
+					searchValue={searchValue} setSearchValue={setSearchValue}
+					payments_edu={payments_edu} setPayments_edu={setPayments_edu}
+					group={group} setGroup={setGroup}
+					queryParams={queryParams}
+					payouts_types={payouts_types}
+					payouts_type={payouts_type} set_payouts_type={set_payouts_type}
+					main_url={main_url} origin={origin}
+					categories={categories} queryParams={queryParams}
 				/>
 				<INDIVIDUAL_MAILING id='INDIVIDUAL_MAILING' go={go} goBack={goBack}
 					setPopout={setPopout} setLogin={setLogin}
@@ -893,12 +1047,14 @@ const App = () => {
 					attachments={attachments} setAttachments={setAttachments}
 					Attachments={Attachments} setStudents={setStudents}
 					queryParams={queryParams}
+					main_url={main_url} origin={origin}
 				/>
 				<MAILING id='MAILING' go={go} setPopout={setPopout} goBack={goBack}
 					setModal={setModal} setLogin={setLogin}
 					students={students} setStudents={setStudents}
 					snackbar={snackbar} setSnackbar={setSnackbar}
 					setModalData={setModalData}
+					main_url={main_url} origin={origin}
 				/>
 				<MASS_MAILING_USERS id='MASS_MAILING_USERS' go={go} setPopout={setPopout} goBack={goBack}
 					setModal={setModal} setLogin={setLogin}
@@ -908,6 +1064,7 @@ const App = () => {
 					mailingCategories={mailingCategories} payments_edu={payments_edu}
 					group={group} countAttachments={countAttachments}
 					payouts_type={payouts_type} attachments={attachments}
+					main_url={main_url} origin={origin}
 				/>
 				<MESSAGE_HISTORY id='MESSAGE_HISTORY' go={go} setPopout={setPopout} goBack={goBack}
 					setModal={setModal} setLogin={setLogin}
@@ -915,12 +1072,14 @@ const App = () => {
 					setMessageValue={setMessageValue}
 					setCountAttachments={setCountAttachments}
 					setAttachments={setAttachments}
+					main_url={main_url} origin={origin}
 				/>
 				<MAILING_USERS id='MAILING_USERS' go={go} goBack={goBack}
 					setLogin={setLogin}
 					students={students} setStudents={setStudents}
 					snackbar={snackbar} setSnackbar={setSnackbar}
 					setModalData={setModalData} list_of_users={list_of_users}
+					main_url={main_url} origin={origin}
 				/>
 				<EDIT_MAILING id='EDIT_MAILING' go={go} goBack={goBack}
 					snackbar={snackbar} setPopout={setPopout} setSnackbar={setSnackbar}
@@ -930,6 +1089,7 @@ const App = () => {
 					attachments={attachments} setAttachments={setAttachments}
 					Attachments={Attachments} queryParams={queryParams}
 					modalData={modalData} setStudents={setStudents}
+					main_url={main_url} origin={origin}
 				/>
 				<SET_CATEGORIES_MASS_MAILING id='SET_CATEGORIES_MASS_MAILING'
 					go={go} goBack={goBack}
@@ -944,6 +1104,7 @@ const App = () => {
 					student={student} setStudent={setStudent}
 					queryParams={queryParams}
 					tooltips={tooltips} proforg={proforg}
+					main_url={main_url} origin={origin}
 				/>
 				<Home id='Home' go={go} goBack={goBack}
 					setPopout={setPopout} login={login}
@@ -951,6 +1112,7 @@ const App = () => {
 					student={student} categories={categories}
 					proforg={proforg} usersInfo={usersInfo}
 					students_documents={students_documents} set_students_documents={set_students_documents}
+					main_url={main_url} origin={origin}
 				/>
 				<ATTACH_DOCUMENTS id='ATTACH_DOCUMENTS' go={go} goBack={goBack}
 					setPopout={setPopout} login={login}
@@ -958,12 +1120,15 @@ const App = () => {
 					student={student} usersInfo={usersInfo}
 					students_documents={students_documents} set_students_documents={set_students_documents}
 					queryParams={queryParams}
+					main_url={main_url} origin={origin}
 				/>
 				<REGISTRATRION_PROFORG id='REGISTRATRION_PROFORG' go={go} goBack={goBack}
 					setPopout={setPopout} login={login}
 					snackbar={snackbar} setSnackbar={setSnackbar}
 					student={student} usersInfo={usersInfo}
 					queryParams={queryParams}
+					main_url={main_url} origin={origin}
+					tokens={tokens} setTokens={setTokens}
 				/>
 				<POLICY id='POLICY' go={go} goBack={goBack}
 					setPopout={setPopout}

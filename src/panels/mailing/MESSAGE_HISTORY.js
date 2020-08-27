@@ -10,14 +10,10 @@ import Group from '@vkontakte/vkui/dist/components/Group/Group';
 import HorizontalScroll from '@vkontakte/vkui/dist/components/HorizontalScroll/HorizontalScroll';
 import Button from '@vkontakte/vkui/dist/components/Button/Button';
 
-import { redIcon, blueIcon, blueBackground, redBackground, statusSnackbar } from './style';
-
-var origin = "https://thingworx.asuscomm.com:10888"
-var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
-// var main_url = "http://thingworx.asuscomm.com/"
-// var main_url = "http://localhost:8000/"
+import { redIcon, blueIcon, blueBackground, redBackground, statusSnackbar } from '../style';
 
 const App = ({ id, go, setPopout, goBack,
+	main_url, origin,
 	setModal, setLogin,
 	snackbar, setSnackbar,
 	setMessageValue,

@@ -16,15 +16,11 @@ import Separator from '@vkontakte/vkui/dist/components/Separator/Separator';
 import Icon24BrowserBack from '@vkontakte/icons/dist/24/browser_back';
 import Icon24BrowserForward from '@vkontakte/icons/dist/24/browser_forward';
 
-import { redIcon, blueIcon, blueBackground, redBackground, statusSnackbar } from './style';
+import { redIcon, blueIcon, blueBackground, redBackground, statusSnackbar } from '../style';
 import Footer from '@vkontakte/vkui/dist/components/Footer/Footer';
 
-var origin = "https://thingworx.asuscomm.com:10888"
-var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
-// var main_url = "http://thingworx.asuscomm.com/"
-// var main_url = "http://localhost:8000/"
-
 const App = ({ id, go, setPopout, goBack,
+	main_url, origin,
 	setModal, setLogin,
 	students, setStudents,
 	snackbar, setSnackbar,

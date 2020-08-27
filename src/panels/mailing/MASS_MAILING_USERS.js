@@ -32,15 +32,11 @@ import Tabs from '@vkontakte/vkui/dist/components/Tabs/Tabs';
 import TabsItem from '@vkontakte/vkui/dist/components/TabsItem/TabsItem';
 import Tooltip from '@vkontakte/vkui/dist/components/Tooltip/Tooltip';
 
-import { redIcon, blueIcon, blueBackground, redBackground, statusSnackbar } from './style';
+import { redIcon, blueIcon, blueBackground, redBackground, statusSnackbar } from '../style';
 import Footer from '@vkontakte/vkui/dist/components/Footer/Footer';
 
-var origin = "https://thingworx.asuscomm.com:10888"
-var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
-// var main_url = "http://thingworx.asuscomm.com/"
-// var main_url = "http://localhost:8000/"
-
 const App = ({ id, go, setPopout, goBack,
+	main_url, origin,
 	setModal, setLogin,
 	students, setStudents,
 	snackbar, setSnackbar,

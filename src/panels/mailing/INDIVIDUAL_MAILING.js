@@ -24,16 +24,12 @@ import Icon28ClearDataOutline from '@vkontakte/icons/dist/28/clear_data_outline'
 import Icon28MessagesOutline from '@vkontakte/icons/dist/28/messages_outline';
 import Icon28Users3Outline from '@vkontakte/icons/dist/28/users_3_outline';
 
-import { statusSnackbar, redIcon } from './style';
+import { statusSnackbar, redIcon } from '../style';
 import Div from '@vkontakte/vkui/dist/components/Div/Div';
 import Footer from '@vkontakte/vkui/dist/components/Footer/Footer';
 
-var origin = "https://thingworx.asuscomm.com:10888"
-var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
-// var main_url = "http://thingworx.asuscomm.com/"
-// var main_url = "http://localhost:8000/"
-
 const App = ({ id, go, goBack,
+	main_url, origin,
 	setPopout, setLogin,
 	snackbar, setSnackbar,
 	list_of_users, set_list_of_users,

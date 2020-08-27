@@ -16,7 +16,7 @@ import Select from '@vkontakte/vkui/dist/components/Select/Select';
 import Textarea from '@vkontakte/vkui/dist/components/Textarea/Textarea';
 import Alert from '@vkontakte/vkui/dist/components/Alert/Alert';
 
-import { statusSnackbar, blueIcon } from './style';
+import { statusSnackbar, blueIcon } from '../style';
 import Div from '@vkontakte/vkui/dist/components/Div/Div';
 import Checkbox from '@vkontakte/vkui/dist/components/Checkbox/Checkbox';
 import Tabs from '@vkontakte/vkui/dist/components/Tabs/Tabs';
@@ -31,12 +31,9 @@ import Icon28TagOutline from '@vkontakte/icons/dist/28/tag_outline';
 import Icon28EmployeeOutline from '@vkontakte/icons/dist/28/employee_outline';
 import Header from '@vkontakte/vkui/dist/components/Header/Header';
 
-var origin = "https://thingworx.asuscomm.com:10888"
-var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
-// var main_url = "http://thingworx.asuscomm.com/"
-// var main_url = "http://localhost:8000/"
 
 const App = ({ id, go, goBack,
+	main_url, origin,
 	snackbar, setSnackbar, setPopout,
 	mailingCategories, setMailingCategories,
 	messageValue, setMessageValue,
@@ -217,7 +214,8 @@ const App = ({ id, go, goBack,
 
 	function Draw_div(node, icon = undefined, top = undefined, bottom = undefined) {
 		return (<Div
-			style={{ display: "flex", alignItems: "center", padding: 0, paddingLeft: 12, paddingTop: 8, paddingBottom: 8 }}
+			style={{ display: "flex", alignItems: "center",  
+			paddingLeft: 12, paddingTop: 8, paddingBottom: 8, paddingRight: 12 }}
 		>
 			<Div style={{ display: "block", flexShrink: 0, paddingRight: 12, paddingLeft: 4 }}>
 				{icon}
@@ -225,7 +223,7 @@ const App = ({ id, go, goBack,
 			<Div style={{ display: "block", flexGrow: 1, flexShrink: 1, padding: 0 }}>
 				<Header mode="secondary" >{top}</Header>
 				{node}
-				<div class="SimpleCell__description" style={{ marginLeft: 12, marginRight: 12 }} >
+				<div className="SimpleCell__description" style={{ marginLeft: 12, marginRight: 12 }} >
 					{bottom}
 				</div>
 			</Div>

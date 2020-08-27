@@ -20,14 +20,10 @@ import Icon24Error from '@vkontakte/icons/dist/24/error';
 import Icon24BrowserBack from '@vkontakte/icons/dist/24/browser_back';
 import Icon24BrowserForward from '@vkontakte/icons/dist/24/browser_forward';
 
-import { redBackground } from './style';
-
-var origin = "https://thingworx.asuscomm.com:10888"
-var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
-// var main_url = "http://thingworx.asuscomm.com/"
-// var main_url = "http://localhost:8000/"
+import { redBackground } from '../style';
 
 const App = ({ id, 	go, goBack, 
+	main_url, origin,
 	setLogin,
 	students, setStudents,
 	snackbar, setSnackbar,

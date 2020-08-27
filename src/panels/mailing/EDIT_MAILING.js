@@ -19,15 +19,11 @@ import Alert from '@vkontakte/vkui/dist/components/Alert/Alert';
 import Icon28EditOutline from '@vkontakte/icons/dist/28/edit_outline';
 import Icon28DeleteOutline from '@vkontakte/icons/dist/28/delete_outline';
 
-import { statusSnackbar } from './style';
+import { statusSnackbar } from '../style';
 import CellButton from '@vkontakte/vkui/dist/components/CellButton/CellButton';
 
-var origin = "https://thingworx.asuscomm.com:10888"
-var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
-// var main_url = "http://thingworx.asuscomm.com/"
-// var main_url = "http://localhost:8000/"
-
 const App = ({ id, go, goBack,
+	main_url, origin,
 	snackbar, setSnackbar, setPopout,
 	messageValue, setMessageValue,
 	countAttachments, setCountAttachments,
