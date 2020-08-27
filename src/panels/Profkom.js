@@ -40,6 +40,7 @@ import Footer from '@vkontakte/vkui/dist/components/Footer/Footer';
 import circle from "../img/circle_outline_28.svg"
 import education_circle from "../img/education_circle_outline_28.svg"
 
+
 const App = ({ id, go, setPopout,
 	main_url, origin,
 	setModal, setLogin,
@@ -52,7 +53,6 @@ const App = ({ id, go, setPopout,
 	tooltips, proforg,
 	usersInfo,
 }) => {
-
 	var count_on_page = 6;
 	var paddingTop = 80;
 	const infinite_scroll = true
@@ -62,6 +62,7 @@ const App = ({ id, go, setPopout,
 	const [set_accepted_temp, set_set_accepted_temp] = useState(0);
 	const [list_left_end, set_list_left_end] = useState(0);
 	const [tooltip_payouts_tips, set_tooltip_payouts_tips] = useState(false);
+	const [tooltip_contributions, set_tooltip_contributions] = useState(false);
 	const [download, set_downaload] = useState(false);
 	const [end_of_search_list, set_end_of_search_list] = useState(false);
 
@@ -69,9 +70,11 @@ const App = ({ id, go, setPopout,
 		if (tabsState !== "students" && tabsState !== "payouts") {
 			setTabsState("students")
 			search_users('', 0);
+			bridge.send("VKWebAppStorageGet", { "keys": ["tooltip_contributions"] });
 		}
 
 		if (tabsState === "students" && students.length === 0 && searchValue.length === 0) {
+			bridge.send("VKWebAppStorageGet", { "keys": ["tooltip_contributions"] });
 			if (usersInfo.payments_edu !== "") {
 				search_users('', 0);
 			}
@@ -105,11 +108,19 @@ const App = ({ id, go, setPopout,
 			// }
 
 			if (type === 'VKWebAppStorageGetResult') {
-				if (data.keys[0].key === "tooltip_payouts_tips" &&
-					(data.keys[0].value === false || data.keys[0].value === "false")) {
+				console.log(data)
+				for (var i in data.keys){
+				if (data.keys[i].key === "tooltip_payouts_tips" &&
+					(data.keys[i].value === false || data.keys[i].value === "false" || data.keys[i].value === "")) {
 					bridge.send("VKWebAppStorageSet", { "key": "tooltip_payouts_tips", "value": "true" });
 					set_tooltip_payouts_tips(true);
 				}
+				else if (data.keys[i].key === "tooltip_contributions" &&
+					(data.keys[i].value === false || data.keys[i].value === "false" || data.keys[i].value === "")) {
+					bridge.send("VKWebAppStorageSet", { "key": "tooltip_contributions", "value": "true" });
+					set_tooltip_contributions(true);
+				}
+			}
 			}
 			// if (type === 'VKWebAppStorageGetFailed') {
 			// 	console.error(data)
@@ -460,7 +471,7 @@ const App = ({ id, go, setPopout,
 				style={{
 					paddingTop: paddingTop,
 					// paddingBottom: 60,
-					height: "630px", overflow: "auto",
+					height: "670px", overflow: "auto",
 				}}
 				onScroll={(e) => {
 					var element = e.currentTarget
@@ -474,10 +485,20 @@ const App = ({ id, go, setPopout,
 						<Cell size="l" onClick={(e) => {
 							on_students_click(e, post);
 						}}
-							asideContent={proforg > 1 &&
+							asideContent={
 								<div style={{ display: 'flex' }}>
+									<Tooltip
+											// mode="light"
+											text="Статус профвзноса"
+											isShown={tooltip_contributions && i === 0}
+											onClose={() => set_tooltip_contributions(false)}
+											offsetX={-115}
+											offsetY={10}
+											cornerOffset={100}
+										>
 									{сontributions_icon[post.сontributions]}
-									<Icon28AddOutline name="add" style={{ color: 'var(--accent)', marginLeft: 8 }} />
+									</Tooltip>
+									{proforg > 1 && <Icon28AddOutline name="add" style={{ color: 'var(--accent)', marginLeft: 8 }} />}
 								</div>
 							}
 							bottomContent={

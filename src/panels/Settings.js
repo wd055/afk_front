@@ -129,6 +129,7 @@ const App = ({ id, go, goBack,
 			"tooltip_payouts_tips",
 			"tooltip_users_contact",
 			"tooltip_users_payout",
+			"tooltip_contributions",
 		]
 		for (var i in tooltips_names) {
 			bridge.send("VKWebAppStorageSet", { "key": tooltips_names[i], "value": "false" });
@@ -179,6 +180,7 @@ const App = ({ id, go, goBack,
 					>Открыть на телефоне</SimpleCell>}		
 				<SimpleCell
 					expandable
+					onClick={() => {go("DOWNLOAD_DOCS")}}
 					before={<Icon28ArticleOutline />}
 				>Бланки и формы</SimpleCell>				
 			</Group>
