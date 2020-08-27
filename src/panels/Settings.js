@@ -18,6 +18,8 @@ import Icon28HistoryBackwardOutline from '@vkontakte/icons/dist/28/history_backw
 import Icon28SmartphoneOutline from '@vkontakte/icons/dist/28/smartphone_outline';
 import Icon24Copy from '@vkontakte/icons/dist/24/copy';
 import Icon28EmployeeOutline from '@vkontakte/icons/dist/28/employee_outline';
+import Icon28GraphOutline from '@vkontakte/icons/dist/28/graph_outline';
+import Icon28ArticleOutline from '@vkontakte/icons/dist/28/article_outline';
 
 import { statusSnackbar, responseEdit, blueBackground } from './style';
 import Snackbar from '@vkontakte/vkui/dist/components/Snackbar/Snackbar';
@@ -47,15 +49,14 @@ const App = ({ id, go, goBack,
 	set_proforg_mailing,
 }) => {
 
-	const [favorites, setFavorites] = useState(false);
 	const [platform, setPlatform] = useState("");
 	const [showAddToHomeScreen, setShowAddToHomeScreen] = useState(false);
 
 	useEffect(() => {
-		setFavorites(queryParams.vk_is_favorite === 1);
 		setPlatform(queryParams.vk_platform);
 		bridge.send("VKWebAppAddToHomeScreenInfo");
-
+		// bridge.send("VKWebAppDownloadFile", {"url": "https://sun9-28.userapi.com/c846420/v846420985/1526c3/ISX7VF8NjZk.jpg", "filename": "test.jpg"});
+		
 		bridge.subscribe(({ detail: { type, data } }) => {
 			if (type === 'VKWebAppCopyTextResult') {
 				console.log("QWE")
@@ -68,7 +69,6 @@ const App = ({ id, go, goBack,
 				  </Snackbar>);
 			}
 			if (type === 'VKWebAppAddToFavoritesResult') {
-				setFavorites(true);
 				queryParams.vk_is_favorite = 1;
 			}
 
@@ -79,6 +79,15 @@ const App = ({ id, go, goBack,
 			if (type === 'VKWebAppOpenPayFormFailed') {
 				console.error(data)
 			}
+
+			if (type === 'VKWebAppDownloadFileResult') {
+				console.log(data)
+			}
+
+			if (type === 'VKWebAppDownloadFileFailed') {
+				console.error(data)
+			}
+
 			if (type === 'VKWebAppAddToHomeScreenInfoResult') {
 				console.log(data)
 				if (data.is_feature_supported === true
@@ -134,30 +143,44 @@ const App = ({ id, go, goBack,
 				left={<PanelHeaderBack onClick={goBack} />}
 			>Настройки</PanelHeader>
 			<Group>
-				{!favorites &&
+				{queryParams.vk_is_favorite === 0 &&
 					<SimpleCell
 						onClick={() => { bridge.send("VKWebAppAddToFavorites", {}) }}
 						before={<Icon28FavoriteOutline />}
 					>Добавить в избранное</SimpleCell>}
+
 				{showAddToHomeScreen === true &&
 					<SimpleCell
 						onClick={() => { bridge.send("VKWebAppAddToHomeScreen") }}
 						before={<Icon28AddCircleOutline />}
 					>Добавить ярлык на рабочий стол</SimpleCell>}
+
+				{platform.indexOf("web") > -1 &&
+					<SimpleCell
+						onClick={() => { bridge.send("VKWebAppAddToMenu") }}
+						before={<Icon28AddCircleOutline />}
+					>Добавить в левое меню</SimpleCell>}
+
 				<SimpleCell
 					onClick={() => { bridge.send("VKWebAppShare") }}
 					before={<Icon28ShareOutline />}
 				>Поделиться приложением</SimpleCell>
+
 				<SimpleCell
 					onClick={repeat_learning}
 					before={<Icon28BrainOutline />}
 					description="Сброс информационных плашек"
 				>Повторное обучение</SimpleCell>
+				
 				{platform.indexOf("web") > -1 &&
 					<SimpleCell
 						onClick={() => bridge.send("VKWebAppSendToClient")}
 						before={<Icon28SmartphoneOutline />}
-					>Открыть на телефоне</SimpleCell>}
+					>Открыть на телефоне</SimpleCell>}		
+				<SimpleCell
+					expandable
+					before={<Icon28ArticleOutline />}
+				>Бланки и формы</SimpleCell>				
 			</Group>
 			{proforg >= 3 && <Group>
 				<SimpleCell
@@ -180,6 +203,11 @@ const App = ({ id, go, goBack,
 					onClick={() => go('REGISTRATRION_PROFORG')}
 					before={<Icon28EmployeeOutline />}
 				>Приглашения по ссылке</SimpleCell>
+				<SimpleCell
+					expandable
+					onClick={() => {go("DOWNLOAD_CSV")}}
+					before={<Icon28GraphOutline />}
+				>Отчеты</SimpleCell>
 			</Group>}
 			{/* <Div>
 				<form method="POST" action="https://money.yandex.ru/quickpay/confirm.xml" target="_blank">
