@@ -21,20 +21,15 @@ import Icon28QrCodeOutline from '@vkontakte/icons/dist/28/qr_code_outline';
 import Icon28ShareOutline from '@vkontakte/icons/dist/28/share_outline';
 import Button from '@vkontakte/vkui/dist/components/Button/Button';
 
-var origin = "https://thingworx.asuscomm.com:10888"
-var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
-
-// var main_url = "http://thingworx.asuscomm.com/"
-// var main_url = "http://localhost:8000/"
-
 const App = ({ id, go, goBack,
+	main_url, origin,
 	setPopout, login, 
 	snackbar, setSnackbar,
 	student, usersInfo,
 	queryParams,
+	tokens, setTokens,
 }) => {
 
-	const [tokens, setTokens] = useState([]);
 	const [platform, setPlatform] = useState("");
 
 	useEffect(() => {
@@ -175,6 +170,11 @@ const App = ({ id, go, goBack,
 								selected={true}
 								text="Председатель"
 							><Icon28AddOutline /></TabbarItem>
+							<TabbarItem
+								style={{ paddingRight: 8 }}
+								onClick={() => go('add_registrationProforg', true)}
+								selected={true}
+							><Icon28AddOutline /></TabbarItem>
 						</div>}
 					>Приглашения</Header>
 					{tokens.map((post, i) =>
@@ -215,10 +215,13 @@ const App = ({ id, go, goBack,
 								}
 								bottomContent={
 									<HorizontalScroll>
-										<div style={{ display: 'flex' }}>
+										<div style={{ display: 'flex', marginBottom: 8 }}>
 											<Button size="m" mode="outline" >{proforg_levels[post.proforg_level]}</Button>
 											<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{post.surname_and_initials}</Button>
-											<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{new Date(post.date_create).toLocaleString()}</Button>
+										</div>
+										<div style={{ display: 'flex' }}>
+											<Button size="m" mode="outline">{new Date(post.date_create).toLocaleString().slice(0,17)}</Button>
+											<Button size="m" mode="outline" style={{ marginLeft: 8, color:'red' }}>{new Date(post.date_delete).toLocaleString().slice(0,17)}</Button>
 										</div>
 									</HorizontalScroll>}
 							/>
