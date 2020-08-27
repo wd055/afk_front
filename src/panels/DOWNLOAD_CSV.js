@@ -77,6 +77,11 @@ const App = ({ id, go, goBack,
 					'Origin': origin
 				}
 			});
+			if(!response.ok){
+				statusSnackbar(response.status, setSnackbar);
+				setPopout(null);
+				return;
+			}
 			const reader = response.body.getReader();
 			const contentLength = +response.headers.get('Content-Length');
 			let receivedLength = 0;
@@ -91,6 +96,7 @@ const App = ({ id, go, goBack,
 				receivedLength += value.length;
 
 			}
+			setPopout(null);
 			let chunksAll = new Uint8Array(receivedLength);
 			let position = 0;
 			for (let chunk of chunks) {
@@ -98,13 +104,13 @@ const App = ({ id, go, goBack,
 				position += chunk.length;
 			}
 			let result = new TextDecoder("utf-8").decode(chunksAll);
+			if (result === "Success") return;
 			result = "\ufeff" + result
 			let blob = new Blob([result], { encoding: "UTF-8", type: "text/csv;charset=UTF-8" });
 			var link = document.createElement('a');
 			link.href = window.URL.createObjectURL(blob);
 			link.download = 'Отчет.csv';
 			link.click();
-			setPopout(null);
 		} catch (error) {
 			setPopout(null);
 			statusSnackbar(0, setSnackbar);
@@ -137,16 +143,6 @@ const App = ({ id, go, goBack,
 			<PanelHeader
 				left={<PanelHeaderBack onClick={goBack} />}
 			>Отчеты</PanelHeader>
-			{/* <SimpleCell
-					onClick={() => {
-						window.open('https://vk.com/doc159317010_565524800?hash=3b4f2cb0344002ed4d&dl=FUYTSNJYHA4DINBY:1598412251:975180126586b2e39d&api=1&no_preview=1');
-					}}
-				>Скачать!</SimpleCell>
-				<SimpleCell
-					onClick={() => {
-						window.open('https://profkom-bot-bmstu.herokuapp.com/profkom_bot/download_csv');
-					}}
-				>Скачать!</SimpleCell> */}
 			<FormLayout>
 				<Select
 					top="Тип заявление"

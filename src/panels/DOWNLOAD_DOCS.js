@@ -34,6 +34,7 @@ import Header from '@vkontakte/vkui/dist/components/Header/Header';
 import Icon24Download from '@vkontakte/icons/dist/24/download';
 import Icon24Send from '@vkontakte/icons/dist/24/send';
 import Group from '@vkontakte/vkui/dist/components/Group/Group';
+import FormStatus from '@vkontakte/vkui/dist/components/FormStatus/FormStatus';
 
 const App = ({ id, go, goBack,
 	main_url, origin,
@@ -59,14 +60,19 @@ const App = ({ id, go, goBack,
 	async function download_contributions(method) {
 		setPopout(<ScreenSpinner />)
 		var url = main_url + "profkom_bot/download_contributions";
-
 		var data = {
 			querys: window.location.search,
 			method: method,
 			group: document.getElementById("download_contributions_input").value,
 		}
+		var group = document.getElementById("download_contributions_input").value
+		if (group.length > 0){
+			data.group = group;
+		}else{
+			group = proforgsInfo.group
+		}
 
-		// console.log(data)
+		console.log(data)
 		try {
 			const response = await fetch(url, {
 				method: 'POST',
@@ -107,7 +113,7 @@ const App = ({ id, go, goBack,
 			// let blob = new Blob([result], { type: "application/vnd.ms-excel" });
 			var link = document.createElement('a');
 			link.href = window.URL.createObjectURL(blob);
-			link.download = `Профвзнос ${document.getElementById("download_contributions_input").value}.xlsx`;
+			link.download = `Профвзнос ${group}.xlsx`;
 			link.click();
 		} catch (error) {
 			setPopout(null);
@@ -115,6 +121,7 @@ const App = ({ id, go, goBack,
 			console.error('download_csv:', error);
 		}
 	}
+
 
 	const Home =
 		<Panel id={id} style={{ 'maxWidth': 630, margin: 'auto' }}>
@@ -160,6 +167,7 @@ const App = ({ id, go, goBack,
 
 					<Input
 						id="download_contributions_input"
+						top="Введите название группы"
 						placeholder="Введите название группы"
 						defaultValue={proforg === 1 ? proforgsInfo.group : ""}
 						readOnly={proforg === 1}
@@ -188,6 +196,53 @@ const App = ({ id, go, goBack,
 							after={< Icon24Download />}
 						>Скачать</Button>
 					</Div>}
+			</Group>
+			<Group header={<Header mode="secondary">Бланк на все виды выплат</Header>}>
+			<FormLayout>
+				<FormStatus header="Скоро">
+				В ближайшей перспективе
+				</FormStatus>
+			</FormLayout>
+			{/* {queryParams.vk_platform.indexOf("mobile") > -1 ?
+					<Div>
+						<Button
+							size="xl"
+							onClick={() => download_csv('send')}
+							after={< Icon24Send />}
+						>Отправить себе</Button>
+					</Div>
+					: <Div style={{ display: 'flex' }}>
+						<Button
+							size="l"
+							stretched style={{ marginRight: 8 }}
+							onClick={() => download_csv('send')}
+							after={< Icon24Send />}
+						>Отправить себе</Button>
+						<Button
+							size="l"
+							stretched
+							onClick={() => download_csv('download')}
+							after={< Icon24Download />}
+						>Скачать</Button>
+					</Div>} */}
+			</Group>
+			<Group header={<Header mode="secondary">Остальные заявления</Header>}>
+				<FormLayout>
+					<FormStatus header="Скоро">
+					В ближайшей перспективе
+					</FormStatus>
+				</FormLayout>
+			
+			{/* <SimpleCell
+					onClick={() => {
+						window.open('https://vk.com/doc159317010_565524800?hash=3b4f2cb0344002ed4d&dl=FUYTSNJYHA4DINBY:1598412251:975180126586b2e39d&api=1&no_preview=1');
+					}}
+				>Скачать!</SimpleCell>
+				<SimpleCell
+					onClick={() => {
+						window.open('https://profkom-bot-bmstu.herokuapp.com/profkom_bot/download_csv');
+					}}
+				>Скачать!</SimpleCell> */}
 			</Group>
 			{snackbar}
 		</Panel>
