@@ -40,12 +40,8 @@ import Footer from '@vkontakte/vkui/dist/components/Footer/Footer';
 import circle from "../img/circle_outline_28.svg"
 import education_circle from "../img/education_circle_outline_28.svg"
 
-var origin = "https://thingworx.asuscomm.com:10888"
-var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
-// var main_url = "http://thingworx.asuscomm.com/"
-// var main_url = "http://localhost:8000/"
-
 const App = ({ id, go, setPopout,
+	main_url, origin,
 	setModal, setLogin,
 	students, setStudents,
 	snackbar, setSnackbar,
@@ -75,11 +71,11 @@ const App = ({ id, go, setPopout,
 			search_users('', 0);
 		}
 
-		if (tabsState === "students" && students.length === 0 && searchValue.length === 0){
-			if (usersInfo.payments_edu !== ""){
+		if (tabsState === "students" && students.length === 0 && searchValue.length === 0) {
+			if (usersInfo.payments_edu !== "") {
 				search_users('', 0);
 			}
-			else{
+			else {
 				setSearchValue(usersInfo.name);
 				search_users(usersInfo.name, 0);
 				setSnackbar(<Snackbar
@@ -143,15 +139,15 @@ const App = ({ id, go, setPopout,
 						temp = searchPayouts.concat(data);
 
 					if (data.length < count_on_page)
-						set_end_of_search_list(true);						
+						set_end_of_search_list(true);
 					else set_end_of_search_list(false);
 
-					if (data.length === 0){
+					if (data.length === 0) {
 						set_list_left_end(Math.max(list_left_end - count_on_page, 0))
-					}else{
+					} else {
 						setSearchPayouts(temp);
 					}
-					
+
 					set_downaload(false);
 					return (data)
 				}
@@ -204,12 +200,12 @@ const App = ({ id, go, setPopout,
 						temp = students.concat(data);
 
 					if (data.length < count_on_page)
-						set_end_of_search_list(true);						
+						set_end_of_search_list(true);
 					else set_end_of_search_list(false);
 
-					if (data.length === 0){
+					if (data.length === 0) {
 						set_list_left_end(Math.max(list_left_end - count_on_page, 0))
-					}else{
+					} else {
 						setStudents(temp);
 					}
 
@@ -460,84 +456,85 @@ const App = ({ id, go, setPopout,
 					after={null}
 				/>
 			</FixedLayout>
-			<Tooltip
-				// mode="light"
-				text="У заявления можете нажать на Фио или Студ билет для открытия студента"
-				isShown={tooltip_payouts_tips}
-				onClose={() => set_tooltip_payouts_tips(false)}
-				offsetX={100}
-				offsetY={0}
-				cornerOffset={80}
-			>
-				<Div
-					style={{
-						paddingTop: paddingTop,
-						// paddingBottom: 60,
-						height: "630px", overflow: "auto",
-					}}
-					onScroll={(e) => {
-						var element = e.currentTarget
-						if (element.scrollTop + element.clientHeight >= element.scrollHeight &&
-							infinite_scroll && !end_of_search_list && !download) {
-							button_list_click(count_on_page);
-						}
-					}}>
-					{tabsState === "students" && students.map((post, i) =>
-						(<Group key={i}>
-							<Cell size="l" onClick={(e) => {
-								on_students_click(e, post);
-							}}
-								asideContent={proforg > 1 &&
+			<Div
+				style={{
+					paddingTop: paddingTop,
+					// paddingBottom: 60,
+					height: "630px", overflow: "auto",
+				}}
+				onScroll={(e) => {
+					var element = e.currentTarget
+					if (element.scrollTop + element.clientHeight >= element.scrollHeight &&
+						infinite_scroll && !end_of_search_list && !download) {
+						button_list_click(count_on_page);
+					}
+				}}>
+				{tabsState === "students" && students.map((post, i) =>
+					(<Group key={i}>
+						<Cell size="l" onClick={(e) => {
+							on_students_click(e, post);
+						}}
+							asideContent={proforg > 1 &&
+								<div style={{ display: 'flex' }}>
+									{сontributions_icon[post.сontributions]}
+									<Icon28AddOutline name="add" style={{ color: 'var(--accent)', marginLeft: 8 }} />
+								</div>
+							}
+							bottomContent={
+								<HorizontalScroll>
 									<div style={{ display: 'flex' }}>
-										{сontributions_icon[post.сontributions]}
-										<Icon28AddOutline name="add" style={{ color: 'var(--accent)', marginLeft: 8 }} />
+										<Button size="m" mode="outline">{post.group}</Button>
+										<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{post.login}</Button>
+										{post.proforg > 0 && <Button size="m" mode="outline" style={{ marginLeft: 8 }}>{proforg_levels[post.proforg]}</Button>}
 									</div>
-								}
-								bottomContent={
-									<HorizontalScroll>
-										<div style={{ display: 'flex' }}>
-											<Button size="m" mode="outline">{post.group}</Button>
-											<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{post.login}</Button>
-											{post.proforg > 0 && <Button size="m" mode="outline" style={{ marginLeft: 8 }}>{proforg_levels[post.proforg]}</Button>}
-										</div>
-									</HorizontalScroll>
-								}>{post.name}</Cell>
-						</Group>))}
-					{/* {tabsState === "payouts" && get_payouts().map((post) => */}
-					{tabsState === "payouts" && searchPayouts.map((post, i) =>
-						(<Group key={i}>
-							<Cell size="l" onClick={(e) => {
-								on_payouts_click(e, post);
-							}}
-								before={get_before_payouts(post.delete, post.status)}
-								asideContent={(post.status === "filed" && post.delete === false) &&
-									// <div style={{ display: 'flex' }}>
-									<Icon28DoneOutline style={blueIcon} />}
-								// <Icon28CancelCircleOutline style={{ marginLeft: 8, color: 'red' }} />
-								// </div>}
-								bottomContent={
-									<HorizontalScroll>
-										<div style={{ display: 'flex' }}>
-											<Button size="m" mode="outline">{post.id}</Button>
+								</HorizontalScroll>
+							}>{post.name}</Cell>
+					</Group>))}
+				{/* {tabsState === "payouts" && get_payouts().map((post) => */}
+				{tabsState === "payouts" && searchPayouts.map((post, i) =>
+					(<Group key={i}>
+						<Cell size="l" onClick={(e) => {
+							on_payouts_click(e, post);
+						}}
+							before={get_before_payouts(post.delete, post.status)}
+							asideContent={(post.status === "filed" && post.delete === false) &&
+								// <div style={{ display: 'flex' }}>
+								<Icon28DoneOutline style={blueIcon} />}
+							// <Icon28CancelCircleOutline style={{ marginLeft: 8, color: 'red' }} />
+							// </div>}
+							bottomContent={
+								<HorizontalScroll>
+									<div style={{ display: 'flex' }}>
+										<Button size="m" mode="outline">{post.id}</Button>
 
 
+										<Tooltip
+											// mode="light"
+											text="У заявления можете нажать на Фио или Студ билет для открытия студента"
+											isShown={tooltip_payouts_tips && i === 0}
+											onClose={() => set_tooltip_payouts_tips(false)}
+											offsetX={-25}
+											offsetY={10}
+											cornerOffset={80}
+										>
 											<Button size="m" mode="outline"
 												style={{ marginLeft: 8 }} id={post.students_login} name="login"
 											>{post.students_login}</Button>
-											<Button size="m" mode="outline"
-												style={{ marginLeft: 8 }} id={post.students_login} name="login"
-											>{post.surname_and_initials}</Button>
-										</div>
-									</HorizontalScroll>
-								}>{post.payouts_type}</Cell>
-						</Group>))}
-					
-					{((students.length === 0 && tabsState === "students") || (searchPayouts.length === 0 && tabsState === "payouts")) ?
-						<Footer>По вашему запросу ничего не найдено</Footer>
+										</Tooltip>
+										<Button size="m" mode="outline"
+											style={{ marginLeft: 8 }} id={post.students_login} name="login"
+										>{post.surname_and_initials}</Button>
+									</div>
+								</HorizontalScroll>
+							}>{post.payouts_type}</Cell>
+					</Group>))}
+
+				{((students.length === 0 && tabsState === "students") || (searchPayouts.length === 0 && tabsState === "payouts")) ?
+					<Footer>По вашему запросу ничего не найдено</Footer>
 					: end_of_search_list &&
-						<Footer>По вашему запросу больше ничего нет</Footer>}
-				</Div>
-			</Tooltip>
+					<Footer>По вашему запросу больше ничего нет</Footer>}
+			</Div>
+
 			<FixedLayout vertical="bottom" filled={!infinite_scroll} >
 				{(!infinite_scroll && !download) && <div> <Separator wide />
 					<Div style={{ display: 'flex' }}>

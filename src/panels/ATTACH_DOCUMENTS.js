@@ -26,13 +26,8 @@ import Footer from '@vkontakte/vkui/dist/components/Footer/Footer';
 import FormStatus from '@vkontakte/vkui/dist/components/FormStatus/FormStatus';
 import FormLayout from '@vkontakte/vkui/dist/components/FormLayout/FormLayout';
 
-var origin = "https://thingworx.asuscomm.com:10888"
-var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
-
-// var main_url = "http://thingworx.asuscomm.com/"
-// var main_url = "http://localhost:8000/"
-
 const App = ({ id, go, goBack,
+	main_url, origin,
 	setPopout, login,
 	snackbar, setSnackbar,
 	student, usersInfo,
@@ -281,7 +276,7 @@ const App = ({ id, go, goBack,
 				<Cell asideContent={<File
 					controlSize="l"
 					accept="image/*"
-					capture
+					// capture
 					onChange={(e) => {
 						sendFile(e);
 					}}

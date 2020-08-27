@@ -42,12 +42,8 @@ import { redIcon, blueIcon, blueBackground, redBackground } from './style';
 import Tooltip from '@vkontakte/vkui/dist/components/Tooltip/Tooltip';
 import Footer from '@vkontakte/vkui/dist/components/Footer/Footer';
 
-var origin = "https://thingworx.asuscomm.com:10888"
-var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
-// var main_url = "http://thingworx.asuscomm.com/"
-// var main_url = "http://localhost:8000/"
-
 const App = ({ id, go, goBack,
+	main_url, origin,
 	login, setPopout,
 	snackbar, setSnackbar,
 	setModalData,
