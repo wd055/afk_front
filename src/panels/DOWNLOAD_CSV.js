@@ -22,6 +22,7 @@ import Checkbox from '@vkontakte/vkui/dist/components/Checkbox/Checkbox';
 import Tabs from '@vkontakte/vkui/dist/components/Tabs/Tabs';
 import TabsItem from '@vkontakte/vkui/dist/components/TabsItem/TabsItem';
 import Footer from '@vkontakte/vkui/dist/components/Footer/Footer';
+import ScreenSpinner from '@vkontakte/vkui/dist/components/ScreenSpinner/ScreenSpinner';
 
 import Icon28MessagesOutline from '@vkontakte/icons/dist/28/messages_outline';
 import Icon28Users3Outline from '@vkontakte/icons/dist/28/users_3_outline';
@@ -54,6 +55,7 @@ const App = ({ id, go, goBack,
 	}, []);
 
 	async function download_csv(method) {
+		setPopout(<ScreenSpinner />)
 		var url = main_url + "profkom_bot/download_csv";
 
 
@@ -102,7 +104,7 @@ const App = ({ id, go, goBack,
 			link.href = window.URL.createObjectURL(blob);
 			link.download = 'Отчет.csv';
 			link.click();
-
+			setPopout(null);
 		} catch (error) {
 			setPopout(null);
 			statusSnackbar(0, setSnackbar);
