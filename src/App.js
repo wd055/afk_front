@@ -37,6 +37,7 @@ import User from './panels/User';
 import Settings from './panels/Settings';
 import REGISTRATRION_PROFORG from './panels/REGISTRATRION_PROFORG';
 import DOWNLOAD_CSV from './panels/DOWNLOAD_CSV';
+import DOWNLOAD_DOCS from './panels/DOWNLOAD_DOCS';
 
 import MESSAGE_HISTORY from './panels/mailing/MESSAGE_HISTORY';
 import INDIVIDUAL_MAILING from './panels/mailing/INDIVIDUAL_MAILING';
@@ -105,6 +106,7 @@ const App = () => {
 	const [popout, setPopout] = useState(<ScreenSpinner size='large' />);
 
 	const [proforg, setProforg] = useState(false);
+	const [proforgsInfo, setProforgsInfo] = useState();
 	const [login, setLogin] = useState(null);
 	const [usersInfo, setUsersInfo] = useState(null);
 	// const [login, setLogin] = useState("19У153");
@@ -318,6 +320,7 @@ const App = () => {
 					// }
 
 					setUsersInfo(data);
+					setProforgsInfo(data);
 					if (login === null) {
 						setProforg(data.proforg);
 						if (data.proforg > 0) {
@@ -1037,6 +1040,18 @@ const App = () => {
 					payouts_type={payouts_type} set_payouts_type={set_payouts_type}
 					main_url={main_url} origin={origin}
 					categories={categories} queryParams={queryParams}
+				/>
+				<DOWNLOAD_DOCS id='DOWNLOAD_DOCS' go={go} goBack={goBack}
+					snackbar={snackbar} setPopout={setPopout} setSnackbar={setSnackbar}
+					searchValue={searchValue} setSearchValue={setSearchValue}
+					payments_edu={payments_edu} setPayments_edu={setPayments_edu}
+					group={group} setGroup={setGroup}
+					queryParams={queryParams}
+					payouts_types={payouts_types}
+					payouts_type={payouts_type} set_payouts_type={set_payouts_type}
+					main_url={main_url} origin={origin}
+					categories={categories} queryParams={queryParams}
+					proforg={proforg} proforgsInfo={proforgsInfo}
 				/>
 				<INDIVIDUAL_MAILING id='INDIVIDUAL_MAILING' go={go} goBack={goBack}
 					setPopout={setPopout} setLogin={setLogin}

@@ -22,6 +22,7 @@ import Checkbox from '@vkontakte/vkui/dist/components/Checkbox/Checkbox';
 import Tabs from '@vkontakte/vkui/dist/components/Tabs/Tabs';
 import TabsItem from '@vkontakte/vkui/dist/components/TabsItem/TabsItem';
 import Footer from '@vkontakte/vkui/dist/components/Footer/Footer';
+import ScreenSpinner from '@vkontakte/vkui/dist/components/ScreenSpinner/ScreenSpinner';
 
 import Icon28MessagesOutline from '@vkontakte/icons/dist/28/messages_outline';
 import Icon28Users3Outline from '@vkontakte/icons/dist/28/users_3_outline';
@@ -32,6 +33,7 @@ import Icon28EmployeeOutline from '@vkontakte/icons/dist/28/employee_outline';
 import Header from '@vkontakte/vkui/dist/components/Header/Header';
 import Icon24Download from '@vkontakte/icons/dist/24/download';
 import Icon24Send from '@vkontakte/icons/dist/24/send';
+import Group from '@vkontakte/vkui/dist/components/Group/Group';
 
 const App = ({ id, go, goBack,
 	main_url, origin,
@@ -41,6 +43,7 @@ const App = ({ id, go, goBack,
 	payouts_types,
 	payouts_type, set_payouts_type,
 	categories, queryParams,
+	proforg, proforgsInfo,
 }) => {
 
 	const [category, set_category] = useState();
@@ -54,18 +57,15 @@ const App = ({ id, go, goBack,
 	}, []);
 
 	async function download_contributions(method) {
+		setPopout(<ScreenSpinner />)
 		var url = main_url + "profkom_bot/download_contributions";
-
 
 		var data = {
 			querys: window.location.search,
 			method: method,
-			status: status,
+			group: document.getElementById("download_contributions_input").value,
 		}
-		if (category) data.category = category;
-		if (payments_edu) data.payments_edu = payments_edu;
-		if (group) data.group = group;
-		if (payouts_type.length > 0) data.payouts_type = payouts_type;
+
 		// console.log(data)
 		try {
 			const response = await fetch(url, {
@@ -75,6 +75,11 @@ const App = ({ id, go, goBack,
 					'Origin': origin
 				}
 			});
+			if(!response.ok){
+				statusSnackbar(response.status, setSnackbar);
+				setPopout(null);
+				return;
+			}
 			const reader = response.body.getReader();
 			const contentLength = +response.headers.get('Content-Length');
 			let receivedLength = 0;
@@ -89,20 +94,21 @@ const App = ({ id, go, goBack,
 				receivedLength += value.length;
 
 			}
+			setPopout(null);
 			let chunksAll = new Uint8Array(receivedLength);
 			let position = 0;
 			for (let chunk of chunks) {
 				chunksAll.set(chunk, position);
 				position += chunk.length;
 			}
+			let blob = new Blob([chunksAll]);
 			let result = new TextDecoder("utf-8").decode(chunksAll);
-			result = "\ufeff" + result
-			let blob = new Blob([result], { encoding: "UTF-8", type: "text/csv;charset=UTF-8" });
+			if (result === "Success") return;
+			// let blob = new Blob([result], { type: "application/vnd.ms-excel" });
 			var link = document.createElement('a');
 			link.href = window.URL.createObjectURL(blob);
-			link.download = 'Отчет.csv';
+			link.download = `Профвзнос ${document.getElementById("download_contributions_input").value}.xlsx`;
 			link.click();
-
 		} catch (error) {
 			setPopout(null);
 			statusSnackbar(0, setSnackbar);
@@ -110,167 +116,79 @@ const App = ({ id, go, goBack,
 		}
 	}
 
-	function Draw_div(node, icon = undefined, top = undefined, bottom = undefined) {
-		return (<Div
-			style={{
-				display: "flex", alignItems: "center",
-				paddingLeft: 12, paddingTop: 8, paddingBottom: 8, paddingRight: 12
-			}}
-		>
-			<Div style={{ display: "block", flexShrink: 0, paddingRight: 12, paddingLeft: 4 }}>
-				{icon}
-			</Div>
-			<Div style={{ display: "block", flexGrow: 1, flexShrink: 1, padding: 0 }}>
-				<Header mode="secondary" >{top}</Header>
-				{node}
-				<div className="SimpleCell__description" style={{ marginLeft: 12, marginRight: 12 }} >
-					{bottom}
-				</div>
-			</Div>
-		</Div>)
-	}
-
 	const Home =
 		<Panel id={id} style={{ 'maxWidth': 630, margin: 'auto' }}>
 			<PanelHeader
 				left={<PanelHeaderBack onClick={goBack} />}
-			>Отчеты</PanelHeader>
-			{/* <SimpleCell
-					onClick={() => {
-						window.open('https://vk.com/doc159317010_565524800?hash=3b4f2cb0344002ed4d&dl=FUYTSNJYHA4DINBY:1598412251:975180126586b2e39d&api=1&no_preview=1');
-					}}
-				>Скачать!</SimpleCell>
-				<SimpleCell
-					onClick={() => {
-						window.open('https://profkom-bot-bmstu.herokuapp.com/profkom_bot/download_csv');
-					}}
-				>Скачать!</SimpleCell> */}
-			<FormLayout>
-				<Select
-					top="Тип заявление"
-					placeholder="По всем заявлениям"
-					onChange={(e) => {
-						const { value } = e.currentTarget;
-						set_payouts_type(value);
-					}}
-				>
-					{payouts_types.map((payouts_type, i) => (
-						<option
-							key={payouts_type.payout_type}
-							value={payouts_type.payout_type}
-							id={payouts_type.payout_type}
-						>{payouts_type.payout_type}</option>
-					))}
-				</Select>
-			</FormLayout>
-			<Tabs mode="buttons">
-				<TabsItem
-					onClick={() => {
-						set_status('all');
-					}}
-					selected={status === 'all'}
-				>Все</TabsItem>
-				<TabsItem
-					onClick={() => {
-						set_status('filed');
-					}}
-					selected={status === 'filed'}
-				>Подано</TabsItem>
-				<TabsItem
-					onClick={() => {
-						set_status('accepted');
-					}}
-					selected={status === 'accepted'}
-				>Принята</TabsItem>
-				<TabsItem
-					onClick={() => {
-						set_status('err');
-					}}
-					selected={status === 'err'}
-				>Ошибка в документах</TabsItem>
-			</Tabs>
-
-			{Draw_div(
-				<Select
-					placeholder=""
-					id='category'
-					name="category"
-					placeholder="По всем причинам"
-					onChange={(e) => {
-						const { value } = e.currentTarget;
-						set_category(value);
-					}}
-				>
-					{categories.map((category, i) => (
-						<option
-							key={category}
-							value={category}
-							id={category}
-						>{category}</option>
-					))}
-				</Select>,
-				<Icon28ListOutline style={blueIcon} size={28} />,
-				"Выбор причины",
-			)}
-
-
-			{Draw_div(
-				<Select
-					placeholder="Не учитывать форму обучения"
-					id='payments_edu'
-					name="payments_edu"
-					onChange={(e) => {
-						const { value } = e.currentTarget;
-						setPayments_edu(value);
-					}}
-				>
-					<option value="free" id="select_free">Бюджетная</option>
-					<option value="paid" id="select_paid">Платная</option>
-				</Select>,
-				<Icon24Education style={blueIcon} size={28} />,
-				"Форма обучения",
-			)}
-
-			{Draw_div(
-				<Input
-					type="text"
-					name="group"
-					id="group"
-					onChange={(e) => {
-						const { value } = e.currentTarget;
-						setGroup(value);
-					}}
-					defaultValue={group}
-				/>,
-				<Icon28TagOutline style={blueIcon} />,
-				"Префикс группы",
-				'Можно использовать для факультетов, кафедр, потоков или групп, пример: "ИУ", "ИУ7", "ИУ7-2", "ИУ7-21Б"',
-			)}
-			<FixedLayout vertical="bottom" filled>
-
+			>Бланки</PanelHeader>
+			{/* <Group header={<Header mode="secondary">Бланк на профвзносы</Header>}>
 				{queryParams.vk_platform.indexOf("mobile") > -1 ?
-					<FormLayout>
+					<Div style={{ display: 'flex' }}>
+						<Input
+							id="download_contributions_input"
+							placeholder="Введите название группы"
+						// onClick={() => download_contributions('send')}
+						/>
 						<Button
-							size="xl"
-							onClick={() => download_csv('send')}
+							size="xl" style={{ marginLeft: 8 }}
+							onClick={() => download_contributions('send')}
 							after={< Icon24Send />}
 						>Отправить себе</Button>
-					</FormLayout>
-					:<Div style={{ display: 'flex' }}>
+					</Div>
+					: <Div style={{ display: 'flex' }}>
+						<Input
+							id="download_contributions_input"
+							placeholder="Введите название группы"
+						// onClick={() => download_contributions('send')}
+						/>
 						<Button
 							size="l"
-							stretched style={{ marginRight: 8 }}
-							onClick={() => download_csv('send')}
+							stretched style={{ marginRight: 8, marginLeft: 8 }}
+							onClick={() => download_contributions('send')}
 							after={< Icon24Send />}
 						>Отправить себе</Button>
 						<Button
 							size="l"
 							stretched
-							onClick={() => download_csv('download')}
+							onClick={() => download_contributions('download')}
 							after={< Icon24Download />}
 						>Скачать</Button>
 					</Div>}
-			</FixedLayout>
+			</Group> */}
+			<Group header={<Header mode="secondary">Бланк на профвзносы</Header>}>
+				<FormLayout>
+
+					<Input
+						id="download_contributions_input"
+						placeholder="Введите название группы"
+						defaultValue={proforg === 1 ? proforgsInfo.group : ""}
+						readOnly={proforg === 1}
+					// onClick={() => download_contributions('send')}
+					/>
+				</FormLayout>
+				{queryParams.vk_platform.indexOf("mobile") > -1 ?
+					<Div style={{ display: 'flex' }}>
+						<Button
+							size="xl"
+							onClick={() => download_contributions('send')}
+							after={< Icon24Send />}
+						>Отправить себе</Button>
+					</Div>
+					: <Div style={{ display: 'flex' }}>
+						<Button
+							size="l"
+							stretched style={{ marginRight: 8 }}
+							onClick={() => download_contributions('send')}
+							after={< Icon24Send />}
+						>Отправить себе</Button>
+						<Button
+							size="l"
+							stretched
+							onClick={() => download_contributions('download')}
+							after={< Icon24Download />}
+						>Скачать</Button>
+					</Div>}
+			</Group>
 			{snackbar}
 		</Panel>
 	return Home;
