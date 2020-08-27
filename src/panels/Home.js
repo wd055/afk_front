@@ -37,7 +37,7 @@ import Div from '@vkontakte/vkui/dist/components/Div/Div';
 const check_valid = false;
 const show_valid = true;
 
-const contacts_bottom = "Почта и телефон не являются обязательными, но при наличии ошибок в документах и необходимости связаться с Вами мы сможем это сделать проще и быстрее, что упростит получение Вами вышей выплаты";
+const contacts_bottom = "Почта и телефон не являются обязательными для заполнения, но при наличии ошибок в документах и необходимости связаться с Вами, профсоюз сможет это сделать проще и быстрее, что упростит получение Вами вышей выплаты";
 
 var origin = "https://thingworx.asuscomm.com:10888/";
 var main_url = "https://profkom-bot-bmstu.herokuapp.com/";
@@ -101,7 +101,7 @@ export const Home = ({
 
 	const [clickEmail, setClickEmail] = useState(true);
 	const [clickPhone, setClickPhone] = useState(true);
-	  
+
 	const onEmailClick = e => {
 		if (clickEmail && login === null && email.length === 0) {
 			setClickEmail(false);
@@ -314,7 +314,7 @@ export const Home = ({
 							onChange={(e) => {
 								const { value } = e.currentTarget;
 								setEmail(value.slice(0, 100));
-								usersInfo.email = value.slice(0, 100);																
+								usersInfo.email = value.slice(0, 100);
 							}}
 							value={email}
 							status={(show_valid && login === null) && (validateEmail(email) ? 'valid' : 'error')}
@@ -400,11 +400,13 @@ export const Home = ({
 					{/* </FormLayoutGroup> */}
 
 					{login === null && <><Separator />
-						<Checkbox id="agree" defaultChecked={true}>Получать информацию о различных мероприятиях, раздаче билетов и ТП</Checkbox> </>}
+						<Checkbox id="agree" defaultChecked={true}>Получать иногда информацию о различных мероприятиях, раздаче билетов и ТП</Checkbox> </>}
 					<Button
 						size="xl"
 						onClick={onFormClick}
-						top={login === null ? <>При подтверждении Вы соглашаетесь получать автоматические сообщение об изменении Ваших заявлений, а так же с <Link onClick={() => go("POLICY")}>политикой</Link></> : undefined}>Подтвердить</Button>
+						// top={login === null ? <>При подтверждении Вы соглашаетесь получать автоматические сообщение об изменении Ваших заявлений, а так же с <Link onClick={() => go("POLICY")}>политикой</Link></> : undefined}>Подтвердить</Button>
+						top={login === null ? <>При подтверждении Вы соглашаетесь получать автоматические сообщение об изменении Ваших заявлений,
+						а так же с <Link href="https://vk.com/dev/uterms" target="blank" >пользовательским соглашением</Link> и <Link href="https://vk.com/dev/uprivacy" target="blank" >политикой конфиденциальности</Link></> : undefined}>Подтвердить</Button>
 				</FormLayout>
 			</Group>
 			{snackbar}
