@@ -48,7 +48,7 @@ const App = ({ id, go, goBack,
 
 	const [category, set_category] = useState();
 	const [status, set_status] = useState('all');
-	const [this_mobile, set_this_mobile] = useState(queryParams.vk_platform.indexOf("mobile") > -1);
+	const [this_mobile, set_this_mobile] = useState( queryParams.vk_platform === "mobile_android" || queryParams.vk_platform === "mobile_iphone" );
 	
 	const tabsStates = [
 		'all',

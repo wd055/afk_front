@@ -29,12 +29,13 @@ import Icon28CheckCircleOutline from '@vkontakte/icons/dist/28/check_circle_outl
 import Icon28SettingsOutline from '@vkontakte/icons/dist/28/settings_outline';
 import Icon28MoneyCircleOutline from '@vkontakte/icons/dist/28/money_circle_outline';
 import Icon28CancelCircleOutline from '@vkontakte/icons/dist/28/cancel_circle_outline';
+import Icon28ScanViewfinderOutline from '@vkontakte/icons/dist/28/scan_viewfinder_outline';
 
 import Tabs from '@vkontakte/vkui/dist/components/Tabs/Tabs';
 import TabsItem from '@vkontakte/vkui/dist/components/TabsItem/TabsItem';
 import Tooltip from '@vkontakte/vkui/dist/components/Tooltip/Tooltip';
 
-import { redIcon, blueIcon, greenIcon, blueBackground, redBackground } from './style';
+import { redIcon, blueIcon, greenIcon, blueBackground, redBackground, statusSnackbar } from './style';
 import Footer from '@vkontakte/vkui/dist/components/Footer/Footer';
 
 import circle from "../img/circle_outline_28.svg"
@@ -51,7 +52,7 @@ const App = ({ id, go, setPopout,
 	tabsState, setTabsState,
 	searchPayouts, setSearchPayouts,
 	tooltips, proforg,
-	usersInfo,
+	usersInfo, queryParams,
 }) => {
 	var count_on_page = 6;
 	var paddingTop = 80;
@@ -65,6 +66,7 @@ const App = ({ id, go, setPopout,
 	const [tooltip_contributions, set_tooltip_contributions] = useState(false);
 	const [download, set_downaload] = useState(false);
 	const [end_of_search_list, set_end_of_search_list] = useState(false);
+	const [this_mobile, set_this_mobile] = useState( queryParams.vk_platform === "mobile_android" || queryParams.vk_platform === "mobile_iphone" );
 
 	useEffect(() => {
 		if (tabsState !== "students" && tabsState !== "payouts") {
@@ -104,8 +106,11 @@ const App = ({ id, go, setPopout,
 			// 	console.log(data)
 			// }
 			// if (type === 'VKWebAppStorageSetFailed') {
-			// 	console.error(data)
-			// }
+				// 	console.error(data)
+				// }
+			if (type === 'VKWebAppOpenCodeReaderResult') {
+				qr_scan(data["code_data"])
+			}
 
 			if (type === 'VKWebAppStorageGetResult') {
 				console.log(data)
@@ -347,9 +352,9 @@ const App = ({ id, go, setPopout,
 			if (name === "add") {
 				var temp = JSON.parse(JSON.stringify(post));
 				temp.new = true;
-				temp.students_group = post.group;
-				temp.students_login = post.login;
-				temp.students_name = post.name;
+				temp.group = post.group;
+				temp.login = post.login;
+				temp.name = post.name;
 				temp.error = "";
 				// console.log(post)
 				// console.log(temp)
@@ -399,6 +404,62 @@ const App = ({ id, go, setPopout,
 		}
 	}
 
+	const parseQueryString = (queryString) => {
+		var query = {};
+		var pairs = (queryString[0] === '?' ? queryString.substr(1) : queryString).split('&');
+		for (var i = 0; i < pairs.length; i++) {
+			var pair = pairs[i].split('=');
+			query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
+		}
+		return query;
+	};
+
+	async function qr_scan(text) {
+		var qr_data = parseQueryString(text);
+		var temp = {}
+		temp.new = true;
+		temp.qr = true;
+		temp.qr_login = qr_data.login;
+		temp.login = qr_data.login;
+		temp.payouts_type = qr_data.payouts_type;
+		temp.error = "";
+		
+		var url = main_url + "profkom_bot/get_form";
+
+		var data = {
+			querys: window.location.search,
+			students_login: qr_data.login
+		}
+		try {
+			const response = await fetch(url, {
+				method: 'POST',
+				body: JSON.stringify(data),
+				headers: {
+					'Origin': origin
+				}
+			});
+			const json = await response.json();
+			temp.name = json.name;
+			temp.group = json.group;
+			if (response.ok) {
+				console.log('test_message test_message: Success');
+				// statusSnackbar(200, setSnackbar);
+			} else {
+				statusSnackbar(response.status, setSnackbar);
+				console.error('test_message test_message:', data);
+			}
+		} catch (error) {
+			setPopout(null);
+			statusSnackbar(0, setSnackbar);
+			console.error('test_message test_message:', error);
+		}
+
+		// console.log(post)
+		// console.log(temp)
+		setModalData(temp);
+		go("payout", true);
+	}
+
 	const proforg_levels = [
 		"Не профорг",
 		"Профорг группы",
@@ -421,7 +482,13 @@ const App = ({ id, go, setPopout,
 	const Home =
 		<Panel id={id} style={{ 'maxWidth': 630, margin: 'auto' }} >
 			<PanelHeader
-				left={<PanelHeaderButton><Icon28SettingsOutline onClick={() => go("Settings")} /></PanelHeaderButton>}
+				left={<PanelHeaderButton>
+
+					<div style={{ display: 'flex' }} >
+						<Icon28SettingsOutline onClick={() => go("Settings")} />
+						{this_mobile && <Icon28ScanViewfinderOutline onClick={() => bridge.send("VKWebAppOpenCodeReader")} />}
+					</div>
+				</PanelHeaderButton>}
 			>Профком МГТУ</PanelHeader>
 
 			<FixedLayout vertical="top">

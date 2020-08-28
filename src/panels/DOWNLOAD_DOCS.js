@@ -49,7 +49,7 @@ const App = ({ id, go, goBack,
 	proforg, proforgsInfo,
 	can_AppDownloadFile,
 }) => {
-	const [this_mobile, set_this_mobile] = useState(queryParams.vk_platform.indexOf("mobile") > -1);
+	const [this_mobile, set_this_mobile] = useState( queryParams.vk_platform === "mobile_android" || queryParams.vk_platform === "mobile_iphone" );
 
 	useEffect(() => {
 	}, []);

@@ -368,7 +368,7 @@ export const Home = ({
 					{/* <FormLayoutGroup top="Выберите подходящие категории" onLoad={onLoadCategory()}> */}
 					{/* <Radio name="type">Паспорт</Radio>
 				<Radio name="type">Загран</Radio> */}
-					<Header mode="secondary" >Выберите подходящие категории</Header>
+					<Header mode="secondary" >Выберите подходящие льготы</Header>
 					<List onLoad={onLoadCategory()} >
 						{categories.map((category, i) => (
 							// <Checkbox 
