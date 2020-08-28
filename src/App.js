@@ -130,6 +130,7 @@ const App = () => {
 	const [payouts_type, set_payouts_type] = useState("");
 	const [students_documents, set_students_documents] = useState([]);
 	const [tokens, setTokens] = useState([]);
+	const [can_AppDownloadFile, set_can_AppDownloadFile] = useState(false);
 
 	const modals_const = [
 		'payout',
@@ -155,6 +156,7 @@ const App = () => {
 	const queryParams = parseQueryString(window.location.search);
 	const hashParams = parseQueryString(window.location.hash);
 	useEffect(() => {
+		bridge.send("VKWebAppGetClientVersion");
 		bridge.subscribe(({ detail: { type, data } }) => {
 			if (type === 'VKWebAppUpdateConfig') {
 			}
@@ -165,6 +167,20 @@ const App = () => {
 				console.error("VKWebAppCloseFailed")
 			}
 			if (type === 'VKWebAppGetUserInfoResult') {
+			}
+			if (type === 'VKWebAppGetClientVersionResult') {
+				if (data['platform'] === "ios" ||
+					(data['platform'] === "android" &&
+						(
+							parseInt(data['version'].split('.')[0]) > 6 ||
+							(parseInt(data['version'].split('.')[0]) === 6 &&
+								parseInt(data['version'].split('.')[1]) >= 11)
+							
+						)
+					)
+				) {
+					// set_can_AppDownloadFile(true);
+				}
 			}
 		});
 
@@ -1035,23 +1051,19 @@ const App = () => {
 					searchValue={searchValue} setSearchValue={setSearchValue}
 					payments_edu={payments_edu} setPayments_edu={setPayments_edu}
 					group={group} setGroup={setGroup}
-					queryParams={queryParams}
 					payouts_types={payouts_types}
 					payouts_type={payouts_type} set_payouts_type={set_payouts_type}
 					main_url={main_url} origin={origin}
-					categories={categories} queryParams={queryParams}
+					categories={categories}
+					queryParams={queryParams} can_AppDownloadFile={can_AppDownloadFile}
 				/>
 				<DOWNLOAD_DOCS id='DOWNLOAD_DOCS' go={go} goBack={goBack}
+					main_url={main_url} origin={origin}
 					snackbar={snackbar} setPopout={setPopout} setSnackbar={setSnackbar}
 					searchValue={searchValue} setSearchValue={setSearchValue}
-					payments_edu={payments_edu} setPayments_edu={setPayments_edu}
-					group={group} setGroup={setGroup}
-					queryParams={queryParams}
-					payouts_types={payouts_types}
-					payouts_type={payouts_type} set_payouts_type={set_payouts_type}
-					main_url={main_url} origin={origin}
-					categories={categories} queryParams={queryParams}
+					group={group} queryParams={queryParams}
 					proforg={proforg} proforgsInfo={proforgsInfo}
+					can_AppDownloadFile={can_AppDownloadFile}					
 				/>
 				<INDIVIDUAL_MAILING id='INDIVIDUAL_MAILING' go={go} goBack={goBack}
 					setPopout={setPopout} setLogin={setLogin}

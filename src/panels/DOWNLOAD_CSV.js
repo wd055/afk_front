@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import bridge from '@vkontakte/vk-bridge';
 
 import Panel from '@vkontakte/vkui/dist/components/Panel/Panel';
 import PanelHeader from '@vkontakte/vkui/dist/components/PanelHeader/PanelHeader';
@@ -42,10 +43,13 @@ const App = ({ id, go, goBack,
 	payouts_types,
 	payouts_type, set_payouts_type,
 	categories, queryParams,
+	can_AppDownloadFile,
 }) => {
 
 	const [category, set_category] = useState();
 	const [status, set_status] = useState('all');
+	const [this_mobile, set_this_mobile] = useState(queryParams.vk_platform.indexOf("mobile") > -1);
+	
 	const tabsStates = [
 		'all',
 		'submit',
@@ -54,63 +58,98 @@ const App = ({ id, go, goBack,
 	useEffect(() => {
 	}, []);
 
-	async function download_csv(method) {
+	// async function download_csv(method) {
+	// 	setPopout(<ScreenSpinner />)
+	// 	var url = main_url + "profkom_bot/download_csv";
+
+
+	// 	var data = {
+	// 		querys: window.location.search,
+	// 		method: method,
+	// 		status: status,
+	// 	}
+	// 	if (category) data.category = category;
+	// 	if (payments_edu) data.payments_edu = payments_edu;
+	// 	if (group) data.group = group;
+	// 	if (payouts_type.length > 0) data.payouts_type = payouts_type;
+	// 	// console.log(data)
+	// 	try {
+	// 		const response = await fetch(url, {
+	// 			method: 'POST',
+	// 			body: JSON.stringify(data),
+	// 			headers: {
+	// 				'Origin': origin
+	// 			}
+	// 		});
+	// 		if(!response.ok){
+	// 			statusSnackbar(response.status, setSnackbar);
+	// 			setPopout(null);
+	// 			return;
+	// 		}
+	// 		const reader = response.body.getReader();
+	// 		const contentLength = +response.headers.get('Content-Length');
+	// 		let receivedLength = 0;
+	// 		let chunks = [];
+	// 		while (true) {
+	// 			const { done, value } = await reader.read();
+	// 			if (done) {
+	// 				break;
+	// 			}
+
+	// 			chunks.push(value);
+	// 			receivedLength += value.length;
+
+	// 		}
+	// 		setPopout(null);
+	// 		let chunksAll = new Uint8Array(receivedLength);
+	// 		let position = 0;
+	// 		for (let chunk of chunks) {
+	// 			chunksAll.set(chunk, position);
+	// 			position += chunk.length;
+	// 		}
+	// 		let result = new TextDecoder("utf-8").decode(chunksAll);
+	// 		if (result === "Success") return;
+	// 		result = "\ufeff" + result
+	// 		let blob = new Blob([result], { encoding: "UTF-8", type: "text/csv;charset=UTF-8" });
+	// 		var link = document.createElement('a');
+	// 		link.href = window.URL.createObjectURL(blob);
+	// 		link.download = 'Отчет.csv';
+	// 		link.click();
+	// 	} catch (error) {
+	// 		setPopout(null);
+	// 		statusSnackbar(0, setSnackbar);
+	// 		console.error('download_csv:', error);
+	// 	}
+	// }
+
+	function get_urls_params() {
+		var params_str = `&status=${status}`
+
+		if (category) params_str += `&category=${category}`;
+		if (payments_edu) params_str += `&payments_edu=${payments_edu}`;
+		if (group) params_str += `&group=${group}`;
+		if (payouts_type.length > 0) params_str += `&payouts_type=${payouts_type}`;
+		return params_str
+	}
+
+	async function send_csv() {
 		setPopout(<ScreenSpinner />)
-		var url = main_url + "profkom_bot/download_csv";
-
-
-		var data = {
-			querys: window.location.search,
-			method: method,
-			status: status,
-		}
-		if (category) data.category = category;
-		if (payments_edu) data.payments_edu = payments_edu;
-		if (group) data.group = group;
-		if (payouts_type.length > 0) data.payouts_type = payouts_type;
-		// console.log(data)
+		var url = `${main_url}profkom_bot/download_csv${window.location.search}&method=send${get_urls_params()}`;
 		try {
 			const response = await fetch(url, {
-				method: 'POST',
-				body: JSON.stringify(data),
+				method: 'GET',
 				headers: {
 					'Origin': origin
 				}
 			});
-			if(!response.ok){
-				statusSnackbar(response.status, setSnackbar);
-				setPopout(null);
-				return;
-			}
-			const reader = response.body.getReader();
-			const contentLength = +response.headers.get('Content-Length');
-			let receivedLength = 0;
-			let chunks = [];
-			while (true) {
-				const { done, value } = await reader.read();
-				if (done) {
-					break;
-				}
-
-				chunks.push(value);
-				receivedLength += value.length;
-
-			}
 			setPopout(null);
-			let chunksAll = new Uint8Array(receivedLength);
-			let position = 0;
-			for (let chunk of chunks) {
-				chunksAll.set(chunk, position);
-				position += chunk.length;
+			// const json = await response.json();
+			if (response.ok) {
+				console.log('download_csv: Success');
+				// statusSnackbar(200, setSnackbar);
+			} else {
+				console.error('download_csv');
 			}
-			let result = new TextDecoder("utf-8").decode(chunksAll);
-			if (result === "Success") return;
-			result = "\ufeff" + result
-			let blob = new Blob([result], { encoding: "UTF-8", type: "text/csv;charset=UTF-8" });
-			var link = document.createElement('a');
-			link.href = window.URL.createObjectURL(blob);
-			link.download = 'Отчет.csv';
-			link.click();
 		} catch (error) {
 			setPopout(null);
 			statusSnackbar(0, setSnackbar);
@@ -244,30 +283,39 @@ const App = ({ id, go, goBack,
 				"Префикс группы",
 				'Можно использовать для факультетов, кафедр, потоков или групп, пример: "ИУ", "ИУ7", "ИУ7-2", "ИУ7-21Б"',
 			)}
-			<FixedLayout vertical="bottom" filled>
-
-				{queryParams.vk_platform.indexOf("mobile") > -1 ?
-					<Div>
-						<Button
-							size="xl"
-							onClick={() => download_csv('send')}
-							after={< Icon24Send />}
-						>Отправить себе</Button>
-					</Div>
-					: <Div style={{ display: 'flex' }}>
-						<Button
-							size="l"
-							stretched style={{ marginRight: 8 }}
-							onClick={() => download_csv('send')}
-							after={< Icon24Send />}
-						>Отправить себе</Button>
-						<Button
-							size="l"
-							stretched
-							onClick={() => download_csv('download')}
-							after={< Icon24Download />}
-						>Скачать</Button>
-					</Div>}
+			<FixedLayout vertical="bottom" filled>					
+				<Div style={{ display: 'flex' }}>
+					<Button
+						size="l"
+						stretched style={{ marginRight: 8 }}
+						onClick={send_csv}
+						after={< Icon24Send />}
+					>Отправить себе</Button>
+					<Button
+						size="l"
+						stretched
+						disabled={(this_mobile && !can_AppDownloadFile)}
+						onClick={() => {
+							var url = `${main_url}profkom_bot/download_csv${window.location.search}${get_urls_params()}`
+							if (this_mobile) {
+								bridge.send("VKWebAppDownloadFile",
+									{
+										"url": url,
+										"filename": "Отчет.csv"
+									});
+							} else {
+								var link = document.createElement('a');
+								link.href = url;
+								link.download = `Отчет.csv`;
+								link.click();
+							}
+						}}
+						after={< Icon24Download />}
+					>Скачать</Button>
+				</Div>
+				{(this_mobile && !can_AppDownloadFile &&
+					queryParams.vk_platform === "mobile_android")
+					&& <div className="Group__description" style={{ paddingRight:12, paddingLeft:12, paddingTop:4, paddingBottom: 12}} >Для загрузки документов обновите клиент ВК</div>}
 			</FixedLayout>
 			{snackbar}
 		</Panel>

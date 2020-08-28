@@ -20,10 +20,14 @@ import Icon24Copy from '@vkontakte/icons/dist/24/copy';
 import Icon28EmployeeOutline from '@vkontakte/icons/dist/28/employee_outline';
 import Icon28GraphOutline from '@vkontakte/icons/dist/28/graph_outline';
 import Icon28ArticleOutline from '@vkontakte/icons/dist/28/article_outline';
+import Icon24Chevron from '@vkontakte/icons/dist/24/chevron';
 
 import { statusSnackbar, responseEdit, blueBackground } from './style';
 import Snackbar from '@vkontakte/vkui/dist/components/Snackbar/Snackbar';
 import Avatar from '@vkontakte/vkui/dist/components/Avatar/Avatar';
+import FixedLayout from '@vkontakte/vkui/dist/components/FixedLayout/FixedLayout';
+import Footer from '@vkontakte/vkui/dist/components/Footer/Footer';
+import Link from '@vkontakte/vkui/dist/components/Link/Link';
 
 // var origin = "https://thingworx.asuscomm.com:10888"
 // var main_url = "https://profkom-bot-bmstu.herokuapp.com/"
@@ -55,7 +59,6 @@ const App = ({ id, go, goBack,
 	useEffect(() => {
 		setPlatform(queryParams.vk_platform);
 		bridge.send("VKWebAppAddToHomeScreenInfo");
-		// bridge.send("VKWebAppDownloadFile", {"url": "https://sun9-28.userapi.com/c846420/v846420985/1526c3/ISX7VF8NjZk.jpg", "filename": "test.jpg"});
 		
 		bridge.subscribe(({ detail: { type, data } }) => {
 			if (type === 'VKWebAppCopyTextResult') {
@@ -179,34 +182,34 @@ const App = ({ id, go, goBack,
 						before={<Icon28SmartphoneOutline />}
 					>Открыть на телефоне</SimpleCell>}		
 				<SimpleCell
-					expandable
+					after={ < Icon24Chevron /> }
 					onClick={() => {go("DOWNLOAD_DOCS")}}
 					before={<Icon28ArticleOutline />}
 				>Бланки и формы</SimpleCell>				
 			</Group>
 			{proforg >= 3 && <Group>
 				<SimpleCell
-					expandable
+					after={ < Icon24Chevron /> }
 					onClick={() => go('MASS_MAILING')}
 					before={<Icon28Users3Outline />}
 				>Массовая рассылка</SimpleCell>
 				<SimpleCell
-					expandable
+					after={ < Icon24Chevron /> }
 					onClick={() => go('INDIVIDUAL_MAILING')}
 					before={<Icon28UserOutline />}
 				>Индивидуальные сообщения</SimpleCell>
 				<SimpleCell
-					expandable
+					after={ < Icon24Chevron /> }
 					onClick={() => go('MAILING')}
 					before={<Icon28HistoryBackwardOutline />}
 				>История рассылок</SimpleCell>
 				<SimpleCell
-					expandable
+					after={ < Icon24Chevron /> }
 					onClick={() => go('REGISTRATRION_PROFORG')}
 					before={<Icon28EmployeeOutline />}
 				>Приглашения по ссылке</SimpleCell>
 				<SimpleCell
-					expandable
+					after={ < Icon24Chevron /> }
 					onClick={() => {go("DOWNLOAD_CSV")}}
 					before={<Icon28GraphOutline />}
 				>Отчеты</SimpleCell>
@@ -236,6 +239,11 @@ const App = ({ id, go, goBack,
 						})}
 				>Оплатить профвзнос через VK Pay</Button>
 			</Div> */}
+			<FixedLayout vertical="bottom">
+				<Footer>
+					<Link href="https://vk.com/dev/uterms" target="blank" >Пользовательское соглашение</Link> и <Link href="https://vk.com/dev/uprivacy" target="blank" >политика конфиденциальности</Link>
+				</Footer>
+			</FixedLayout>
 			{snackbar}
 		</Panel>
 	return Home;

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import bridge from '@vkontakte/vk-bridge';
 
 import Panel from '@vkontakte/vkui/dist/components/Panel/Panel';
 import PanelHeader from '@vkontakte/vkui/dist/components/PanelHeader/PanelHeader';
@@ -35,134 +36,61 @@ import Icon24Download from '@vkontakte/icons/dist/24/download';
 import Icon24Send from '@vkontakte/icons/dist/24/send';
 import Group from '@vkontakte/vkui/dist/components/Group/Group';
 import FormStatus from '@vkontakte/vkui/dist/components/FormStatus/FormStatus';
+import List from '@vkontakte/vkui/dist/components/List/List';
+import Cell from '@vkontakte/vkui/dist/components/Cell/Cell';
+
+import Icon24Chevron from '@vkontakte/icons/dist/24/chevron';
 
 const App = ({ id, go, goBack,
 	main_url, origin,
 	snackbar, setSnackbar, setPopout,
-	payments_edu, setPayments_edu,
-	group, setGroup,
-	payouts_types,
-	payouts_type, set_payouts_type,
-	categories, queryParams,
+	group,
+	queryParams,
 	proforg, proforgsInfo,
+	can_AppDownloadFile,
 }) => {
+	const [this_mobile, set_this_mobile] = useState(queryParams.vk_platform.indexOf("mobile") > -1);
 
-	const [category, set_category] = useState();
-	const [status, set_status] = useState('all');
-	const tabsStates = [
-		'all',
-		'submit',
-		'not_submit',
-	]
 	useEffect(() => {
 	}, []);
 
-	async function download_contributions(method) {
+	async function send_contributions() {
 		setPopout(<ScreenSpinner />)
-		var url = main_url + "profkom_bot/download_contributions";
-		var data = {
-			querys: window.location.search,
-			method: method,
-			group: document.getElementById("download_contributions_input").value,
-		}
-		var group = document.getElementById("download_contributions_input").value
-		if (group.length > 0){
-			data.group = group;
-		}else{
-			group = proforgsInfo.group
-		}
+		var url = `${main_url}profkom_bot/download_contributions${window.location.search}&method=send`;
 
-		console.log(data)
 		try {
 			const response = await fetch(url, {
-				method: 'POST',
-				body: JSON.stringify(data),
+				method: 'GET',
 				headers: {
 					'Origin': origin
 				}
 			});
-			if(!response.ok){
-				statusSnackbar(response.status, setSnackbar);
-				setPopout(null);
-				return;
-			}
-			const reader = response.body.getReader();
-			const contentLength = +response.headers.get('Content-Length');
-			let receivedLength = 0;
-			let chunks = [];
-			while (true) {
-				const { done, value } = await reader.read();
-				if (done) {
-					break;
-				}
-
-				chunks.push(value);
-				receivedLength += value.length;
-
-			}
 			setPopout(null);
-			let chunksAll = new Uint8Array(receivedLength);
-			let position = 0;
-			for (let chunk of chunks) {
-				chunksAll.set(chunk, position);
-				position += chunk.length;
+			// const json = await response.json();
+			if (response.ok) {
+				console.log('download_contributions: Success');
+				// statusSnackbar(200, setSnackbar);
+			} else {
+				console.error('download_contributions');
 			}
-			let blob = new Blob([chunksAll]);
-			let result = new TextDecoder("utf-8").decode(chunksAll);
-			if (result === "Success") return;
-			// let blob = new Blob([result], { type: "application/vnd.ms-excel" });
-			var link = document.createElement('a');
-			link.href = window.URL.createObjectURL(blob);
-			link.download = `Профвзнос ${group}.xlsx`;
-			link.click();
 		} catch (error) {
 			setPopout(null);
 			statusSnackbar(0, setSnackbar);
-			console.error('download_csv:', error);
+			console.error('download_contributions:', error);
 		}
 	}
-
 
 	const Home =
 		<Panel id={id} style={{ 'maxWidth': 630, margin: 'auto' }}>
 			<PanelHeader
 				left={<PanelHeaderBack onClick={goBack} />}
 			>Бланки</PanelHeader>
-			{/* <Group header={<Header mode="secondary">Бланк на профвзносы</Header>}>
-				{queryParams.vk_platform.indexOf("mobile") > -1 ?
-					<Div style={{ display: 'flex' }}>
-						<Input
-							id="download_contributions_input"
-							placeholder="Введите название группы"
-						// onClick={() => download_contributions('send')}
-						/>
-						<Button
-							size="xl" style={{ marginLeft: 8 }}
-							onClick={() => download_contributions('send')}
-							after={< Icon24Send />}
-						>Отправить себе</Button>
-					</Div>
-					: <Div style={{ display: 'flex' }}>
-						<Input
-							id="download_contributions_input"
-							placeholder="Введите название группы"
-						// onClick={() => download_contributions('send')}
-						/>
-						<Button
-							size="l"
-							stretched style={{ marginRight: 8, marginLeft: 8 }}
-							onClick={() => download_contributions('send')}
-							after={< Icon24Send />}
-						>Отправить себе</Button>
-						<Button
-							size="l"
-							stretched
-							onClick={() => download_contributions('download')}
-							after={< Icon24Download />}
-						>Скачать</Button>
-					</Div>}
-			</Group> */}
-			<Group header={<Header mode="secondary">Бланк на профвзносы</Header>}>
+			<Group
+				header={<Header mode="secondary">Бланк на профвзносы</Header>}
+				description={(this_mobile && !can_AppDownloadFile &&
+					queryParams.vk_platform === "mobile_android")
+					? "Для загрузки документов обновите клиент ВК" : ""}
+			>
 				<FormLayout>
 
 					<Input
@@ -174,75 +102,66 @@ const App = ({ id, go, goBack,
 					// onClick={() => download_contributions('send')}
 					/>
 				</FormLayout>
-				{queryParams.vk_platform.indexOf("mobile") > -1 ?
-					<Div style={{ display: 'flex' }}>
-						<Button
-							size="xl"
-							onClick={() => download_contributions('send')}
-							after={< Icon24Send />}
-						>Отправить себе</Button>
-					</Div>
-					: <Div style={{ display: 'flex' }}>
-						<Button
-							size="l"
-							stretched style={{ marginRight: 8 }}
-							onClick={() => download_contributions('send')}
-							after={< Icon24Send />}
-						>Отправить себе</Button>
-						<Button
-							size="l"
-							stretched
-							onClick={() => download_contributions('download')}
-							after={< Icon24Download />}
-						>Скачать</Button>
-					</Div>}
+				<Div style={{ display: 'flex' }} >
+					<Button
+						size="l"
+						stretched style={{ marginRight: 8 }}
+						onClick={send_contributions}
+						after={< Icon24Send />}
+					>Отправить себе</Button>
+					<Button
+						size="l"
+						stretched
+						disabled={(this_mobile && !can_AppDownloadFile)}
+						onClick={() => {
+							if (this_mobile) {
+								bridge.send("VKWebAppDownloadFile",
+									{
+										"url": `${main_url}profkom_bot/download_contributions${window.location.search}`,
+										"filename": "Профвзносы.xlsx"
+									});
+							} else {
+								var link = document.createElement('a');
+								link.href = `${main_url}profkom_bot/download_contributions${window.location.search}`;
+								link.download = `Профвзнос ${group}.xlsx`;
+								link.click();
+							}
+						}}
+						after={< Icon24Download />}
+					>Скачать</Button>
+				</Div>
 			</Group>
-			<Group header={<Header mode="secondary">Бланк на все виды выплат</Header>}>
-			<FormLayout>
-				<FormStatus header="Скоро">
-				В ближайшей перспективе
-				</FormStatus>
-			</FormLayout>
-			{/* {queryParams.vk_platform.indexOf("mobile") > -1 ?
-					<Div>
-						<Button
-							size="xl"
-							onClick={() => download_csv('send')}
-							after={< Icon24Send />}
-						>Отправить себе</Button>
-					</Div>
-					: <Div style={{ display: 'flex' }}>
-						<Button
-							size="l"
-							stretched style={{ marginRight: 8 }}
-							onClick={() => download_csv('send')}
-							after={< Icon24Send />}
-						>Отправить себе</Button>
-						<Button
-							size="l"
-							stretched
-							onClick={() => download_csv('download')}
-							after={< Icon24Download />}
-						>Скачать</Button>
-					</Div>} */}
-			</Group>
-			<Group header={<Header mode="secondary">Остальные заявления</Header>}>
+
+
+			{/* <Group header={<Header mode="secondary">Бланк на все виды выплат</Header>}>
 				<FormLayout>
 					<FormStatus header="Скоро">
-					В ближайшей перспективе
+						В ближайшей перспективе
 					</FormStatus>
 				</FormLayout>
-			
-			{/* <SimpleCell
-					onClick={() => {
-						window.open('https://vk.com/doc159317010_565524800?hash=3b4f2cb0344002ed4d&dl=FUYTSNJYHA4DINBY:1598412251:975180126586b2e39d&api=1&no_preview=1');
-					}}
-				>Скачать!</SimpleCell>
-				<SimpleCell
-					onClick={() => {
-						window.open('https://profkom-bot-bmstu.herokuapp.com/profkom_bot/download_csv');
-					}}
-				>Скачать!</SimpleCell> */}
+			</Group> */}
+			<Group header={<Header mode="secondary">Остальные бланки</Header>}>
+				<List>
+					<SimpleCell
+						after={ < Icon24Chevron /> }
+						onClick={() => {
+							window.open("https:\/\/vk.com\/doc159317010_565926376?hash=76f0bd78ae5516916e&dl=FUYTSNJYHA4DINBY:1598634694:966ebe7f6af14f7462&api=1&no_preview=1");
+							// bridge.send("VKWebAppDownloadFile", { "url": `${main_url}profkom_bot/download_contributions${window.location.search}`, "filename": "Профвзносы.xlsx" });
+						}}
+					>Бланк на все виды выплат</SimpleCell>
+					<SimpleCell
+						after={ < Icon24Chevron /> }
+						onClick={() => {
+							window.open("https://vk.com/doc6162384_439876627");
+							// bridge.send("VKWebAppDownloadFile", { "url": `${main_url}profkom_bot/download_contributions${window.location.search}`, "filename": "Профвзносы.xlsx" });
+						}}
+					>Заявление на мат. помощь мэрии Москвы</SimpleCell>
+				</List>
+				<FormLayout>
+					<FormStatus header="Скоро">
+						Скоро будут еще различные бланки
+					</FormStatus>
+				</FormLayout>
 			</Group>
 			{snackbar}
 		</Panel>
