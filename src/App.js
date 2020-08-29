@@ -56,11 +56,17 @@ import Input from '@vkontakte/vkui/dist/components/Input/Input';
 import Header from '@vkontakte/vkui/dist/components/Header/Header';
 import TabsItem from '@vkontakte/vkui/dist/components/TabsItem/TabsItem';
 import Tabs from '@vkontakte/vkui/dist/components/Tabs/Tabs';
-import { object } from 'prop-types';
 import Icon28CheckCircleOutline from '@vkontakte/icons/dist/28/check_circle_outline';
 import Icon28DoneOutline from '@vkontakte/icons/dist/28/done_outline';
 import Icon24Done from '@vkontakte/icons/dist/24/done';
 import Icon16Done from '@vkontakte/icons/dist/16/done';
+import TabbarItem from '@vkontakte/vkui/dist/components/TabbarItem/TabbarItem';
+import FixedLayout from '@vkontakte/vkui/dist/components/FixedLayout/FixedLayout';
+import FormStatus from '@vkontakte/vkui/dist/components/FormStatus/FormStatus';
+import Link from '@vkontakte/vkui/dist/components/Link/Link';
+import Icon28LogoVkOutline from '@vkontakte/icons/dist/28/logo_vk_outline';
+import SimpleCell from '@vkontakte/vkui/dist/components/SimpleCell/SimpleCell';
+import Icon28MessageOutline from '@vkontakte/icons/dist/28/message_outline';
 
 const origin = "https://thingworx.asuscomm.com:10888"
 const main_url = "https://profkom-bot-bmstu.herokuapp.com/"
@@ -131,11 +137,13 @@ const App = () => {
 	const [students_documents, set_students_documents] = useState([]);
 	const [tokens, setTokens] = useState([]);
 	const [can_AppDownloadFile, set_can_AppDownloadFile] = useState(false);
+	const [error_oauth, set_error_oauth] = useState(false);
 
 	const modals_const = [
 		'payout',
 		'сontributions',
-		'add_registrationProforg'
+		'add_registrationProforg',
+		'edit_document'
 	]
 	const parseQueryString = (string) => {
 		return string.slice(1).split('&')
@@ -179,7 +187,7 @@ const App = () => {
 						)
 					)
 				) {
-					// set_can_AppDownloadFile(true);
+					set_can_AppDownloadFile(true);
 				}
 			}
 		});
@@ -346,6 +354,7 @@ const App = () => {
 						}
 					}
 				} else {
+					set_error_oauth(true);
 					console.error('app get form:', data);
 					setSnackbar(<Snackbar
 						layout="vertical"
@@ -733,6 +742,27 @@ const App = () => {
 							</HorizontalScroll>
 						}>{modalData.students_name}</Cell>
 				</Group> */}
+				{<Group>
+					<Cell size="l"
+						onClick={() =>{
+							setLogin(modalData.login);
+							goBack();
+							go("User");
+						}}
+						bottomContent={
+							<HorizontalScroll>
+								<div style={{ display: 'flex' }}>
+									{!modalData.new && <React.Fragment>
+										<Button size="m" mode="outline">{modalData.id}</Button>
+										<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{modalData.date}</Button>
+										<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{modalData.group}</Button>
+									</React.Fragment>}
+									{modalData.new && <Button size="m" mode="outline">{modalData.group}</Button>}
+									<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{modalData.login}</Button>
+								</div>
+							</HorizontalScroll>
+						}>{modalData.name}</Cell>
+				</Group>}
 				<Group>
 					{/* {!modalData.new && <Cell>
 						<InfoRow header="Дата">
@@ -963,6 +993,37 @@ const App = () => {
 					<Button size="xl" onClick={check_add_registrationProforg_radio_buttons}>Создать</Button>
 				</FormLayout>
 			</ModalPage>
+			<ModalPage
+				id={'edit_document'}
+				header={
+					<ModalPageHeader
+					//   left={IS_PLATFORM_ANDROID && <PanelHeaderButton onClick={this.modalBack}><Icon24Cancel /></PanelHeaderButton>}
+					//   right={IS_PLATFORM_IOS && <PanelHeaderButton onClick={this.modalBack}><Icon24Dismiss /></PanelHeaderButton>}
+					>Документ</ModalPageHeader>}
+			>
+				<FormLayout>
+					<FormLayoutGroup 
+						top="Тип документа" 
+						status={(modalData.mailing_type && modalData.mailing_type.length > 0)
+							? 'valid' : 'error'}
+						bottom={(modalData.mailing_type && modalData.mailing_type.length > 0)
+							? '' : 'Выберите тип документа'}
+					>
+						<Tabs mode="buttons">
+							<TabsItem
+								onClick={() => { }}
+								selected={modalData.mailing_type === 'passport'}
+							>Паспорт</TabsItem>
+							<TabsItem
+								onClick={() => { }}
+								selected={modalData.mailing_type === 'confirmation'}
+							>Подтверждение льготы</TabsItem>
+						</Tabs>
+					</FormLayoutGroup>
+					<Button size="xl" onClick={check_add_registrationProforg_radio_buttons}>Сохранить</Button>
+
+				</FormLayout>
+			</ModalPage>
 		</ModalRoot>
 	);
 
@@ -977,6 +1038,24 @@ const App = () => {
 			>
 				<Panel id="spinner">
 					<PanelHeader>Загрузка</PanelHeader>
+					{error_oauth === true && <><FormLayout>
+						<FormStatus header="Ошибка авторизации" mode="error">
+							Пожалуйста, свяжитесь с одним из администраторов группы:
+						</FormStatus>
+					</FormLayout>
+						<Link href={"https://vk.com/im?sel=375852447"} target="_blank">
+							<SimpleCell 
+								before={<Avatar size={40} src={"https://sun9-14.userapi.com/impg/oJdTIcb8Cw-siaMPZnu0wwfRKCqQS3g4FRjzDA/ATNnaAGtZXc.jpg?size=50x0&quality=88&crop=4,0,1607,1607&sign=b58fe63f813d1c5014a661cb5a5f4171&ava=1"} />} 
+								after={<Icon28MessageOutline />}
+							>Адам</SimpleCell>
+						</Link>
+						<Link href={"https://vk.com/im?sel=159317010"} target="_blank">
+							<SimpleCell 
+								before={<Avatar size={40} src={"https://sun3-10.userapi.com/impg/c857736/v857736442/11b69a/3EXGrxmOotc.jpg?size=50x0&quality=88&crop=0,51,805,805&sign=e1b6232589d2b523eccadb720bc15b0c&ava=1"} />} 
+								after={<Icon28MessageOutline />}
+							>Денис</SimpleCell>
+						</Link>
+					</>}
 					{snackbar}
 				</Panel>
 				<Panel id="Success">
@@ -1010,6 +1089,7 @@ const App = () => {
 					tooltips={tooltips} proforg={proforg}
 					usersInfo={usersInfo}
 					main_url={main_url} origin={origin}
+					queryParams={queryParams}
 				/>
 				<Settings id='Settings' go={go} goBack={goBack}
 					setPopout={setPopout} setModal={setModal}
@@ -1148,6 +1228,7 @@ const App = () => {
 					students_documents={students_documents} set_students_documents={set_students_documents}
 					queryParams={queryParams}
 					main_url={main_url} origin={origin}
+					setModalData={setModalData}
 				/>
 				<REGISTRATRION_PROFORG id='REGISTRATRION_PROFORG' go={go} goBack={goBack}
 					setPopout={setPopout} login={login}
