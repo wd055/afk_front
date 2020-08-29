@@ -67,6 +67,8 @@ import Link from '@vkontakte/vkui/dist/components/Link/Link';
 import Icon28LogoVkOutline from '@vkontakte/icons/dist/28/logo_vk_outline';
 import SimpleCell from '@vkontakte/vkui/dist/components/SimpleCell/SimpleCell';
 import Icon28MessageOutline from '@vkontakte/icons/dist/28/message_outline';
+import List from '@vkontakte/vkui/dist/components/List/List';
+import PanelHeaderButton from '@vkontakte/vkui/dist/components/PanelHeaderButton/PanelHeaderButton';
 
 const origin = "https://thingworx.asuscomm.com:10888"
 const main_url = "https://profkom-bot-bmstu.herokuapp.com/"
@@ -702,6 +704,42 @@ const App = () => {
 	}
 
 	const [help_temp, set_help_temp] = useState(0);
+
+	async function save_image_data() {
+		var url = main_url + "profkom_bot/edit_document/";
+		var data = {
+			querys: window.location.search,
+			name: modalData.name,
+			categories: modalData.categories,
+			docs_type: modalData.docs_type
+		}
+		try {
+			const response = await fetch(url, {
+				method: 'POST',
+				body: JSON.stringify(data),
+				headers: {
+					'Origin': origin
+				}
+			});
+			const json = await response.json();
+			if (response.ok) {
+				console.log("success")
+				var temp = JSON.parse(JSON.stringify(students_documents));
+				temp[modalData.i].categories = modalData.categories;
+				temp[modalData.i].docs_type = modalData.docs_type;
+				set_students_documents(temp);
+				goBack();
+			} else {
+				statusSnackbar(response.status, setSnackbar);
+				console.error('save_image_data:', data);
+			}
+		} catch (error) {
+			setPopout(null);
+			statusSnackbar(0, setSnackbar);
+			console.error('save_image_data:', error);
+		}
+	}
+
 	function getDateAdd_registrationProforg(){
 		var now = new Date();
 		now.setDate(now.getDate()+1);
@@ -998,29 +1036,66 @@ const App = () => {
 				header={
 					<ModalPageHeader
 					//   left={IS_PLATFORM_ANDROID && <PanelHeaderButton onClick={this.modalBack}><Icon24Cancel /></PanelHeaderButton>}
-					//   right={IS_PLATFORM_IOS && <PanelHeaderButton onClick={this.modalBack}><Icon24Dismiss /></PanelHeaderButton>}
+					  right={<PanelHeaderButton onClick={save_image_data} >Сохранить</PanelHeaderButton>}
 					>Документ</ModalPageHeader>}
 			>
 				<FormLayout>
 					<FormLayoutGroup 
 						top="Тип документа" 
-						status={(modalData.mailing_type && modalData.mailing_type.length > 0)
+						status={(modalData.docs_type && modalData.docs_type.length > 0)
 							? 'valid' : 'error'}
-						bottom={(modalData.mailing_type && modalData.mailing_type.length > 0)
+						bottom={(modalData.docs_type && modalData.docs_type.length > 0)
 							? '' : 'Выберите тип документа'}
 					>
 						<Tabs mode="buttons">
 							<TabsItem
-								onClick={() => { }}
-								selected={modalData.mailing_type === 'passport'}
+								onClick={() => { 
+									modalData.docs_type = "passport";
+									set_help_temp(help_temp + 1);
+								 }}
+								selected={modalData.docs_type === 'passport'}
 							>Паспорт</TabsItem>
 							<TabsItem
-								onClick={() => { }}
-								selected={modalData.mailing_type === 'confirmation'}
+								onClick={() => { 
+									modalData.docs_type = "confirmation"
+									set_help_temp(help_temp + 1);
+								}}
+								selected={modalData.docs_type === 'confirmation'}
 							>Подтверждение льготы</TabsItem>
 						</Tabs>
 					</FormLayoutGroup>
-					<Button size="xl" onClick={check_add_registrationProforg_radio_buttons}>Сохранить</Button>
+					{modalData.docs_type === 'confirmation' && <><Header mode="secondary" >Выберите подходящие льготы</Header>
+					<List onLoad={() => {}} >
+						{categories.map((category, i) => (
+							// <Checkbox 
+							// 	name="category" 
+							// 	key={i} 
+							// 	id={i.toString()}
+							// 	after={<Icon28AttachOutline />}
+							// >{category}</Checkbox>
+							<Cell
+								selectable
+								name="category"
+								key={i}
+								id={i.toString()}
+								multiline
+								data-category={category}
+								defaultChecked={modalData.categories && modalData.categories.indexOf(category) > -1}
+								onClick={(e) => {
+									console.log(modalData.categories)
+									var this_category = e.currentTarget.childNodes[0].childNodes[0].dataset['category']
+									var this_local = modalData.categories.indexOf(this_category)
+									if (this_local > -1)
+										modalData.categories.splice(this_local, 1);
+									else
+										modalData.categories.push(this_category)
+									console.log(usersInfo.categories)
+								}}
+							>{category}</Cell>
+							// <Checkbox name="category" id={i.toString()} defaultChecked={getCategories.indexOf(categories) !== -1}>{category}</Checkbox>
+						))}
+					</List></>}
+					<Button size="xl" onClick={save_image_data} >Сохранить</Button>
 
 				</FormLayout>
 			</ModalPage>

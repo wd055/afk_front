@@ -113,7 +113,6 @@ const App = ({ id, go, setPopout,
 			}
 
 			if (type === 'VKWebAppStorageGetResult') {
-				console.log(data)
 				for (var i in data.keys){
 				if (data.keys[i].key === "tooltip_payouts_tips" &&
 					(data.keys[i].value === false || data.keys[i].value === "false" || data.keys[i].value === "")) {
@@ -134,6 +133,7 @@ const App = ({ id, go, setPopout,
 	}, [searchPayouts]);
 
 	function search_payouts(value, list_left_end) {
+		set_downaload(true);
 		var url = main_url + "profkom_bot/search_payouts/";
 		fetch(url, {
 			method: 'POST',
@@ -149,6 +149,7 @@ const App = ({ id, go, setPopout,
 		})
 			.then(response => response.json())
 			.then((data) => {
+				set_downaload(false);
 				if (data !== "Error") {
 					var temp = data;
 					if (infinite_scroll && list_left_end > 0)
@@ -193,7 +194,7 @@ const App = ({ id, go, setPopout,
 	}
 
 	function search_users(value, list_left_end) {
-
+		set_downaload(true);
 		var url = main_url + "profkom_bot/search_users/";
 		fetch(url, {
 			method: 'POST',
@@ -209,6 +210,7 @@ const App = ({ id, go, setPopout,
 		})
 			.then(response => response.json())
 			.then((data) => {
+				set_downaload(false);
 				if (data !== "Error") {
 					// console.log(data)
 					var temp = data;

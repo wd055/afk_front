@@ -17,6 +17,9 @@ import ScreenSpinner from '@vkontakte/vkui/dist/components/ScreenSpinner/ScreenS
 import Icon28AttachOutline from '@vkontakte/icons/dist/28/attach_outline';
 import Icon16CancelCircleOutline from '@vkontakte/icons/dist/16/cancel_circle_outline';
 import Icon28CancelCircleOutline from '@vkontakte/icons/dist/28/cancel_circle_outline';
+import Icon24Fullscreen from '@vkontakte/icons/dist/24/fullscreen';
+import Icon24Cancel from '@vkontakte/icons/dist/24/cancel';
+import Icon24Write from '@vkontakte/icons/dist/24/write';
 
 import { statusSnackbar, blueIcon } from './style';
 import Div from '@vkontakte/vkui/dist/components/Div/Div';
@@ -32,14 +35,13 @@ const App = ({ id, go, goBack,
 	snackbar, setSnackbar,
 	student, usersInfo,
 	students_documents, set_students_documents,
-	queryParams,
+	queryParams, setModalData,
 }) => {
 
 	// const [countAttachments, setCountAttachments] = useState(false);
 	const [Grid, set_Grid] = useState([]);
 
 	useEffect(() => {
-		console.log("ASDAS")
 		draw_grid();
 	}, [usersInfo, students_documents]);
 
@@ -206,7 +208,6 @@ const App = ({ id, go, goBack,
 		}
 
 		var images = Array.from(students_documents, post => post.url);
-		console.log(images);
 
 		var element = null;
 		var output1 = [];
@@ -216,31 +217,76 @@ const App = ({ id, go, goBack,
 			element = <Card
 				size="m" key={i}
 				style={column_img}
-				data-i={i}
-				onClick={(e) => {
-					// console.log(e.currentTarget.dataset.i)
-					if (queryParams.vk_platform === "mobile_android" || queryParams.vk_platform === "mobile_iphone") bridge.send("VKWebAppShowImages", {
-						images: images,
-						start_index: e.currentTarget.dataset.i
-					});
-				}}>
+			>
 				<div
 					style={{
-						position: "absolute", top: 12, right: 12,
-						borderRadius: "10px",
-						backgroundColor: 'var(--content_tint_background)'
+						position: "absolute", top: 12, right: 12
 					}}
 					data-name={students_documents[i].name}
-					onClick={(e) => { delete_photo(e.currentTarget.dataset.name) }}
-				><Icon28CancelCircleOutline /></div>
+				>
+					<div style={{ display: 'flex' }}>
+						<Icon24Cancel
+							data-name={students_documents[i].name}
+							onClick={(e) => { delete_photo(e.currentTarget.dataset.name) }}
+							style={{ 
+								color: 'var(--destructive)', 
+								backgroundColor: 'var(--content_tint_background)', 
+								borderRadius: "15px" 
+							}}
+						/>
+						{(queryParams.vk_platform === "mobile_android" || queryParams.vk_platform === "mobile_iphone") && <Icon24Fullscreen
+							data-i={i}
+							onClick={(e) => {
+								// console.log(e.currentTarget.dataset.i)
+								bridge.send("VKWebAppShowImages", {
+									images: images,
+									start_index: e.currentTarget.dataset.i
+								});
+							}}
+							style={{
+								color: 'var(--accent)',
+								marginLeft: 8,
+								backgroundColor: 'var(--content_tint_background)',
+								borderRadius: "15px",
+							}}
+						/>}
+						<Icon24Write
+							data-name={students_documents[i].name}
+							data-docs_type={students_documents[i].docs_type}
+							data-categories={JSON.stringify(students_documents[i].categories)}
+							data-i={i}
+							onClick={(e) => {
+								var data = {
+									name: e.currentTarget.dataset.name,
+									docs_type: e.currentTarget.dataset.docs_type,
+									categories: JSON.parse(e.currentTarget.dataset.categories),
+									i: e.currentTarget.dataset.i,
+								}
+								// if (e.currentTarget.dataset.categories === "")
+								// 	data.categories = []
+								// else if (Array.isArray(e.currentTarget.dataset.categories) === false)
+								// 	data.categories = [data.categories]
+								console.log(data)
+								setModalData(data);
+								go('edit_document', true);
+							}}
+							style={{
+								color: 'var(--accent)',
+								marginLeft: 8,
+								backgroundColor: 'var(--content_tint_background)',
+								borderRadius: "15px",
+							}}
+						/>
+					</div>
+				</div>
 				<img
 					style={{ width: "100%", borderRadius: "10px" }}
 					src={students_documents[i].url} />
-				<Div style={{
+				{/* <Div style={{
 					position: "absolute", bottom: 20,
 					left: 12, borderRadius: "10px",
 					backgroundColor: 'var(--content_tint_background)', padding: 6
-				}}>{kitcut(students_documents[i].name, 15)}</Div>
+				}}>{kitcut(students_documents[i].name, 15)}</Div> */}
 			</Card>
 
 			if (i % 2 === 0) {
@@ -288,6 +334,7 @@ const App = ({ id, go, goBack,
 					}} >
 					<Icon28AttachOutline name="icon" style={{ color: 'var(--accent)' }} />
 				</Avatar>} /></File>}>
+					
 					<HorizontalScroll>
 						<div id="image_scrol" style={{ display: 'flex' }}>
 						</div>
