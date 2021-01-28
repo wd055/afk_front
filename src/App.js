@@ -63,8 +63,8 @@ import { CalendarPanel } from "./panels/Calendar";
 import { Event } from "./panels/Event";
 
 const origin = "https://thingworx.asuscomm.com:10888";
-// export const main_url = "https://bmstu-afk.herokuapp.com/";
-export const main_url = "http://localhost:8000/";
+export const main_url = "https://bmstu-afk.herokuapp.com/";
+// export const main_url = "http://localhost:8000/";
 // export const main_url = "http://thingworx.asuscomm.com/"
 
 function App({ viewWidth }) {
