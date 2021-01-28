@@ -68,6 +68,10 @@ export const Home = ({
 
 	const [editName, setEditName] = useState(false);
 
+	const [gen_surname, set_gen_surname] = useState("");
+	const [gen_name, set_gen_name] = useState("");
+	const [gen_second_name, set_gen_second_name] = useState("");
+
 	useEffect(() => {
 		if (usersInfo !== null && students_login !== usersInfo.login) {
 			console.log("usersInfo:", usersInfo)
@@ -80,7 +84,11 @@ export const Home = ({
 			setPayments_edu(usersInfo.payments_edu);
 			set_students_proforg(usersInfo.proforg);
 			set_contribution(usersInfo.contribution);
-			set_students_documents(usersInfo.documents)
+			set_students_documents(usersInfo.documents);
+			if (usersInfo.gen_surname) set_gen_surname(usersInfo.gen_surname);
+			if (usersInfo.gen_name) set_gen_name(usersInfo.gen_name);
+			if (usersInfo.gen_second_name) set_gen_second_name(usersInfo.gen_second_name);
+
 
 			setCheckedCats(false);
 		}
@@ -148,6 +156,9 @@ export const Home = ({
 			querys: window.location.search,
 			email: email,
 			phone: phone,
+			gen_surname: gen_surname,
+			gen_name: gen_name,
+			gen_second_name: gen_second_name,
 			payments_edu: document.getElementById("payments_edu").value,
 			categories: []
 		}
@@ -184,7 +195,7 @@ export const Home = ({
 		setGetCategories(data.categories)
 		usersInfo.categories = data.categories;
 
-		var url = main_url + "profkom_bot/form/";
+		var url = main_url + "afk_bot/form/";
 
 		setPopout(<ScreenSpinner size='large' />);
 
@@ -289,17 +300,7 @@ export const Home = ({
 							<option value="2" id="select_proforg">Дежурный</option>
 							<option value="3" id="select_proforg">Председатель</option>
 						</Select>}
-					{/* <Input
-						type="number"
-						top="Уровень профорга"
-						name="proforg"
-						id="proforg"
-						onChange={(e) => {
-							const { value } = e.currentTarget;
-							set_students_proforg(value);
-						}}
-						value={students_proforg}>
-					</Input> */}
+					
 					<FormLayoutGroup
 						top="Контактные данные"
 						bottom={login === null && contacts_bottom}
@@ -358,55 +359,22 @@ export const Home = ({
 						<option value="free" id="select_free">Бюджетная</option>
 						<option value="paid" id="select_paid">Платная</option>
 					</Select>
-					<SimpleCell
-						onClick={() => go("ATTACH_DOCUMENTS")}
-						before={<Icon28AttachOutline />}
-						description="Прикрепление добровольно. Без них не получится удаленно формировать заявления."
-						indicator={students_documents.length > 0 && <Counter>{students_documents.length}</Counter>}
-					>Прикрепить документы</SimpleCell>
-
-					{/* <FormLayoutGroup top="Выберите подходящие категории" onLoad={onLoadCategory()}> */}
-					{/* <Radio name="type">Паспорт</Radio>
-				<Radio name="type">Загран</Radio> */}
-					<Header mode="secondary" >Выберите подходящие льготы</Header>
-					<List onLoad={onLoadCategory()} >
-						{categories.map((category, i) => (
-							// <Checkbox 
-							// 	name="category" 
-							// 	key={i} 
-							// 	id={i.toString()}
-							// 	after={<Icon28AttachOutline />}
-							// >{category}</Checkbox>
-							<Cell
-								selectable
-								name="category"
-								key={i}
-								id={i.toString()}
-								multiline
-								data-category={category}
-								onClick={(e) => {
-									var this_category = e.currentTarget.childNodes[0].childNodes[0].dataset['category']
-									var this_local = usersInfo.categories.indexOf(this_category)
-									if (this_local > -1)
-										usersInfo.categories.splice(this_local, 1);
-									else
-										usersInfo.categories.push(this_category)
-									console.log(usersInfo.categories)
-								}}
-							>{category}</Cell>
-							// <Checkbox name="category" id={i.toString()} defaultChecked={getCategories.indexOf(categories) !== -1}>{category}</Checkbox>
-						))}
-					</List>
-					{/* </FormLayoutGroup> */}
 
 					{login === null && <><Separator />
-						<Checkbox id="agree" defaultChecked={true}>Получать иногда информацию о различных мероприятиях, раздаче билетов и ТП</Checkbox> </>}
+						<Checkbox id="agree" defaultChecked={true}>Получать иногда информацию о различных мероприятиях и ТП</Checkbox> </>}
 					<Button
 						size="xl"
 						onClick={onFormClick}
 						// top={login === null ? <>При подтверждении Вы соглашаетесь получать автоматические сообщение об изменении Ваших заявлений, а так же с <Link onClick={() => go("POLICY")}>политикой</Link></> : undefined}>Подтвердить</Button>
-						top={login === null ? <>При подтверждении Вы соглашаетесь получать автоматические сообщение об изменении Ваших заявлений,
-						а так же с <Link href="https://vk.com/dev/uterms" target="blank" >пользовательским соглашением</Link> и <Link href="https://vk.com/dev/uprivacy" target="blank" >политикой конфиденциальности</Link></> : undefined}>Подтвердить</Button>
+						top={login === null 
+							? 
+						<>При подтверждении Вы соглашаетесь с 
+						<Link href="https://vk.com/dev/uterms" target="blank" >пользовательским соглашением</Link> 
+						и 
+						<Link href="https://vk.com/dev/uprivacy" target="blank" >политикой конфиденциальности</Link>
+						</> 
+						: undefined}
+						>Подтвердить</Button>
 				</FormLayout>
 			</Group>
 			{snackbar}
