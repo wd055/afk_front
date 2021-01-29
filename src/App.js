@@ -149,7 +149,7 @@ function App({ viewWidth }) {
       hashParams["activePanel"] &&
       activePanel !== hashParams["activePanel"]
     ) {
-      setActivePanel(hashParams["activePanel"]);
+      go(hashParams["activePanel"]);
       setPopout(null);
       // } else if (hashParams["registrationProforg"]){
       // 	console.log(hashParams["registrationProforg"])
@@ -176,13 +176,13 @@ function App({ viewWidth }) {
             (key) => data[key] === parseInt(queryParams["vk_user_id"])
           ) === undefined
         )
-          setActivePanel("Success");
-        else setActivePanel("Calendar");
+          go("Success");
+        else go("Calendar");
         // statusSnackbarText(true, "Успешно", setSnackbar);
       })
       .fail(function (data) {
         console.log("FAIL", data);
-        setActivePanel("Success");
+        go("Success");
         statusSnackbarText(false, data.responseJSON, setSnackbar);
       })
       .always(() => {
@@ -390,6 +390,7 @@ function App({ viewWidth }) {
     go: go,
     goBack: goBack,
     setSnackbar: setSnackbar,
+    setPopout: setPopout,
     queryParams: queryParams,
     this_mobile:
       queryParams.vk_platform === "mobile_android" ||

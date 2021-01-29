@@ -22,14 +22,26 @@ import {
   DatePicker,
   Header,
   FormLayout,
+  Select,
+  CustomSelect,
+  CustomSelectOption,
+  Avatar,
+  Alert,
 } from "@vkontakte/vkui";
+import { Checkbox } from "@vkontakte/vkui/dist/components/Checkbox/Checkbox";
+import {
+  Icon28SchoolOutline,
+  Icon28Users3Outline,
+  Icon28MasksOutline,
+  Icon28SunOutline,
+} from "@vkontakte/icons";
 
-function getDayOfWeek(date) {
+export function getDayOfWeek(date) {
   if (!date) date = new Date();
   return date.getDay() == 0 ? 6 : date.getDay() - 1;
 }
 
-function getDateForRequest(date) {
+export function getDateForRequest(date) {
   return (
     date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
   );
@@ -64,6 +76,8 @@ export function get_events(start, end, setEvents, props) {
       for (var i in data) {
         event_list.push({
           id: data[i].id,
+          event_type: data[i].event_type,
+          favorite: data[i].favorite,
           auth_type: data[i].auth_type,
           title: data[i].title,
           start: new Date(data[i].start),
@@ -113,7 +127,7 @@ export function save_event(formsData, setSnackbar) {
   console.log(tmp);
 
   $.ajax(`${main_url}api/event/${formsData.id ? formsData.id + "/" : ""}`, {
-    method: (formsData.id ? "PUT" : "POST"),
+    method: formsData.id ? "PUT" : "POST",
     data: tmp,
   })
     .done(function (data) {
@@ -126,6 +140,45 @@ export function save_event(formsData, setSnackbar) {
     });
 }
 
+function deleteEventRequest(eventId, setSnackbar, goBack) {
+  $.ajax(`${main_url}api/event/${eventId}`, {
+    method: "delete",
+  })
+    .done(function (data) {
+      console.log("data", data);
+      statusSnackbar(200, setSnackbar);
+      goBack();
+    })
+    .fail(function (data) {
+      console.log("FAIL", data.responseText);
+      statusSnackbar(data.status, setSnackbar);
+    });
+}
+
+function deleteEvent(eventId, setPopout, setSnackbar, goBack) {
+  setPopout(
+    <Alert
+      actions={[
+        {
+          title: "Отмена",
+          autoclose: true,
+          mode: "cancel",
+        },
+        {
+          title: "Удалить",
+          autoclose: true,
+          mode: "destructive",
+          action: () => deleteEventRequest(eventId, setSnackbar, goBack),
+        },
+      ]}
+      actionsLayout="horizontal"
+      onClose={()=>setPopout(null)}
+      header="Удаление мероприятия"
+      text="Вы уверены, что хотите удалить это мероприятие?"
+    />
+  );
+}
+
 export type EventItem = {
   id: Number,
   title: String,
@@ -136,31 +189,72 @@ export type EventItem = {
 
 type EventFormProps = {
   setSnackbar: Function,
+  setPopout?: Function,
+  goBack?: Function,
   event?: Object,
   onSave?: Function,
   onEdit?: Function,
 };
 
+export const event_types_icons = {
+  open_air: <Icon28SunOutline fill="var(--accent)" />,
+  lecture: <Icon28SchoolOutline fill="var(--accent)" />,
+  culture: <Icon28MasksOutline fill="var(--accent)" />,
+  volunteering: <Icon28Users3Outline fill="var(--accent)" />,
+  other: <></>,
+};
+
+export const event_types = [
+  {
+    value: "open_air",
+    label: "Занятия на свежем воздухе",
+    icon: event_types_icons.open_air,
+  },
+  {
+    value: "lecture",
+    label: "Лекции",
+    icon: event_types_icons.lecture,
+  },
+  {
+    value: "culture",
+    label: "Культурные мероприятия",
+    icon: event_types_icons.culture,
+  },
+  {
+    value: "volunteering",
+    label: "Волонтерская деятельност",
+    icon: event_types_icons.volunteering,
+  },
+  { value: "other", label: "Другое", icon: event_types_icons.other },
+];
+
+const default_formsData = {
+  title: "",
+  auth_type: "",
+  event_type: "other",
+  favorite: false,
+  start: new Date(2020, 0, 1),
+  end: new Date(2020, 0, 1),
+  event_date: {
+    day: new Date().getDate(),
+    month: new Date().getMonth() + 1,
+    year: new Date().getFullYear(),
+  },
+};
+
 export const EventForm: FunctionComponent<EventFormProps> = (
-  { event, onSave, onEdit, setSnackbar },
+  { event, onSave, onEdit, setSnackbar, setPopout, goBack },
   props
 ) => {
+  console.log(props)
   const [formsData, setFormsData] = useState(
     event === undefined
-      ? {
-          title: "",
-          auth_type: "",
-          start: new Date(2020, 0, 1),
-          end: new Date(2020, 0, 1),
-          event_date: {
-            day: new Date().getDate(),
-            month: new Date().getMonth() + 1,
-            year: new Date().getFullYear(),
-          },
-        }
+      ? default_formsData
       : {
           id: event.id,
           title: event.title,
+          event_type: event.event_type,
+          favorite: event.favorite,
           auth_type: event.auth_type,
           start: event_date_Date_composition(
             { day: 1, month: 1, year: 2020 },
@@ -177,6 +271,9 @@ export const EventForm: FunctionComponent<EventFormProps> = (
           },
         }
   );
+  useEffect(() => {
+    console.log("event", event);
+  }, []);
   useEffect(() => {
     if (onEdit !== undefined) onEdit(formsData);
   }, [formsData]);
@@ -221,6 +318,32 @@ export const EventForm: FunctionComponent<EventFormProps> = (
                 value: "double",
               },
             ]}
+          />
+        </FormItem>
+        <FormItem>
+          <Checkbox
+            defaultChecked={formsData.favorite}
+            onChange={(e) =>
+              setFormsData({ ...formsData, favorite: e.currentTarget.checked })
+            }
+          >
+            Избранное
+          </Checkbox>
+        </FormItem>
+        <FormItem>
+          <CustomSelect
+            placeholder="Не выбрано"
+            options={event_types}
+            value={formsData.event_type}
+            onChange={(option) =>
+              setFormsData({
+                ...formsData,
+                event_type: option.currentTarget.value,
+              })
+            }
+            renderOption={({ option: { icon }, ...otherProps }) => {
+              return <CustomSelectOption before={icon} {...otherProps} />;
+            }}
           />
         </FormItem>
         <FormItem top="Дата">
@@ -298,7 +421,7 @@ export const EventForm: FunctionComponent<EventFormProps> = (
             {/* {time picer} */}
           </FormItem>
         </FormLayoutGroup>
-        <Div>
+        <Div style={{ display: "flex" }}>
           <Button
             size="l"
             stretched
@@ -307,12 +430,23 @@ export const EventForm: FunctionComponent<EventFormProps> = (
               // console.log(formsData);
               if (onSave !== undefined) onSave(formsData);
               save_event(formsData, setSnackbar);
+              setFormsData(default_formsData);
             }}
           >
             {event === undefined
               ? "Создать мероприятие"
               : "Сохранить изменения"}
           </Button>
+          {event !== undefined && (
+            <Button
+              size="l"
+              mode="destructive"
+              style={{ marginLeft: 8 }}
+              onClick={() => deleteEvent(formsData.id, setPopout, setSnackbar, goBack)}
+            >
+              Удалить
+            </Button>
+          )}
         </Div>
       </FormLayout>
     </Group>

@@ -55,7 +55,7 @@ export const Event = (props) => {
   const [download, setDownload] = useState(false);
   const [searchNewStudent, setSearchNewStudent] = useState(false);
   const [QROrder, setQROrder] = useState("final");
-  const [QRData, setQRData] = useState({});
+  const [QRData, setQRData] = useState();
   const [auth_type_is_single] = useState(
     props.globalProps.event.auth_type == "single"
   );
@@ -122,7 +122,7 @@ export const Event = (props) => {
       method: "GET",
     })
       .done(function (data) {
-        console.log("data", data);
+        // console.log("data", data);
         setNext(data.next);
         var studentsList = [];
         if (next && next !== null) studentsList = students;
@@ -142,7 +142,7 @@ export const Event = (props) => {
             });
           }
         }
-        console.log(studentsList);
+        // console.log(studentsList);
         setStudents(studentsList);
       })
       .fail(function (data) {
@@ -155,16 +155,20 @@ export const Event = (props) => {
   useEffect(() => {
     bridge.subscribe(({ detail: { type, data } }) => {
       if (type === "VKWebAppOpenCodeReaderResult") {
-        data = JSON.parse(data.code_data);
+        try {
+          data = JSON.parse(data.code_data);
+        } catch (error) {
+          console.error(error);
+        }
         setQRData(data);
       }
       if (type === "VKWebAppOpenCodeReaderFailed") {
-        statusSnackbarText(
-          false,
-          JSON.stringify(data),
-          props.setSnackbar,
-          snackbarDelay
-        );
+        // statusSnackbarText(
+        //   false,
+        //   JSON.stringify(data),
+        //   props.setSnackbar,
+        //   snackbarDelay
+        // );
         console.error("VKWebAppOpenCodeReaderFailed", data);
       }
     });
@@ -175,8 +179,7 @@ export const Event = (props) => {
   useEffect(() => {
     if (QRData && QRData.vk_user_id) {
       set_visit(eventId, QRData.vk_user_id, QROrder);
-    } else if (QRData && JSON.stringify(QRData).length > 2) {
-      console.error(QRData);
+    } else if (QRData) {
       statusSnackbarText(
         false,
         "Ошибка в QR коде!",
@@ -199,18 +202,22 @@ export const Event = (props) => {
       <EventForm
         event={props.globalProps.event}
         setSnackbar={props.setSnackbar}
+        setPopout={props.setPopout}
+        goBack={props.goBack}
         onSave={props.goBack}
       />
       <Group header={<Header>Отчеты</Header>}>
         <Div style={{ display: "flex" }}>
-          {!auth_type_is_single && <Button
-            size="l"
-            style={{ marginRight: 8 }}
-            onClick={() => send_report(eventId, "initial")}
-            after={<Icon24Send />}
-          >
-            Отправить себе всех
-          </Button>}
+          {!auth_type_is_single && (
+            <Button
+              size="l"
+              style={{ marginRight: 8 }}
+              onClick={() => send_report(eventId, "initial")}
+              after={<Icon24Send />}
+            >
+              Отправить себе всех
+            </Button>
+          )}
           <Button
             size="l"
             style={{ marginRight: 8 }}
@@ -362,6 +369,7 @@ export const Event = (props) => {
             <List>
               {students.map((student, i) => (
                 <RichCell
+                  key={student.id}
                   caption={
                     student.auth_order && student.auth_order === "initial"
                       ? "Начал"

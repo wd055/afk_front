@@ -78,7 +78,7 @@ export function statusSnackbarText(
   setSnackbar,
   duration = 4000
 ) {
-  const snackbar = (
+  var snackbar = (
     <Snackbar
       duration={duration}
       layout="vertical"
