@@ -67,6 +67,8 @@ export const main_url = "https://bmstu-afk.herokuapp.com/";
 // export const main_url = "http://localhost:8000/";
 // export const main_url = "http://thingworx.asuscomm.com/"
 
+export const Roles = Object.freeze({ admin: 0, teacher: 1, student: 2 });
+
 function App({ viewWidth }) {
   const [activePanel, setActivePanel] = useState("spinner");
   const [history] = useState([]);
@@ -95,6 +97,7 @@ function App({ viewWidth }) {
   const [snackbar, setSnackbar] = useState();
   const [can_AppDownloadFile, set_can_AppDownloadFile] = useState(false);
   const [error_oauth, set_error_oauth] = useState(false);
+  const [userRole, setUserRole] = useState(Roles.student);
 
   const modals_const = [];
   const parseQueryString = (string) => {
@@ -160,7 +163,6 @@ function App({ viewWidth }) {
       // setActivePanel("ErrorOauth");
       // setPopout(null);
     }
-
     window.addEventListener("popstate", () => goBack());
   }, []);
 
@@ -174,10 +176,12 @@ function App({ viewWidth }) {
         if (
           Object.keys(data).find(
             (key) => data[key] === parseInt(queryParams["vk_user_id"])
-          ) === undefined
+          ) !== undefined
         )
-          go("Success");
-        else go("Calendar");
+          setUserRole(Roles.admin);
+        //   go("Success");
+        // else
+        go("Calendar");
         // statusSnackbarText(true, "Успешно", setSnackbar);
       })
       .fail(function (data) {
@@ -391,6 +395,7 @@ function App({ viewWidth }) {
     goBack: goBack,
     setSnackbar: setSnackbar,
     setPopout: setPopout,
+    userRole: userRole,
     queryParams: queryParams,
     this_mobile:
       queryParams.vk_platform === "mobile_android" ||

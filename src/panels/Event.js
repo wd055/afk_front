@@ -34,6 +34,7 @@ import {
   Footer,
   TabbarItem,
   Header,
+  Cell,
 } from "@vkontakte/vkui";
 
 import {
@@ -44,8 +45,16 @@ import {
   Icon24Send,
   Icon24Download,
   Icon28ChevronBack,
+  Icon28CheckCircleFill,
+  Icon12Favorite,
 } from "@vkontakte/icons";
-import { EventForm } from "./src/calendar";
+import {
+  EventForm,
+  options_full,
+  options_short,
+  event_types_icons,
+} from "./src/calendar";
+import { Roles } from "../App";
 
 export const Event = (props) => {
   const [students, setStudents] = useState([]);
@@ -60,9 +69,9 @@ export const Event = (props) => {
     props.globalProps.event.auth_type == "single"
   );
   var eventId = props.globalProps.event.id;
-  const snackbarDelay = 2000;
+  const snackbarDelay = 1000;
 
-  function set_visit(eventId, student_vk_id, auth_order) {
+  function set_visit(eventId, student_vk_id, auth_order, callback) {
     $.ajax(`${main_url}api/event/${eventId}/set_visit/`, {
       method: "POST",
       data: { student_vk_id: student_vk_id, auth_order: auth_order },
@@ -73,7 +82,8 @@ export const Event = (props) => {
           true,
           data.full_name ? data.full_name : "Успешно",
           props.setSnackbar,
-          snackbarDelay
+          snackbarDelay,
+          callback
         );
       })
       .fail(function (data) {
@@ -178,7 +188,9 @@ export const Event = (props) => {
 
   useEffect(() => {
     if (QRData && QRData.vk_user_id) {
-      set_visit(eventId, QRData.vk_user_id, QROrder);
+      set_visit(eventId, QRData.vk_user_id, QROrder, function () {
+        bridge.send("VKWebAppOpenCodeReader");
+      });
     } else if (QRData) {
       statusSnackbarText(
         false,
@@ -199,13 +211,43 @@ export const Event = (props) => {
       <PanelHeader left={<PanelHeaderBack onClick={() => props.goBack()} />}>
         Мероприятие
       </PanelHeader>
-      <EventForm
-        event={props.globalProps.event}
-        setSnackbar={props.setSnackbar}
-        setPopout={props.setPopout}
-        goBack={props.goBack}
-        onSave={props.goBack}
-      />
+      {props.userRole === Roles.admin ? (
+        <EventForm
+          event={props.globalProps.event}
+          setSnackbar={props.setSnackbar}
+          setPopout={props.setPopout}
+          goBack={props.goBack}
+          onSave={props.goBack}
+        />
+      ) : (
+        <Group>
+          <Cell
+            indicator={
+              props.globalProps.event.favorite ? (
+                <Icon28CheckCircleFill />
+              ) : (
+                <></>
+              )
+            }
+            badge={<Icon12Favorite />}
+            before={event_types_icons[props.globalProps.event.event_type]}
+            description={
+              props.globalProps.event.start.toLocaleDateString(
+                "ru-RU",
+                options_full
+              ) +
+              " - " +
+              props.globalProps.event.end.toLocaleTimeString(
+                "ru-RU",
+                options_short
+              )
+            }
+            disabled
+          >
+            {props.globalProps.event.title}
+          </Cell>
+        </Group>
+      )}
       <Group header={<Header>Отчеты</Header>}>
         <Div style={{ display: "flex" }}>
           {!auth_type_is_single && (
@@ -281,64 +323,74 @@ export const Event = (props) => {
               }}
               placeholder="Поиск по Фамилии или Имени"
             />
-            {download && <Spinner size="medium" />}
-            {props.this_mobile &&
-              (auth_type_is_single ? (
-                <IconButton
-                  onClick={() => {
-                    console.log("final");
-                    setQROrder("final");
-                    bridge.send("VKWebAppOpenCodeReader");
-                  }}
-                  icon={
-                    <Icon28QrCodeOutline style={{ color: "var(--accent)" }} />
-                  }
-                  style={{ marginRight: 8 }}
-                />
-              ) : (
-                <div
-                  className="Tabbar Tabbar--l-vertical"
-                  style={{ position: "static" }}
-                >
-                  <TabbarItem
-                    onClick={() => {
-                      console.log("initial");
-                      setQROrder("initial");
-                      bridge.send("VKWebAppOpenCodeReader");
-                    }}
-                    text="Начало"
-                    selected
-                  >
-                    <Icon28QrCodeOutline style={{ paddingRight: 8 }} />
-                  </TabbarItem>
-                  <TabbarItem
-                    onClick={() => {
-                      console.log("final");
-                      setQROrder("final");
-                      bridge.send("VKWebAppOpenCodeReader");
-                    }}
-                    text="Конец"
-                    selected
-                  >
-                    <Icon28QrCodeOutline style={{ paddingRight: 8 }} />
-                  </TabbarItem>
-                </div>
-              ))}
-            {!searchNewStudent && (
-              <IconButton
-                onClick={() => setSearchNewStudent(true)}
-                icon={
-                  <Icon28AddCircleOutline style={{ color: "var(--accent)" }} />
-                }
-                style={{ marginRight: 8 }}
-              />
-            )}
-            {searchNewStudent && (
-              <IconButton
-                onClick={() => setSearchNewStudent(false)}
-                icon={<Icon28ChevronBack style={{ color: "var(--accent)" }} />}
-                style={{ marginRight: 8 }}
-              />
+            {props.userRole === Roles.admin && (
+              <>
+                {download && <Spinner size="medium" />}
+                {props.this_mobile &&
+                  (auth_type_is_single ? (
+                    <IconButton
+                      onClick={() => {
+                        console.log("final");
+                        setQROrder("final");
+                        bridge.send("VKWebAppOpenCodeReader");
+                      }}
+                      icon={
+                        <Icon28QrCodeOutline
+                          style={{ color: "var(--accent)" }}
+                        />
+                      }
+                      style={{ marginRight: 8 }}
+                    />
+                  ) : (
+                    <div
+                      className="Tabbar Tabbar--l-vertical"
+                      style={{ position: "static" }}
+                    >
+                      <TabbarItem
+                        onClick={() => {
+                          console.log("initial");
+                          setQROrder("initial");
+                          bridge.send("VKWebAppOpenCodeReader");
+                        }}
+                        text="Начало"
+                        selected
+                      >
+                        <Icon28QrCodeOutline style={{ paddingRight: 8 }} />
+                      </TabbarItem>
+                      <TabbarItem
+                        onClick={() => {
+                          console.log("final");
+                          setQROrder("final");
+                          bridge.send("VKWebAppOpenCodeReader");
+                        }}
+                        text="Конец"
+                        selected
+                      >
+                        <Icon28QrCodeOutline style={{ paddingRight: 8 }} />
+                      </TabbarItem>
+                    </div>
+                  ))}
+                {!searchNewStudent && (
+                  <IconButton
+                    onClick={() => setSearchNewStudent(true)}
+                    icon={
+                      <Icon28AddCircleOutline
+                        style={{ color: "var(--accent)" }}
+                      />
+                    }
+                    style={{ marginRight: 8 }}
+                  />
+                )}
+                {searchNewStudent && (
+                  <IconButton
+                    onClick={() => setSearchNewStudent(false)}
+                    icon={
+                      <Icon28ChevronBack style={{ color: "var(--accent)" }} />
+                    }
+                    style={{ marginRight: 8 }}
+                  />
+                )}
+              </>
             )}
           </Div>
           <Div

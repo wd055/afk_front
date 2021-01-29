@@ -27,6 +27,7 @@ import {
   CustomSelectOption,
   Avatar,
   Alert,
+  Textarea,
 } from "@vkontakte/vkui";
 import { Checkbox } from "@vkontakte/vkui/dist/components/Checkbox/Checkbox";
 import {
@@ -46,6 +47,19 @@ export function getDateForRequest(date) {
     date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
   );
 }
+
+export const options_full = {
+  year: "numeric",
+  month: "numeric",
+  day: "numeric",
+  hour: "numeric",
+  minute: "numeric",
+};
+
+export const options_short = {
+  hour: "2-digit",
+  minute: "2-digit",
+};
 
 export function formsDataIsValid(formsData) {
   return (
@@ -77,6 +91,8 @@ export function get_events(start, end, setEvents, props) {
         event_list.push({
           id: data[i].id,
           event_type: data[i].event_type,
+          address: data[i].address,
+          description: data[i].description,
           favorite: data[i].favorite,
           auth_type: data[i].auth_type,
           title: data[i].title,
@@ -231,6 +247,8 @@ export const event_types = [
 const default_formsData = {
   title: "",
   auth_type: "",
+  address: "",
+  description: "",
   event_type: "other",
   favorite: false,
   start: new Date(2020, 0, 1),
@@ -246,13 +264,15 @@ export const EventForm: FunctionComponent<EventFormProps> = (
   { event, onSave, onEdit, setSnackbar, setPopout, goBack },
   props
 ) => {
-  console.log(props)
+  // console.log(props)
   const [formsData, setFormsData] = useState(
     event === undefined
       ? default_formsData
       : {
           id: event.id,
           title: event.title,
+          address: event.address,
+          description: event.description,
           event_type: event.event_type,
           favorite: event.favorite,
           auth_type: event.auth_type,
@@ -272,7 +292,7 @@ export const EventForm: FunctionComponent<EventFormProps> = (
         }
   );
   useEffect(() => {
-    console.log("event", event);
+    // console.log("event", event);
   }, []);
   useEffect(() => {
     if (onEdit !== undefined) onEdit(formsData);
@@ -300,6 +320,33 @@ export const EventForm: FunctionComponent<EventFormProps> = (
               setFormsData({
                 ...formsData,
                 title: e.currentTarget.value,
+              })
+            }
+          />
+        </FormItem>
+        <FormItem
+          top="Адрес"
+        >
+          <Input
+            type="text"
+            defaultValue={formsData.address}
+            onChange={(e) =>
+              setFormsData({
+                ...formsData,
+                address: e.currentTarget.value,
+              })
+            }
+          />
+        </FormItem>
+        <FormItem
+          top="Описание"
+        >
+          <Textarea
+            defaultValue={formsData.description}
+            onChange={(e) =>
+              setFormsData({
+                ...formsData,
+                description: e.currentTarget.value,
               })
             }
           />

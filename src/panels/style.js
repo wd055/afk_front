@@ -76,13 +76,17 @@ export function statusSnackbarText(
   success,
   text,
   setSnackbar,
-  duration = 4000
+  duration = 4000,
+  callback,
 ) {
   var snackbar = (
     <Snackbar
       duration={duration}
       layout="vertical"
-      onClose={() => setSnackbar(null)}
+      onClose={() => {
+        setSnackbar(null);
+        if (callback && typeof(callback) === 	"function") callback()
+      }}
       before={
         success ? (
           <Avatar size={24} style={blueBackground}>

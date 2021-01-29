@@ -27,8 +27,20 @@ import { Calendar, momentLocalizer, Views } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
-import { get_events, EventForm, getDayOfWeek, event_types_icons } from "./src/calendar";
-import { Icon12Favorite, Icon28CheckCircleFill, Icon28SchoolOutline } from "@vkontakte/icons";
+import {
+  get_events,
+  EventForm,
+  getDayOfWeek,
+  event_types_icons,
+  options_full,
+  options_short,
+} from "./src/calendar";
+import { Roles } from "../App";
+import {
+  Icon12Favorite,
+  Icon28CheckCircleFill,
+  Icon28SchoolOutline,
+} from "@vkontakte/icons";
 
 const localizer = momentLocalizer(moment);
 
@@ -36,7 +48,7 @@ export const CalendarPanel = (props) => {
   const [events, setEvents] = useState([]);
 
   var date = new Date();
-  var first = date.getDate()// - getDayOfWeek(date);
+  var first = date.getDate(); // - getDayOfWeek(date);
   var last = first + 6;
 
   var start = new Date(date.setDate(first));
@@ -46,19 +58,6 @@ export const CalendarPanel = (props) => {
   useEffect(() => {
     get_events(dateRange.start, dateRange.end, setEvents, props);
   }, [dateRange]);
-
-  var options_full = {
-    year: "numeric",
-    month: "numeric",
-    day: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-  };
-
-  var options_short = {
-    hour: "2-digit",
-    minute: "2-digit",
-  };
 
   return (
     <Panel id={props.id}>
@@ -133,19 +132,22 @@ export const CalendarPanel = (props) => {
         <List>
           {events.map((event, i) => (
             <Cell
-            indicator={event.favorite ? <Icon28CheckCircleFill/> : <></>}
-            badge={<Icon12Favorite/>}
-            before={event_types_icons[event.event_type]}
-            // before={<Icon28SchoolOutline fill="var(--accent)" />}
-            description={
+              indicator={event.favorite ? <Icon28CheckCircleFill /> : <></>}
+              badge={<Icon12Favorite />}
+              before={event_types_icons[event.event_type]}
+              // before={<Icon28SchoolOutline fill="var(--accent)" />}
+              description={
                 event.start.toLocaleDateString("ru-RU", options_full) +
                 " - " +
                 event.end.toLocaleTimeString("ru-RU", options_short)
               }
               key={event.id}
+              disabled={props.userRole === Roles.student}
               onClick={() => {
-                props.setGlobalProps({ ...props.globalProps, event: event });
-                props.go("Event");
+                if (props.userRole !== Roles.student) {
+                  props.setGlobalProps({ ...props.globalProps, event: event });
+                  props.go("Event");
+                }
               }}
             >
               {event.title}
@@ -153,10 +155,12 @@ export const CalendarPanel = (props) => {
           ))}
         </List>
       </Group>
-      <EventForm
-        onSave={() => setDateRange({ ...dateRange })}
-        setSnackbar={props.setSnackbar}
-      />
+      {props.userRole === Roles.admin && (
+        <EventForm
+          onSave={() => setDateRange({ ...dateRange })}
+          setSnackbar={props.setSnackbar}
+        />
+      )}
     </Panel>
   );
 };
