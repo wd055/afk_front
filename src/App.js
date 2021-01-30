@@ -65,8 +65,8 @@ import { EventInfo, StudentInfo } from "./panels/src/calendar";
 import { Event } from "./panels/Event";
 
 const origin = "https://thingworx.asuscomm.com:10888";
-// export const main_url = "https://bmstu-afk.herokuapp.com/";
-export const main_url = "http://localhost:8000/";
+export const main_url = "https://bmstu-afk.herokuapp.com/";
+// export const main_url = "http://localhost:8000/";
 // export const main_url = "http://thingworx.asuscomm.com/"
 
 export const Roles = Object.freeze({ admin: 0, teacher: 1, student: 2 });
