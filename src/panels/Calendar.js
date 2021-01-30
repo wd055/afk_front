@@ -12,6 +12,8 @@ import {
   List,
   Avatar,
   Cell,
+  CellButton,
+  Footer,
 } from "@vkontakte/vkui";
 
 import {
@@ -32,8 +34,8 @@ import {
   EventForm,
   getDayOfWeek,
   event_types_icons,
-  options_full,
-  options_short,
+  get_date_title,
+  EventInfo,
 } from "./src/calendar";
 import { Roles } from "../App";
 import {
@@ -130,23 +132,28 @@ export const CalendarPanel = (props) => {
           }}
         /> */}
         <List>
+          {!events || events.length === 0 && <Footer>В выбранные даты мероприятий нет</Footer>}
           {events.map((event, i) => (
             <Cell
-              indicator={event.favorite ? <Icon28CheckCircleFill /> : <></>}
-              badge={<Icon12Favorite />}
+              indicator={
+                event.favorite && props.userRole === Roles.admin ? (
+                  <Icon28CheckCircleFill />
+                ) : (
+                  <></>
+                )
+              }
+              // badge={<Icon12Favorite />}
               before={event_types_icons[event.event_type]}
               // before={<Icon28SchoolOutline fill="var(--accent)" />}
-              description={
-                event.start.toLocaleDateString("ru-RU", options_full) +
-                " - " +
-                event.end.toLocaleTimeString("ru-RU", options_short)
-              }
+              description={get_date_title(event.start, event.end)}
               key={event.id}
-              disabled={props.userRole === Roles.student}
+              // disabled={props.userRole === Roles.student}
               onClick={() => {
+                props.setGlobalProps({ ...props.globalProps, event: event });
                 if (props.userRole !== Roles.student) {
-                  props.setGlobalProps({ ...props.globalProps, event: event });
                   props.go("Event");
+                } else {
+                  props.go("event_info", true);
                 }
               }}
             >
@@ -154,6 +161,19 @@ export const CalendarPanel = (props) => {
             </Cell>
           ))}
         </List>
+      </Group>
+      <Group>
+        <CellButton
+          onClick={() => {
+            props.go("student_info", true);
+            props.setGlobalProps({
+              ...props.globalProps,
+              student: undefined,
+            });
+          }}
+        >
+          Мои посещения
+        </CellButton>
       </Group>
       {props.userRole === Roles.admin && (
         <EventForm

@@ -47,13 +47,9 @@ import {
   Icon28ChevronBack,
   Icon28CheckCircleFill,
   Icon12Favorite,
+  Icon28InfoOutline,
 } from "@vkontakte/icons";
-import {
-  EventForm,
-  options_full,
-  options_short,
-  event_types_icons,
-} from "./src/calendar";
+import { EventForm, EventInfo } from "./src/calendar";
 import { Roles } from "../App";
 
 export const Event = (props) => {
@@ -132,7 +128,7 @@ export const Event = (props) => {
       method: "GET",
     })
       .done(function (data) {
-        // console.log("data", data);
+        console.log("data", data);
         setNext(data.next);
         var studentsList = [];
         if (next && next !== null) studentsList = students;
@@ -220,33 +216,7 @@ export const Event = (props) => {
           onSave={props.goBack}
         />
       ) : (
-        <Group>
-          <Cell
-            indicator={
-              props.globalProps.event.favorite ? (
-                <Icon28CheckCircleFill />
-              ) : (
-                <></>
-              )
-            }
-            badge={<Icon12Favorite />}
-            before={event_types_icons[props.globalProps.event.event_type]}
-            description={
-              props.globalProps.event.start.toLocaleDateString(
-                "ru-RU",
-                options_full
-              ) +
-              " - " +
-              props.globalProps.event.end.toLocaleTimeString(
-                "ru-RU",
-                options_short
-              )
-            }
-            disabled
-          >
-            {props.globalProps.event.title}
-          </Cell>
-        </Group>
+        <EventInfo event={props.globalProps.event} />
       )}
       <Group header={<Header>Отчеты</Header>}>
         <Div style={{ display: "flex" }}>
@@ -297,22 +267,6 @@ export const Event = (props) => {
       </Group>
       <Group>
         <Gradient to="bottom" mode={searchNewStudent ? "tint" : "white"}>
-          {/* <FormItem top="Тип авторизации">
-            <SliderSwitch
-              // onSwitch={(e) => setFormsData({ ...formsData, auth_type: e })}
-              // activeValue={formsData.auth_type}
-              options={[
-                {
-                  name: "Одинарная",
-                  value: "single",
-                },
-                {
-                  name: "Двойная",
-                  value: "double",
-                },
-              ]}
-            />
-          </FormItem> */}
           <Div style={{ display: "flex" }}>
             <Search
               value={searchValue}
@@ -432,42 +386,80 @@ export const Event = (props) => {
                       : "Не начал"
                   }
                   actions={
-                    <>
-                      {student.auth_order && student.auth_order !== "final" && (
-                        <Button
-                          onClick={() =>
-                            set_visit(eventId, student.vk_id, "final")
-                          }
-                          size="m"
-                          mode="outline"
-                        >
-                          Завершить
-                        </Button>
-                      )}
-                      {!student.auth_order && (
-                        <>
+                    props.userRole === Roles.admin ? (
+                      <>
+                        {student.auth_order && student.auth_order !== "final" && (
                           <Button
                             onClick={() =>
-                              set_visit(eventId, student.vk_id, "initial")
+                              set_visit(eventId, student.vk_id, "final")
                             }
                             size="m"
                             mode="outline"
                           >
-                            Начать
+                            Завершить
                           </Button>
-                          <Button
-                            onClick={() =>
-                              set_visit(eventId, student.vk_id, "final_anyway")
-                            }
-                            size="m"
-                            mode="outline"
-                          >
-                            Начать и Завершить
-                          </Button>
-                        </>
-                      )}
-                    </>
+                        )}
+                        {!student.auth_order &&
+                          (props.globalProps.event.auth_type == "single" ? (
+                            <Button
+                              onClick={() =>
+                                set_visit(eventId, student.vk_id, "final")
+                              }
+                              size="m"
+                              mode="outline"
+                            >
+                              Отметить
+                            </Button>
+                          ) : (
+                            <>
+                              <Button
+                                onClick={() =>
+                                  set_visit(eventId, student.vk_id, "initial")
+                                }
+                                size="m"
+                                mode="outline"
+                              >
+                                Начать
+                              </Button>
+                              <Button
+                                onClick={() =>
+                                  set_visit(
+                                    eventId,
+                                    student.vk_id,
+                                    "final_anyway"
+                                  )
+                                }
+                                size="m"
+                                mode="outline"
+                              >
+                                Начать и Завершить
+                              </Button>
+                            </>
+                          ))}
+                      </>
+                    ) : (
+                      <></>
+                    )
                   }
+                  // onClick={() => {
+                  //   props.go("student_info", true);
+                  //   props.setGlobalProps({
+                  //     ...props.globalProps,
+                  //     student: student,
+                  //   });
+                  // }}
+                  after={
+                    <Icon28InfoOutline
+                      onClick={() => {
+                        props.go("student_info", true);
+                        props.setGlobalProps({
+                          ...props.globalProps,
+                          student: student,
+                        });
+                      }}
+                    />
+                  }
+                  disabled
                 >
                   {student.full_name}
                 </RichCell>

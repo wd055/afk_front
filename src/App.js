@@ -11,6 +11,7 @@ import {
   VKCOM,
   SplitCol,
   SplitLayout,
+  ModalRoot,
 } from "@vkontakte/vkui";
 import ScreenSpinner from "@vkontakte/vkui/dist/components/ScreenSpinner/ScreenSpinner";
 import "@vkontakte/vkui/dist/vkui.css";
@@ -22,7 +23,7 @@ import Placeholder from "@vkontakte/vkui/dist/components/Placeholder/Placeholder
 import Icon56CheckCircleOutline from "@vkontakte/icons/dist/56/check_circle_outline";
 import Icon56ErrorOutline from "@vkontakte/icons/dist/56/error_outline";
 
-import ModalRoot from "@vkontakte/vkui/dist/components/ModalRoot/ModalRoot";
+// import ModalRoot from "@vkontakte/vkui/dist/components/ModalRoot/ModalRoot";
 import ModalPage from "@vkontakte/vkui/dist/components/ModalPage/ModalPage";
 import ModalPageHeader from "@vkontakte/vkui/dist/components/ModalPageHeader/ModalPageHeader";
 import Cell from "@vkontakte/vkui/dist/components/Cell/Cell";
@@ -60,11 +61,12 @@ import List from "@vkontakte/vkui/dist/components/List/List";
 import PanelHeaderButton from "@vkontakte/vkui/dist/components/PanelHeaderButton/PanelHeaderButton";
 
 import { CalendarPanel } from "./panels/Calendar";
+import { EventInfo, StudentInfo } from "./panels/src/calendar";
 import { Event } from "./panels/Event";
 
 const origin = "https://thingworx.asuscomm.com:10888";
-export const main_url = "https://bmstu-afk.herokuapp.com/";
-// export const main_url = "http://localhost:8000/";
+// export const main_url = "https://bmstu-afk.herokuapp.com/";
+export const main_url = "http://localhost:8000/";
 // export const main_url = "http://thingworx.asuscomm.com/"
 
 export const Roles = Object.freeze({ admin: 0, teacher: 1, student: 2 });
@@ -99,7 +101,7 @@ function App({ viewWidth }) {
   const [error_oauth, set_error_oauth] = useState(false);
   const [userRole, setUserRole] = useState(Roles.student);
 
-  const modals_const = [];
+  const modals_const = ['event_info', 'student_info'];
   const parseQueryString = (string) => {
     return string
       .slice(1)
@@ -308,85 +310,36 @@ function App({ viewWidth }) {
       );
   }
 
-  // const modals = (
-  // 	<ModalRoot
-  // 		activeModal={modal}
-  // 		onClose={goBack}>
-  // 		<ModalPage
-  // 			id={'payout'}
-  // 			header={
-  // 				<ModalPageHeader
-  // 				//   left={IS_PLATFORM_ANDROID && <PanelHeaderButton onClick={this.modalBack}><Icon24Cancel /></PanelHeaderButton>}
-  // 				//   right={IS_PLATFORM_IOS && <PanelHeaderButton onClick={this.modalBack}><Icon24Dismiss /></PanelHeaderButton>}
-  // 				>Заявление</ModalPageHeader>}
-  // 		>
-  // 			{<Group>
-  // 				<Cell size="l"
-  // 					onClick={() =>{
-  // 						setLogin(modalData.login);
-  // 						goBack();
-  // 						go("User");
-  // 					}}
-  // 					bottomContent={
-  // 						<HorizontalScroll>
-  // 							<div style={{ display: 'flex' }}>
-  // 								{!modalData.new && <React.Fragment>
-  // 									<Button size="m" mode="outline">{modalData.id}</Button>
-  // 									<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{modalData.date}</Button>
-  // 									<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{modalData.group}</Button>
-  // 								</React.Fragment>}
-  // 								{modalData.new && <Button size="m" mode="outline">{modalData.group}</Button>}
-  // 								<Button size="m" mode="outline" style={{ marginLeft: 8 }}>{modalData.login}</Button>
-  // 							</div>
-  // 						</HorizontalScroll>
-  // 					}>{modalData.name}</Cell>
-  // 			</Group>}
-  // 			<Group>
-  // 					<Textarea
-  // 						top="Комментарий"
-  // 						id="error"
-  // 						defaultValue={modalData.error}
-  // 						// value={modalData.error}
-  // 						onChange={(e) => {
-  // 							const { value } = e.currentTarget;
-  // 							modalData.error = value;
-  // 						}}
-  // 					/>
-  // 					{!modalData.new && <CellButton
-  // 						mode="danger"
-  // 						before={<Icon28DeleteOutline />}
-  // 						onClick={() => setPopout(<Alert
-  // 							actionsLayout="vertical"
-  // 							actions={[{
-  // 								title: 'Удалить',
-  // 								autoclose: true,
-  // 								mode: 'destructive',
-  // 								action: () => {
-  // 									modalData.delete = true;
-  // 									on_modals_dutton_click();
-  // 								},
-  // 							}, {
-  // 								title: 'Отмена',
-  // 								autoclose: true,
-  // 								mode: 'cancel'
-  // 							}]}
-  // 							onClose={() => setPopout(null)}
-  // 						>
-  // 							<h2>Подтвердите действие</h2>
-  // 							<p>Вы уверены, что хотите сохранить и удалить заявление?</p>
-  // 						</Alert>)}
-  // 					>Удалить заявление
-  // 						</CellButton>}
-  // 					<Button
-  // 						size="xl"
-  // 						onClick={on_modals_dutton_click}
-  // 						disabled={(modalData.payouts_type === undefined && modalData.payouts_type === "")}
-  // 					>Сохранить</Button>
-  // 				</FormLayout>
-  // 			</Group>
-  // 		</ModalPage>
-  // 	</ModalRoot>
-  // );
+  const modals = (
+    <ModalRoot activeModal={modal} onClose={goBack}>
+      <ModalPage
+        id={"event_info"}
+        header={
+          <ModalPageHeader
+          //   left={IS_PLATFORM_ANDROID && <PanelHeaderButton onClick={this.modalBack}><Icon24Cancel /></PanelHeaderButton>}
+          //   right={IS_PLATFORM_IOS && <PanelHeaderButton onClick={this.modalBack}><Icon24Dismiss /></PanelHeaderButton>}
+          >
+            Мероприятие
+          </ModalPageHeader>
+        }
+      >
+        <EventInfo event={globalProps.event} />
+      </ModalPage>
+      <ModalPage
+        id={"student_info"}
+        header={
+          <ModalPageHeader
+          //   left={IS_PLATFORM_ANDROID && <PanelHeaderButton onClick={this.modalBack}><Icon24Cancel /></PanelHeaderButton>}
+          //   right={IS_PLATFORM_IOS && <PanelHeaderButton onClick={this.modalBack}><Icon24Dismiss /></PanelHeaderButton>}
+          >
+            Журнал
+          </ModalPageHeader>
+        }
+      >
+        <StudentInfo student={globalProps.student} />
+      </ModalPage>
+    </ModalRoot>
+  );
 
   const panel_props = {
     globalProps: globalProps,
@@ -426,7 +379,7 @@ function App({ viewWidth }) {
           history={history}
           onSwipeBack={goBack}
           popout={popout}
-          // modal={modals}
+          modal={modals}
         >
           <Panel id="spinner">
             <PanelHeader>Загрузка</PanelHeader>

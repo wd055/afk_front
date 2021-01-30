@@ -28,6 +28,9 @@ import {
   Avatar,
   Alert,
   Textarea,
+  MiniInfoCell,
+  Footer,
+  Spinner,
 } from "@vkontakte/vkui";
 import { Checkbox } from "@vkontakte/vkui/dist/components/Checkbox/Checkbox";
 import {
@@ -35,7 +38,12 @@ import {
   Icon28Users3Outline,
   Icon28MasksOutline,
   Icon28SunOutline,
+  Icon20PlaceOutline,
+  Icon20ArticleOutline,
+  Icon16ClockOurline,
+  Icon20UserOutline,
 } from "@vkontakte/icons";
+import { func } from "prop-types";
 
 export function getDayOfWeek(date) {
   if (!date) date = new Date();
@@ -60,6 +68,14 @@ export const options_short = {
   hour: "2-digit",
   minute: "2-digit",
 };
+
+export function get_date_title(start, end) {
+  return (
+    start.toLocaleDateString("ru-RU", options_full) +
+    " - " +
+    end.toLocaleTimeString("ru-RU", options_short)
+  );
+}
 
 export function formsDataIsValid(formsData) {
   return (
@@ -188,12 +204,125 @@ function deleteEvent(eventId, setPopout, setSnackbar, goBack) {
         },
       ]}
       actionsLayout="horizontal"
-      onClose={()=>setPopout(null)}
+      onClose={() => setPopout(null)}
       header="Удаление мероприятия"
       text="Вы уверены, что хотите удалить это мероприятие?"
     />
   );
 }
+
+type StudentInfoProps = {
+  student: Object,
+};
+
+export const StudentInfo: FunctionComponent<StudentInfoProps> = (
+  { student },
+  props
+) => {
+  const [events, setEvents] = useState([]);
+  const [download, setDownload] = useState(false);
+  function get_students_visits() {
+    setDownload(true);
+    var url = `${main_url}afk_bot/get_students_events/${
+      student && student.id && "?student=" + student.id}`
+    $.ajax(url, {
+      method: "GET",
+    })
+      .done(function (data) {
+        data = JSON.parse(data);
+        console.log("data", data);
+        var eventsList = [];
+        for (var i in data) {
+          eventsList.push({
+            ...data[i],
+            start: new Date(data[i].start),
+            end: new Date(data[i].end),
+          });
+        }
+        console.log(eventsList);
+        setEvents(eventsList);
+      })
+      .fail(function (data) {
+        console.log("FAIL", data);
+        // statusSnackbar(data.status, props.setSnackbar);
+      })
+      .always(() => setDownload(false));
+  }
+  useEffect(() => {
+    get_students_visits();
+  }, []);
+
+  return (
+    <>
+      {student && student.full_name && (
+        <Group>
+          <MiniInfoCell before={<Icon20UserOutline />} textLevel="primary">
+            {student.full_name}
+          </MiniInfoCell>
+        </Group>
+      )}
+      <Group>
+        {download && <Spinner size="medium" />}
+        {!download && (!events || events.length === 0) && (
+          <Footer>Нет мероприятий</Footer>
+        )}
+        {events.map((event, i) => (
+          <EventInfo key={event.id} event={event} />
+        ))}
+        {/* <MiniInfoCell before={event_types_icons[event.event_type]} textLevel="primary" textWrap="short">
+        {event.title}
+      </MiniInfoCell>
+      <MiniInfoCell before={<Icon20PlaceOutline />} textWrap="full">
+        {event.address}
+      </MiniInfoCell>
+      <MiniInfoCell before={<Icon16ClockOurline />} textWrap="full">
+        {get_date_title(event.start, event.end)}
+      </MiniInfoCell>
+      <MiniInfoCell before={<Icon20ArticleOutline />} textWrap="full">
+        {event.description}
+      </MiniInfoCell> */}
+      </Group>
+    </>
+  );
+};
+
+type EventInfoProps = {
+  event: Object,
+};
+
+export const EventInfo: FunctionComponent<EventInfoProps> = (
+  { event },
+  props
+) => {
+  return (
+    <Group>
+      {event.title && event.title.length > 0 && (
+        <MiniInfoCell
+          before={event_types_icons[event.event_type]}
+          textLevel="primary"
+          textWrap="short"
+        >
+          {event.title}
+        </MiniInfoCell>
+      )}
+      {event.address && event.address.length > 0 && (
+        <MiniInfoCell before={<Icon20PlaceOutline />} textWrap="full">
+          {event.address}
+        </MiniInfoCell>
+      )}
+      {event.start && event.end && (
+        <MiniInfoCell before={<Icon16ClockOurline />} textWrap="full">
+          {get_date_title(event.start, event.end)}
+        </MiniInfoCell>
+      )}
+      {event.description && event.description.length > 0 && (
+        <MiniInfoCell before={<Icon20ArticleOutline />} textWrap="full">
+          {event.description}
+        </MiniInfoCell>
+      )}
+    </Group>
+  );
+};
 
 export type EventItem = {
   id: Number,
@@ -259,7 +388,6 @@ const default_formsData = {
     year: new Date().getFullYear(),
   },
 };
-
 export const EventForm: FunctionComponent<EventFormProps> = (
   { event, onSave, onEdit, setSnackbar, setPopout, goBack },
   props
@@ -324,9 +452,7 @@ export const EventForm: FunctionComponent<EventFormProps> = (
             }
           />
         </FormItem>
-        <FormItem
-          top="Адрес"
-        >
+        <FormItem top="Адрес">
           <Input
             type="text"
             defaultValue={formsData.address}
@@ -338,9 +464,7 @@ export const EventForm: FunctionComponent<EventFormProps> = (
             }
           />
         </FormItem>
-        <FormItem
-          top="Описание"
-        >
+        <FormItem top="Описание">
           <Textarea
             defaultValue={formsData.description}
             onChange={(e) =>
@@ -489,7 +613,9 @@ export const EventForm: FunctionComponent<EventFormProps> = (
               size="l"
               mode="destructive"
               style={{ marginLeft: 8 }}
-              onClick={() => deleteEvent(formsData.id, setPopout, setSnackbar, goBack)}
+              onClick={() =>
+                deleteEvent(formsData.id, setPopout, setSnackbar, goBack)
+              }
             >
               Удалить
             </Button>
