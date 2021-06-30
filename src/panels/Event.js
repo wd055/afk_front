@@ -35,6 +35,8 @@ import {
   TabbarItem,
   Header,
   Cell,
+  SplitLayout,
+  SplitCol,
 } from "@vkontakte/vkui";
 
 import {
@@ -65,7 +67,7 @@ export const Event = (props) => {
     props.globalProps.event.auth_type == "single"
   );
   var eventId = props.globalProps.event.id;
-  const snackbarDelay = 1000;
+  const snackbarDelay = 500;
 
   function set_visit(eventId, student_vk_id, auth_order, callback) {
     $.ajax(`${main_url}api/event/${eventId}/set_visit/`, {
@@ -185,8 +187,11 @@ export const Event = (props) => {
   useEffect(() => {
     if (QRData && QRData.vk_user_id) {
       set_visit(eventId, QRData.vk_user_id, QROrder, function () {
-        bridge.send("VKWebAppOpenCodeReader");
+        // bridge.send("VKWebAppOpenCodeReader");
       });
+      setTimeout(() => {
+          bridge.send('VKWebAppOpenCodeReader');
+      }, snackbarDelay);
     } else if (QRData) {
       statusSnackbarText(
         false,
@@ -207,6 +212,10 @@ export const Event = (props) => {
       <PanelHeader left={<PanelHeaderBack onClick={() => props.goBack()} />}>
         Мероприятие
       </PanelHeader>
+      {/* <SplitLayout
+        style={{ justifyContent: "center" }}
+      > */}
+        {/* <SplitCol fixed width="280px" maxWidth="280px"> */}
       {props.userRole === Roles.admin ? (
         <EventForm
           event={props.globalProps.event}
@@ -218,6 +227,12 @@ export const Event = (props) => {
       ) : (
         <EventInfo event={props.globalProps.event} />
       )}
+      {/* </SplitCol>
+        
+      <SplitCol
+          spaced={!props.globalProps.this_mobile}
+          width={props.globalProps.this_mobile ? '200px' : '100%'}
+          maxWidth={props.globalProps.this_mobile ? '200px' : '100%'}> */}
       <Group header={<Header>Отчеты</Header>}>
         <Div style={{ display: "flex" }}>
           {!auth_type_is_single && (
@@ -265,6 +280,7 @@ export const Event = (props) => {
           </Button> */}
         </Div>
       </Group>
+
       <Group>
         <Gradient to="bottom" mode={searchNewStudent ? "tint" : "white"}>
           <Div style={{ display: "flex" }}>
@@ -324,7 +340,7 @@ export const Event = (props) => {
                       </TabbarItem>
                     </div>
                   ))}
-                {!searchNewStudent && (
+                {!searchNewStudent ? (
                   <IconButton
                     onClick={() => setSearchNewStudent(true)}
                     icon={
@@ -334,8 +350,7 @@ export const Event = (props) => {
                     }
                     style={{ marginRight: 8 }}
                   />
-                )}
-                {searchNewStudent && (
+                ) : searchNewStudent && (
                   <IconButton
                     onClick={() => setSearchNewStudent(false)}
                     icon={
@@ -349,19 +364,19 @@ export const Event = (props) => {
           </Div>
           <Div
             style={{
-              height: "450px",
+              height: "550px",
               overflow: "auto",
               position: "relative",
             }}
             onScroll={(e) => {
               var element = e.currentTarget;
-              console.log(
-                element.scrollTop + element.clientHeight >=
-                  element.scrollHeight - 100,
-                element.scrollTop,
-                element.clientHeight,
-                element.scrollHeight - 100
-              );
+              // console.log(
+              //   element.scrollTop + element.clientHeight >=
+              //     element.scrollHeight - 100,
+              //   element.scrollTop,
+              //   element.clientHeight,
+              //   element.scrollHeight - 100
+              // );
               if (
                 element.scrollTop + element.clientHeight >=
                   element.scrollHeight - 250 &&
@@ -451,6 +466,7 @@ export const Event = (props) => {
                   after={
                     <Icon28InfoOutline
                       onClick={() => {
+                        console.log(student)
                         props.go("student_info", true);
                         props.setGlobalProps({
                           ...props.globalProps,
@@ -471,6 +487,8 @@ export const Event = (props) => {
           </Div>
         </Gradient>
       </Group>
-    </Panel>
+      {/* </SplitCol> */}
+      {/* </SplitLayout> */}
+      </Panel>
   );
 };

@@ -2,9 +2,6 @@ import React, { useState, useEffect } from "react";
 import bridge from "@vkontakte/vk-bridge";
 import {
   View,
-  ConfigProvider,
-  AdaptivityProvider,
-  AppRoot,
   withAdaptivity,
   ViewWidth,
   usePlatform,
@@ -26,17 +23,7 @@ import Icon56ErrorOutline from "@vkontakte/icons/dist/56/error_outline";
 // import ModalRoot from "@vkontakte/vkui/dist/components/ModalRoot/ModalRoot";
 import ModalPage from "@vkontakte/vkui/dist/components/ModalPage/ModalPage";
 import ModalPageHeader from "@vkontakte/vkui/dist/components/ModalPageHeader/ModalPageHeader";
-import Cell from "@vkontakte/vkui/dist/components/Cell/Cell";
-import Radio from "@vkontakte/vkui/dist/components/Radio/Radio";
-import Select from "@vkontakte/vkui/dist/components/Select/Select";
-import Textarea from "@vkontakte/vkui/dist/components/Textarea/Textarea";
-import Button from "@vkontakte/vkui/dist/components/Button/Button";
 import Group from "@vkontakte/vkui/dist/components/Group/Group";
-import HorizontalScroll from "@vkontakte/vkui/dist/components/HorizontalScroll/HorizontalScroll";
-import CellButton from "@vkontakte/vkui/dist/components/CellButton/CellButton";
-import Alert from "@vkontakte/vkui/dist/components/Alert/Alert";
-
-import Icon28DeleteOutline from "@vkontakte/icons/dist/28/delete_outline";
 
 import Snackbar from "@vkontakte/vkui/dist/components/Snackbar/Snackbar";
 import Avatar from "@vkontakte/vkui/dist/components/Avatar/Avatar";
@@ -45,8 +32,6 @@ import {
   redIcon,
   blueIcon,
   redBackground,
-  blueBackground,
-  statusSnackbar,
   statusSnackbarText,
 } from "./panels/style";
 
@@ -54,11 +39,8 @@ import { FormLayout, FormStatus, Link, SimpleCell } from "@vkontakte/vkui";
 
 import {
   Icon28MessageOutline,
-  Icon28LogoVkOutline,
   Icon24Error,
 } from "@vkontakte/icons";
-import List from "@vkontakte/vkui/dist/components/List/List";
-import PanelHeaderButton from "@vkontakte/vkui/dist/components/PanelHeaderButton/PanelHeaderButton";
 
 import { CalendarPanel } from "./panels/Calendar";
 import { EventInfo, StudentInfo } from "./panels/src/calendar";
@@ -101,7 +83,7 @@ function App({ viewWidth }) {
   const [error_oauth, set_error_oauth] = useState(false);
   const [userRole, setUserRole] = useState(Roles.student);
 
-  const modals_const = ['event_info', 'student_info'];
+  const modals_const = ["event_info", "student_info"];
   const parseQueryString = (string) => {
     return string
       .slice(1)
@@ -313,6 +295,7 @@ function App({ viewWidth }) {
   const modals = (
     <ModalRoot activeModal={modal} onClose={goBack}>
       <ModalPage
+        onClose={goBack}
         id={"event_info"}
         header={
           <ModalPageHeader
@@ -326,6 +309,9 @@ function App({ viewWidth }) {
         <EventInfo event={globalProps.event} />
       </ModalPage>
       <ModalPage
+        dynamicContentHeight
+        updateModalHeight={()=>{}}
+        onClose={goBack}
         id={"student_info"}
         header={
           <ModalPageHeader

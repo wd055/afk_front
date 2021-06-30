@@ -31,6 +31,7 @@ import {
   MiniInfoCell,
   Footer,
   Spinner,
+  withModalRootContext,
 } from "@vkontakte/vkui";
 import { Checkbox } from "@vkontakte/vkui/dist/components/Checkbox/Checkbox";
 import {
@@ -213,10 +214,11 @@ function deleteEvent(eventId, setPopout, setSnackbar, goBack) {
 
 type StudentInfoProps = {
   student: Object,
+  updateModalHeight?: Function,
 };
 
-export const StudentInfo: FunctionComponent<StudentInfoProps> = (
-  { student },
+export const StudentInfo: FunctionComponent<StudentInfoProps> = withModalRootContext((
+  { student, updateModalHeight },
   props
 ) => {
   const [events, setEvents] = useState([]);
@@ -224,7 +226,8 @@ export const StudentInfo: FunctionComponent<StudentInfoProps> = (
   function get_students_visits() {
     setDownload(true);
     var url = `${main_url}afk_bot/get_students_events/${
-      student && student.id && "?student=" + student.id}`
+      student && student.id && "?student=" + student.id
+    }`;
     $.ajax(url, {
       method: "GET",
     })
@@ -251,6 +254,9 @@ export const StudentInfo: FunctionComponent<StudentInfoProps> = (
   useEffect(() => {
     get_students_visits();
   }, []);
+  useEffect(() => {
+    updateModalHeight();
+  }, [download]);
 
   return (
     <>
@@ -284,7 +290,8 @@ export const StudentInfo: FunctionComponent<StudentInfoProps> = (
       </Group>
     </>
   );
-};
+})
+// export withModalRootContext(StudentInfo);
 
 type EventInfoProps = {
   event: Object,
