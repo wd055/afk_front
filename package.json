@@ -10,15 +10,26 @@
     "build": "react-scripts build",
     "predeploy": "npm run build",
     "deploy": "vk-miniapps-deploy",
-    "tunel": "vk-tunnel --insecure=1 --http-protocol=https --ws-protocol=wss --host=localhost --port=10888"
+    "tunel": "vk-tunnel --insecure=1 --http-protocol=https --ws-protocol=wss --host=localhost --port=10888",
+    "eslint-init": "eslint --init",
+    "eslint-check": "eslint ./src",
+    "eslint-fix": "eslint --fix ./src",
+    "style-lint-check": "npx stylelint **/*.scss",
+    "style-lint-fix": "npx stylelint --fix **/*.scss",
+    "lint": "npm run style-lint-fix && npm run eslint-fix",
+    "lint-check": "npm run style-lint-check && npm run eslint-check"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@types/jquery": "^3.5.5",
+    "@types/react": "^17.0.11",
     "cross-env": "^5.2.1",
+    "eslint-plugin-react-hooks": "^4.2.0",
     "react-hot-loader": "^4.13.0",
-    "react-scripts": "^3.4.4"
+    "react-scripts": "^3.4.4",
+    "typescript": "^4.3.4"
   },
   "dependencies": {
     "@vkontakte/icons": "^1.69.0",
@@ -35,7 +46,7 @@
     "eruda": "^2.4.1",
     "eruda-code": "^2.0.0",
     "eruda-dom": "^2.0.0",
-    "jquery": "^3.5.1",
+    "jquery": "^3.6.0",
     "libphonenumber-js": "^1.9.7",
     "moment": "^2.29.1",
     "prop-types": "^15.7.2",

@@ -1,5 +1,24 @@
-import backendLocation from '@config';
+import { mainApiUrl } from '../consts/config';
 import Context from './Context';
+
+export interface IResponseData {
+    status: number;
+    ok: boolean;
+    json: Context;
+}
+
+export function parseJson(response: Response): Promise<IResponseData> {
+    if (response.status === 204) {
+        return Promise.resolve(response);
+    }
+    return response.json().then((json) => {
+        return {
+            status: response.status,
+            ok: response.ok,
+            json
+        };
+    });
+}
 
 /**
  * @class
@@ -17,7 +36,7 @@ class BaseRequest {
      */
     request(method = 'GET', route = '/', body: Context = null, reqOptions: Context = {}): Promise<Response> {
         let binary = false;
-        let url = backendLocation;
+        let url = mainApiUrl;
 
         if (reqOptions) {
             if (reqOptions.binary === true) {
@@ -31,27 +50,29 @@ class BaseRequest {
         const options: RequestInit = {
             method: method,
             mode: 'cors',
-            credentials: 'include'
+            // credentials: 'include'
         };
 
-        const CSRFToken = window.localStorage.getItem('CSRFToken');
+        // const CSRFToken = window.localStorage.getItem('CSRFToken');
         if (body && !binary) {
             options.headers = {
                 'Content-type': 'application/json',
-                'X-CSRF-Token': CSRFToken || ''
+                // 'X-CSRF-Token': CSRFToken || '',
+                'vk-params': window.location.search
             };
             options.body = JSON.stringify(body);
         } else {
             options.headers = {
                 'Content-type': 'multipart/form-data',
-                'X-CSRF-Token': CSRFToken || ''
+                // 'X-CSRF-Token': CSRFToken || ''
+                'vk-params': window.location.search
             };
             options.body = body;
         }
 
         return fetch(url + route, options).then((response) => {
             if (response.headers.get('X-CSRF-Token')) {
-                window.localStorage.setItem('CSRFToken', response.headers.get('X-CSRF-Token'));
+                window.localStorage.setItem('CSRFToken', response.headers.get('X-CSRF-Token') || '');
             }
             return response;
         });
@@ -176,7 +197,7 @@ class BinaryPostRequest extends BaseRequest {
  * Класс, ответственный за HTTP запросы. Выполняет нужный запрос
  */
 class HttpRequests {
-    static instance: HttpRequests = null;
+    static instance: HttpRequests | null = null;
     requests: Context;
 
     constructor() {
@@ -222,7 +243,7 @@ class HttpRequests {
      * @param {object} options опции запроса
      * @return {Promise} Ответ на запрос
      */
-    post(route: string, body: Context, options: Context = {}): Promise<Response> {
+    post(route: string, body?: Context, options: Context = {}): Promise<Response> {
         return this.makeRequest('post', route, body, options);
     }
 
@@ -258,7 +279,7 @@ class HttpRequests {
      * @param {object} options опции запроса
      * @return {Promise} Ответ на запрос
      */
-    delete(route: string, body: Context, options: Context = {}): Promise<Response> {
+    delete(route: string, body?: Context, options: Context = {}): Promise<Response> {
         return this.makeRequest('delete', route, body, options);
     }
 
@@ -275,17 +296,23 @@ class HttpRequests {
      * @param {object} options указание опций запроса
      * @return {Promise} Ответ на запрос
      */
-    makeRequest(method: string, route: string, body: Context = null, options: Context = {}): Promise<Response> {
+    makeRequest(
+        method: string,
+        route: string,
+        body: Context = null,
+        options: Context = {}
+    ): Promise<Response> {
         if (!(method in this.requests)) {
             return Promise.reject(new Error(`Request method ${method} does not exist`));
         }
 
         for (const [kMethod, handler] of Object.entries(this.requests)) {
-            const req = <BaseRequest>handler;
+            const req = handler as BaseRequest;
             if (kMethod === method) {
                 return req.makeRequest(route, body, options);
             }
         }
+        return Promise.reject();
     }
 }
 
