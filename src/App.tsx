@@ -14,7 +14,8 @@ import {
     ModalRoot,
     SplitLayout,
     View,
-    PanelHeader
+    PanelHeader,
+    PanelHeaderBack
 } from '@vkontakte/vkui';
 import { Icon56CheckCircleOutline, Icon56ErrorOutline } from '@vkontakte/icons';
 import { redIcon, blueIcon } from './panels/style';
@@ -101,30 +102,9 @@ function App({ viewWidth }: any) {
             <ModalPage
                 onClose={goBack}
                 id={'eventInfo'}
-                header={
-                    <ModalPageHeader
-                    //   right={IS_PLATFORM_IOS && <PanelHeaderButton onClick={this.modalBack}><Icon24Dismiss /></PanelHeaderButton>}
-                    >
-                        Мероприятие
-                    </ModalPageHeader>
-                }
+                header={<ModalPageHeader>Мероприятие</ModalPageHeader>}
             >
                 <EventInfo event={EventModel.currentEvent as IEvent} />
-            </ModalPage>
-            <ModalPage
-                dynamicContentHeight
-                onClose={goBack}
-                id={'studentInfo'}
-                header={
-                    <ModalPageHeader
-                    //   left={IS_PLATFORM_ANDROID && <PanelHeaderButton onClick={this.modalBack}><Icon24Cancel /></PanelHeaderButton>}
-                    //   right={IS_PLATFORM_IOS && <PanelHeaderButton onClick={this.modalBack}><Icon24Dismiss /></PanelHeaderButton>}
-                    >
-                        Журнал
-                    </ModalPageHeader>
-                }
-            >
-                <StudentInfo student={StudentModel.currentStudent as IStudent} />
             </ModalPage>
             <ModalPage onClose={goBack} id={'eventForm'} header={<ModalPageHeader>Форма</ModalPageHeader>}>
                 <EventForm event={EventModel.currentEvent as IEvent} onSave={goBack} onDelete={goBack} />
@@ -191,6 +171,11 @@ function App({ viewWidth }: any) {
                     <CalendarPanel id="Calendar" />
 
                     <Event id="Event" />
+
+                    <Panel id="studentInfo">
+                        <PanelHeader left={<PanelHeaderBack onClick={() => goBack()} />}>Журнал</PanelHeader>
+                        <StudentInfo student={StudentModel.currentStudent as IStudent} />
+                    </Panel>
                 </View>
             </SplitCol>
             {snackbar}

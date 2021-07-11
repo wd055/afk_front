@@ -21,7 +21,7 @@ import { eventTypes, TAuth, TAuthArray, TAuthName, TEvent } from '../../consts/e
 import {
     getHoursAndMinutes,
     eventDateComposition,
-    IEventDate,
+    IDateFormat,
     getEventDate,
     setHoursAndMinutes,
     splitInputTime,
@@ -29,7 +29,7 @@ import {
 } from '../../utils/date';
 import { IEvent } from '../../models/Event';
 import EventController from '../../controllers/Event';
-import { DateFormat } from '@vkontakte/vkui/dist/components/DatePicker/DatePicker';
+import { DatePickerDateFormat } from '@vkontakte/vkui/dist/components/DatePicker/DatePicker';
 import { EGoBack as goBack } from '../../App';
 
 type EventFormProps = {
@@ -154,9 +154,9 @@ export const EventForm: FunctionComponent<EventFormProps> = ({ event, onSave, on
                             month: 1,
                             year: new Date().getFullYear() - 1
                         }}
-                        onDateChange={(value: DateFormat) => {
-                            const start = eventDateComposition(value as IEventDate, formsData.start);
-                            const end = eventDateComposition(value as IEventDate, formsData.end);
+                        onDateChange={(value: DatePickerDateFormat) => {
+                            const start = eventDateComposition(value as IDateFormat, formsData.start);
+                            const end = eventDateComposition(value as IDateFormat, formsData.end);
                             setFormsData({
                                 ...formsData,
                                 start: start,

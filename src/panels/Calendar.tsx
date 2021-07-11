@@ -121,7 +121,7 @@ export const CalendarPanel = ({ id }: ICalendarPanel) => {
                 <CellButton
                     onClick={() => {
                         StudentModel.currentStudent = null;
-                        go('studentInfo', true);
+                        go('studentInfo');
                     }}
                 >
                     Мои посещения

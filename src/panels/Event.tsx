@@ -374,7 +374,7 @@ export const Event = ({ id }: IEventPanel) => {
                                         <Icon28InfoOutline
                                             onClick={() => {
                                                 StudentModel.currentStudent = student;
-                                                go('studentInfo', true);
+                                                go('studentInfo');
                                             }}
                                         />
                                     }

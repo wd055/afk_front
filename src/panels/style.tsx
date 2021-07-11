@@ -1,8 +1,5 @@
-import Snackbar from '@vkontakte/vkui/dist/components/Snackbar/Snackbar';
-import Avatar from '@vkontakte/vkui/dist/components/Avatar/Avatar';
-
-import Icon24Error from '@vkontakte/icons/dist/24/error';
-import Icon16Done from '@vkontakte/icons/dist/16/done';
+import { Snackbar, Avatar } from '@vkontakte/vkui';
+import { Icon24Error, Icon16Done } from '@vkontakte/icons';
 import { textResponseCode } from '../consts/errors';
 import React from 'react';
 import { ESetSnackbar as setSnackbar } from '../App';
@@ -51,7 +48,7 @@ export function callSnackbar({
     duration = 4000,
     statusCodeForText
 }: IStatusSnackbarText): Promise<void> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         let snackbar = (
             <Snackbar
                 duration={duration}

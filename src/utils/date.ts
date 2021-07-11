@@ -51,13 +51,13 @@ export function setHoursAndMinutes(date: Date, time: {hour: string | number, min
     return newDate;
 }
 
-export type IEventDate = {
+export type IDateFormat = {
     day: number;
     month: number;
     year: number;
 };
 
-export function getEventDate(date: Date): IEventDate {
+export function getEventDate(date: Date): IDateFormat {
     return {
         day: date.getDate(),
         month: date.getMonth() + 1,
@@ -65,7 +65,7 @@ export function getEventDate(date: Date): IEventDate {
     };
 }
 
-export function eventDateComposition(eventDate: IEventDate, date: Date): Date {
+export function eventDateComposition(eventDate: IDateFormat, date: Date): Date {
     return new Date(eventDate.year, eventDate.month - 1, eventDate.day, date.getHours(), date.getMinutes());
 }
 
