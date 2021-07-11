@@ -38,6 +38,7 @@ type EventFormProps = {
     onEdit?: Function;
     onDelete?: Function;
 };
+const defaultDate = new Date(new Date().getFullYear(), 0, 1);
 
 const default_formsData: IEvent = {
     title: '',
@@ -46,8 +47,8 @@ const default_formsData: IEvent = {
     description: '',
     eventType: 'other',
     favorite: false,
-    start: new Date(new Date().getFullYear(), 0, 1),
-    end: new Date(new Date().getFullYear(), 0, 1)
+    start: defaultDate,
+    end: defaultDate
 };
 
 export const EventForm: FunctionComponent<EventFormProps> = ({ event, onSave, onEdit, onDelete }) => {
@@ -170,12 +171,7 @@ export const EventForm: FunctionComponent<EventFormProps> = ({ event, onSave, on
                     />
                 </FormItem>
                 <FormLayoutGroup mode="horizontal">
-                    <FormItem
-                        top="С"
-                        status={
-                            formsData.start > new Date(new Date().getFullYear(), 0, 1) ? 'valid' : 'error'
-                        }
-                    >
+                    <FormItem top="С" status={formsData.start > defaultDate ? 'valid' : 'error'}>
                         <Input
                             type="time"
                             required

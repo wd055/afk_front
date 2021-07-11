@@ -1,5 +1,5 @@
 import HttpRequests, { IResponseData, parseJson } from '../utils/requests';
-import { IEvent, parseDateResponseEvent } from './Event';
+import { IEvent, parseDateResponseEvents } from './Event';
 
 export interface IPagination {
     count: number;
@@ -27,7 +27,7 @@ export class OtherModel {
     getStudentsEvents(studentId?: number): Promise<IResponseGetStudentsEvents> {
         return HttpRequests.get(`/get_students_events/&student=${studentId || ''}`)
             .then(parseJson)
-            .then(parseDateResponseEvent);
+            .then(parseDateResponseEvents);
     }
     getUrl(url: string): Promise<IResponseData> {
         return HttpRequests.get(url).then(parseJson);

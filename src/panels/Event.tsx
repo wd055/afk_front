@@ -218,7 +218,6 @@ export const Event = ({ id }: IEventPanel) => {
                             (auth_type_is_single ? (
                                 <IconButton
                                     onClick={() => {
-                                        console.log('final');
                                         setQROrder('final');
                                         bridge.send('VKWebAppOpenCodeReader');
                                     }}
@@ -229,7 +228,6 @@ export const Event = ({ id }: IEventPanel) => {
                                 <div className="Tabbar Tabbar--l-vertical" style={{ position: 'static' }}>
                                     <TabbarItem
                                         onClick={() => {
-                                            console.log('initial');
                                             setQROrder('initial');
                                             bridge.send('VKWebAppOpenCodeReader');
                                         }}
@@ -240,7 +238,6 @@ export const Event = ({ id }: IEventPanel) => {
                                     </TabbarItem>
                                     <TabbarItem
                                         onClick={() => {
-                                            console.log('final');
                                             setQROrder('final');
                                             bridge.send('VKWebAppOpenCodeReader');
                                         }}

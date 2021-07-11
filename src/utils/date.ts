@@ -44,7 +44,10 @@ export function splitInputTime(value: string): { hour: number; minute: number } 
     return result;
 }
 
-export function setHoursAndMinutes(date: Date, time: {hour: string | number, minute: string | number}): Date {
+export function setHoursAndMinutes(
+    date: Date,
+    time: { hour: string | number; minute: string | number }
+): Date {
     let newDate = new Date(date);
     newDate.setHours(Number(time.hour));
     newDate.setMinutes(Number(time.minute));
@@ -87,3 +90,32 @@ export function formsEventIsValid(formsEvent: IEvent): boolean {
         formsEvent.end > new Date(2020, 0, 1) &&
         formsEvent.start < formsEvent.end) as boolean;
 }
+
+export type checkPeriodType = 'all' | 'currentSemestr' | 'currentAcademicYear';
+export const checkPeriodArray: checkPeriodType[] = ['all', 'currentSemestr', 'currentAcademicYear'];
+export const checkPeriodObject = {
+    all: 'Весь',
+    currentSemestr: 'Семестр',
+    currentAcademicYear: 'Учебный год'
+};
+
+export const checkPeriodCurrentSemestr = (date: Date): boolean => {
+    let startMonth = 0,
+        endMonth = 6;
+
+    if (new Date().getMonth() >= 7) {
+        startMonth = 7;
+        endMonth = 11;
+    }
+
+    const begin = new Date(new Date().getFullYear(), startMonth);
+    const end = new Date(new Date().getFullYear(), endMonth);
+    return date >= begin && date <= end;
+};
+
+export const checkPeriodCurrentAcademicYear = (date: Date): boolean => {
+    return (
+        (date.getFullYear() === new Date().getFullYear() - 1 && date.getMonth() >= 7) ||
+        (date.getFullYear() === new Date().getFullYear() && date.getMonth() <= 6)
+    );
+};

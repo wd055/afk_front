@@ -33,10 +33,11 @@ import StudentModel, { IStudent } from './models/Student';
 import { TGo, TModals, TModalsArray, TPanels } from './consts/goto';
 import bridge from '@vkontakte/vk-bridge';
 import { EventForm } from './components/EventForm/EventForm';
+import { StudentsPanel } from './panels/Students';
 
 export let ESetPopout: Function = () => {};
 export let ESetSnackbar: Function = () => {};
-export let EGo: Function = () => {};
+export let EGo = (name: TGo, itsModal?: boolean) => {};
 export let EGoBack: Function = () => {};
 
 function App({ viewWidth }: any) {
@@ -171,6 +172,8 @@ function App({ viewWidth }: any) {
                     <CalendarPanel id="Calendar" />
 
                     <Event id="Event" />
+
+                    <StudentsPanel id="Students" />
 
                     <Panel id="studentInfo">
                         <PanelHeader left={<PanelHeaderBack onClick={() => goBack()} />}>Журнал</PanelHeader>

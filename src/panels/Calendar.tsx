@@ -11,7 +11,7 @@ import {
     CellButton,
     Footer
 } from '@vkontakte/vkui';
-import { Icon28AddOutline, Icon28CheckCircleFill } from '@vkontakte/icons';
+import { Icon28AddOutline, Icon28CheckCircleFill, Icon28SearchOutline } from '@vkontakte/icons';
 import { Roles, userRole } from '../consts/roles';
 import EventModel, { IEvent } from '../models/Event';
 import EventController from '../controllers/Event';
@@ -137,6 +137,14 @@ export const CalendarPanel = ({ id }: ICalendarPanel) => {
                         }}
                     >
                         Создать мероприятия
+                    </CellButton>
+                    <CellButton
+                        before={<Icon28SearchOutline />}
+                        onClick={() => {
+                            go('Students');
+                        }}
+                    >
+                        Студенты
                     </CellButton>
                 </Group>
             )}

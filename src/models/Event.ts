@@ -37,6 +37,10 @@ export interface IResponseEvent extends IResponseData {
     json: IEvent;
 }
 
+export interface IResponseEvents extends IResponseData {
+    json: IEvent[];
+}
+
 export interface ISetVisit {
     student_vk_id: number;
     auth_order: TAuthOrder;
@@ -55,6 +59,13 @@ export const parseDateEventArray = (events: IEvent[]): IEvent[] => {
 export const parseDateResponseEvent = (response: IResponseEvent): IResponseData => {
     if (response.ok) {
         response.json = parseDateEvent(response.json);
+    }
+    return response;
+};
+
+export const parseDateResponseEvents = (response: IResponseEvents): IResponseData => {
+    if (response.ok) {
+        response.json = response.json.map((item: IEvent): IEvent => parseDateEvent(item));
     }
     return response;
 };
