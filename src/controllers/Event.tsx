@@ -6,7 +6,7 @@ import { IPaginationStudent, IResponsePaginationStudent, IStudent } from '../mod
 import VisitModel, { IPaginationVisit, IResponsePaginationVisit, IVisit } from '../models/Visit';
 import { IResponseData } from '../utils/requests';
 import { callSnackbar, catchSnackbar } from '../panels/style';
-import { TAuthOrder } from '../consts/events';
+import { TAuthOrder, TDepartment } from '../consts/events';
 import React from 'react';
 import { ESetPopout } from '../App';
 
@@ -65,8 +65,8 @@ export class EventController {
         );
     }
 
-    getEvents(start: Date, end: Date, setEvents: Function): void {
-        EventModel.getEvents({ start: start, end: end })
+    getEvents(start: Date, end: Date, setEvents: Function, department?: TDepartment): void {
+        EventModel.getEvents({ start: start, end: end }, 1, department)
             .then((response: IResponsePaginationEvent) => {
                 if (!response.ok) return;
                 setEvents(response.json);

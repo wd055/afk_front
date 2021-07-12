@@ -1,4 +1,4 @@
-import { TAuth, TAuthOrder, TEvent } from '../consts/events';
+import { TAuth, TAuthOrder, TDepartment, TEvent } from '../consts/events';
 import { dateToString, getDateForRequest } from '../utils/date';
 import HttpRequests, { IResponseData, parseJson } from '../utils/requests';
 import { IResponsePaginationStudent, IResponseStudent } from './Student';
@@ -15,6 +15,7 @@ export interface IEvent {
     eventType: TEvent;
     address?: string;
     description?: string;
+    department?: TDepartment;
 }
 
 interface IEventRequest {
@@ -27,6 +28,7 @@ interface IEventRequest {
     eventType: TEvent;
     address?: string;
     description?: string;
+    department?: TDepartment;
 }
 
 export interface IResponsePaginationEvent extends IResponseData {
@@ -82,7 +84,11 @@ export const parseDateResponsePaginationEvent = (
 export class EventModel {
     currentEvent: IEvent | null = null;
 
-    getEvents(time?: { start?: string | Date; end?: string | Date }, page?: number): Promise<IResponsePaginationEvent> {
+    getEvents(
+        time?: { start?: string | Date; end?: string | Date },
+        page?: number,
+        department?: TDepartment
+    ): Promise<IResponsePaginationEvent> {
         let start = '',
             end = '';
         if (time?.start) {
@@ -91,7 +97,7 @@ export class EventModel {
         if (time?.end) {
             end = getDateForRequest(new Date(time.end));
         }
-        return HttpRequests.get(`/event/?start=${start}&end=${end}&page=${page || 1}`)
+        return HttpRequests.get(`/event/?start=${start}&end=${end}&page=${page || 1}&department=${department || ''}`)
             .then(parseJson)
             .then(parseDateResponsePaginationEvent);
     }
@@ -123,7 +129,9 @@ export class EventModel {
             .then(parseDateResponseEvent);
     }
     searchNewStudentsEvent(id: number, search?: string, page?: number): Promise<IResponsePaginationStudent> {
-        return HttpRequests.get(`/event/${id}/search_new_students/?search=${search}&page=${page || 1}`).then(parseJson);
+        return HttpRequests.get(`/event/${id}/search_new_students/?search=${search}&page=${page || 1}`).then(
+            parseJson
+        );
     }
     setVisitEvent(id: number, obj: ISetVisit): Promise<IResponseStudent> {
         return HttpRequests.post(`/event/${id}/set_visit/`, obj).then(parseJson);

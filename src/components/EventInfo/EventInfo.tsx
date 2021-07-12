@@ -1,7 +1,7 @@
 import React, { FunctionComponent } from 'react';
 import { Group, MiniInfoCell } from '@vkontakte/vkui';
-import { Icon20PlaceOutline, Icon20ArticleOutline, Icon16ClockOurline } from '@vkontakte/icons';
-import { eventTypesIcons } from '../../consts/events';
+import { Icon20PlaceOutline, Icon20ArticleOutline, Icon16ClockOurline, Icon20EducationOutline } from '@vkontakte/icons';
+import { eventTypesIcons, TDepartmentName } from '../../consts/events';
 import { IEvent } from '../../models/Event';
 import { getDateTitle } from '../../utils/date';
 
@@ -30,6 +30,11 @@ export const EventInfo: FunctionComponent<EventInfoProps> = ({ event }, props) =
             {event.description && event.description.length > 0 && (
                 <MiniInfoCell before={<Icon20ArticleOutline />} textWrap="full">
                     {event.description}
+                </MiniInfoCell>
+            )}
+            {event.department && event.department.length > 0 && (
+                <MiniInfoCell before={<Icon20EducationOutline />} textWrap="full">
+                    {TDepartmentName[event.department]}
                 </MiniInfoCell>
             )}
         </Group>

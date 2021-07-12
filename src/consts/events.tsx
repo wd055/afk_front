@@ -21,11 +21,12 @@ export const TAuthOrderName = {
     final_anyway: 'Принудительная конечная'
 };
 
-export type TDepartment = 'afk' | 'fv';
-export const TDepartmentArray = ['afk', 'fv'];
+export type TDepartment = 'afk' | 'fv' | '';
+export const TDepartmentArray: TDepartment[] = ['afk', 'fv', ''];
 export const TDepartmentName = {
     afk: 'АФК',
-    fv: 'ФВ'
+    fv: 'ФВ',
+    '': 'Обе'
 };
 
 export type TEvent = 'open_air' | 'lecture' | 'culture' | 'volunteering' | 'other';
@@ -46,13 +47,13 @@ export const eventTypesIcons = {
     other: <></>
 };
 
-type TEventTypes = {
-    value: TEvent;
+type customSelectType = {
+    value: TEvent | TDepartment;
     label: string;
     icon: ReactChild;
 }[];
 
-export const eventTypes: TEventTypes = [
+export const eventTypes: customSelectType = [
     {
         value: 'open_air',
         label: 'Занятия на свежем воздухе',
@@ -74,4 +75,22 @@ export const eventTypes: TEventTypes = [
         icon: eventTypesIcons.volunteering
     },
     { value: 'other', label: 'Другое', icon: eventTypesIcons.other }
+];
+
+export const departmentSelect: customSelectType = [
+    {
+        value: 'afk',
+        label: 'АФК',
+        icon: eventTypesIcons.other
+    },
+    {
+        value: 'fv',
+        label: 'ФВ',
+        icon: eventTypesIcons.other
+    },
+    {
+        value: '',
+        label: 'Обе',
+        icon: eventTypesIcons.other
+    }
 ];

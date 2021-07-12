@@ -29,7 +29,7 @@ import {
     Icon28InfoOutline
 } from '@vkontakte/icons';
 import { snackbarDelay } from '../consts/snackbar';
-import EventModel, { IResponseEvent } from '../models/Event';
+import EventModel, { IEvent, IResponseEvent } from '../models/Event';
 import { IVKWebAppOpenCodeReaderResultData } from '../consts/bridgesType';
 import { TQRData } from '../consts/QR';
 import { TAuthOrder } from '../consts/events';
@@ -38,6 +38,7 @@ import EventController, { IStudentVisit } from '../controllers/Event';
 import { Roles, userRole } from '../consts/roles';
 import { thisMobile } from '../consts/quertParams';
 import { EGo as go, EGoBack as goBack } from '../App';
+import { EventInfo } from '../components/EventInfo/EventInfo';
 
 export interface IEventPanel {
     id: string;
@@ -176,6 +177,7 @@ export const Event = ({ id }: IEventPanel) => {
                     Редактировать мероприятия
                 </CellButton>
             </Group>
+            <EventInfo event={EventModel.currentEvent as IEvent} />
             <Group header={<Header>Отчеты</Header>}>
                 <Div style={{ display: 'flex' }}>
                     {!auth_type_is_single && (

@@ -9,13 +9,23 @@ import {
     List,
     Cell,
     CellButton,
-    Footer
+    Footer,
+    CustomSelect,
+    CustomSelectOption,
+    Tabs,
+    TabsItem
 } from '@vkontakte/vkui';
 import { Icon28AddOutline, Icon28CheckCircleFill, Icon28SearchOutline } from '@vkontakte/icons';
 import { Roles, userRole } from '../consts/roles';
 import EventModel, { IEvent } from '../models/Event';
 import EventController from '../controllers/Event';
-import { eventTypesIcons } from '../consts/events';
+import {
+    departmentSelect,
+    eventTypesIcons,
+    TDepartment,
+    TDepartmentArray,
+    TDepartmentName
+} from '../consts/events';
 import { getDateTitle } from '../utils/date';
 import StudentModel from '../models/Student';
 import { EGo as go } from '../App';
@@ -26,6 +36,7 @@ export interface ICalendarPanel {
 
 export const CalendarPanel = ({ id }: ICalendarPanel) => {
     const [events, setEvents] = useState([]);
+    const [selectDepartment, setSelectDepartment] = useState<TDepartment>('');
 
     let date = new Date();
     let first = date.getDate();
@@ -36,8 +47,8 @@ export const CalendarPanel = ({ id }: ICalendarPanel) => {
     const [dateRange, setDateRange] = useState({ start: start, end: end });
 
     useEffect(() => {
-        EventController.getEvents(dateRange.start, dateRange.end, setEvents);
-    }, [dateRange]);
+        EventController.getEvents(dateRange.start, dateRange.end, setEvents, selectDepartment);
+    }, [dateRange, selectDepartment]);
 
     return (
         <Panel id={id}>
@@ -91,6 +102,22 @@ export const CalendarPanel = ({ id }: ICalendarPanel) => {
                         />
                     </FormItem>
                 </FormLayoutGroup>
+                <FormItem top="Кафедра">
+                    <Tabs mode="buttons">
+                        {TDepartmentArray.map((item: TDepartment) => {
+                            return (
+                                <TabsItem
+                                    onClick={() => {
+                                        setSelectDepartment(item);
+                                    }}
+                                    selected={selectDepartment === item}
+                                >
+                                    {TDepartmentName[item as keyof typeof TDepartmentName]}
+                                </TabsItem>
+                            );
+                        })}
+                    </Tabs>
+                </FormItem>
             </Group>
             <Group>
                 <List>
@@ -112,7 +139,7 @@ export const CalendarPanel = ({ id }: ICalendarPanel) => {
                                 }
                             }}
                         >
-                            {event.title}
+                            {event.title} {event.department && `(${TDepartmentName[event.department]})`}
                         </Cell>
                     ))}
                 </List>

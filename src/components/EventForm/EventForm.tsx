@@ -17,7 +17,16 @@ import {
     Checkbox
 } from '@vkontakte/vkui';
 
-import { eventTypes, TAuth, TAuthArray, TAuthName, TEvent } from '../../consts/events';
+import {
+    departmentSelect,
+    eventTypes,
+    TAuth,
+    TAuthArray,
+    TAuthName,
+    TDepartment,
+    TDepartmentArray,
+    TEvent
+} from '../../consts/events';
 import {
     getHoursAndMinutes,
     eventDateComposition,
@@ -45,6 +54,7 @@ const default_formsData: IEvent = {
     auth_type: 'single',
     address: '',
     description: '',
+    department: '',
     eventType: 'other',
     favorite: false,
     start: defaultDate,
@@ -60,6 +70,7 @@ export const EventForm: FunctionComponent<EventFormProps> = ({ event, onSave, on
                   title: event.title,
                   address: event.address,
                   description: event.description,
+                  department: event.department,
                   eventType: event.eventType,
                   favorite: event.favorite,
                   auth_type: event.auth_type,
@@ -131,6 +142,22 @@ export const EventForm: FunctionComponent<EventFormProps> = ({ event, onSave, on
                     >
                         Избранное
                     </Checkbox>
+                </FormItem>
+                <FormItem top="Кафедра">
+                    <CustomSelect
+                        placeholder="Обе"
+                        options={departmentSelect}
+                        value={formsData.department}
+                        onChange={(option) =>
+                            setFormsData({
+                                ...formsData,
+                                department: option.currentTarget.value as TDepartment
+                            })
+                        }
+                        renderOption={({ option: { icon }, ...otherProps }) => {
+                            return <CustomSelectOption before={icon} {...otherProps} />;
+                        }}
+                    />
                 </FormItem>
                 <FormItem>
                     <CustomSelect
