@@ -71,6 +71,15 @@ export class EventController {
         );
     }
 
+    getFavorite(setEvents: Function): void {
+        EventModel.getFavorite()
+            .then((response: IResponseEvents) => {
+                if (!response.ok) return;
+                setEvents(response.json);
+            })
+            .catch(catchSnackbar);
+    }
+
     getEvents(start: Date, end: Date, setEvents: Function, department?: TDepartment): void {
         EventModel.getEvents({ start: start, end: end }, 1, department)
             .then((response: IResponseEvents) => {

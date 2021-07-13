@@ -98,6 +98,9 @@ export class EventModel {
             .then(parseJson)
             .then(parseDateResponsePaginationEvent);
     }
+    getFavorite(): Promise<IResponseEvents> {
+        return HttpRequests.get(`/event/get_favorite`).then(parseJson).then(parseDateResponseEvents);
+    }
     getEvent(id: number): Promise<IResponseEvent> {
         return HttpRequests.get(`/event/${id}`).then(parseJson).then(parseDateResponseEvent);
     }

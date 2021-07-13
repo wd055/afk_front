@@ -11,18 +11,14 @@ import {
     CellButton,
     Footer,
     Tabs,
-    TabsItem
+    TabsItem,
+    Header
 } from '@vkontakte/vkui';
 import { Icon28AddOutline, Icon28CheckCircleFill, Icon28SearchOutline } from '@vkontakte/icons';
 import { Roles, userRole } from '../consts/roles';
 import EventModel, { IEvent } from '../models/Event';
 import EventController from '../controllers/Event';
-import {
-    eventTypesIcons,
-    TDepartment,
-    TDepartmentArray,
-    TDepartmentName
-} from '../consts/events';
+import { eventTypesIcons, TDepartment, TDepartmentArray, TDepartmentName } from '../consts/events';
 import { getDatesTitle } from '../utils/date';
 import StudentModel from '../models/Student';
 import { EGo as go } from '../App';
@@ -32,7 +28,8 @@ export interface ICalendarPanel {
 }
 
 export const CalendarPanel = ({ id }: ICalendarPanel) => {
-    const [events, setEvents] = useState([]);
+    const [events, setEvents] = useState<IEvent[]>([]);
+    const [favoriteEvents, setFavoriteEvents] = useState<IEvent[]>([]);
     const [selectDepartment, setSelectDepartment] = useState<TDepartment>('');
 
     let date = new Date();
@@ -45,11 +42,42 @@ export const CalendarPanel = ({ id }: ICalendarPanel) => {
 
     useEffect(() => {
         EventController.getEvents(dateRange.start, dateRange.end, setEvents, selectDepartment);
+        EventController.getFavorite(setFavoriteEvents);
     }, [dateRange, selectDepartment]);
 
     return (
         <Panel id={id}>
             <PanelHeader>Календарь</PanelHeader>
+            {favoriteEvents.length > 0 && (
+                <Group header={<Header>Избранные мероприятия</Header>}>
+                    <List>
+                        {favoriteEvents.map((event: IEvent) => (
+                            <Cell
+                                indicator={
+                                    event.favorite && userRole === Roles.admin ? (
+                                        <Icon28CheckCircleFill />
+                                    ) : (
+                                        <></>
+                                    )
+                                }
+                                before={eventTypesIcons[event.eventType]}
+                                description={getDatesTitle(event.start, event.end)}
+                                key={event.id}
+                                onClick={() => {
+                                    EventModel.currentEvent = event;
+                                    if (userRole !== Roles.student) {
+                                        go('Event');
+                                    } else {
+                                        go('eventInfo', true);
+                                    }
+                                }}
+                            >
+                                {event.title} {event.department && `(${TDepartmentName[event.department]})`}
+                            </Cell>
+                        ))}
+                    </List>
+                </Group>
+            )}
             <Group>
                 <FormLayoutGroup mode="horizontal">
                     <FormItem top="С">

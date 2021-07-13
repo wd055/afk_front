@@ -26,7 +26,8 @@ import {
     Icon28AddCircleOutline,
     Icon24Send,
     Icon28ChevronBack,
-    Icon28InfoOutline
+    Icon28InfoOutline,
+    Icon28EditOutline
 } from '@vkontakte/icons';
 import { snackbarDelay } from '../consts/snackbar';
 import EventModel, { IEvent, IResponseEvent } from '../models/Event';
@@ -140,6 +141,7 @@ export const Event = ({ id }: IEventPanel) => {
                     onClick={() => {
                         go('eventForm', true);
                     }}
+                    before={<Icon28EditOutline/>}
                 >
                     Редактировать мероприятия
                 </CellButton>
