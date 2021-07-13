@@ -1,3 +1,4 @@
+import { getOffsetLimitQStr } from '../consts/limit';
 import HttpRequests, { IResponseData, parseJson } from '../utils/requests';
 import { IPagination } from './Other';
 
@@ -50,14 +51,18 @@ const setIdStudentsResponse = (response: IResponsePaginationStudent): IResponseP
 
 export class StudentModel {
     currentStudent: IStudent | null = null;
+    thisStudent: IStudent | null = null;
 
-    getStudents(search?: string, page?: number): Promise<IResponsePaginationStudent> {
-        return HttpRequests.get(`/students/?search=${search}&page=${page || 1}`)
+    getStudents(search?: string, offset?: number, limit?: number): Promise<IResponsePaginationStudent> {
+        return HttpRequests.get(`/students/?search=${search || ''}&${getOffsetLimitQStr(offset, limit)}`)
             .then(parseJson)
             .then(setIdStudentsResponse);
     }
     getStudent(studentId?: string): Promise<IResponseStudent> {
         return HttpRequests.get(`/students/${studentId}`).then(parseJson).then(setIdStudentResponse);
+    }
+    getCurrentStudent(): Promise<IResponseStudent> {
+        return HttpRequests.get('/get_current_student').then(parseJson).then(setIdStudentResponse);
     }
 }
 

@@ -1,14 +1,20 @@
 import { Alert } from '@vkontakte/vkui';
-import EventModel, { IEvent, IResponseEvent, IResponsePaginationEvent } from '../models/Event';
+import EventModel, { IEvent, IResponseEvent, IResponseEvents } from '../models/Event';
 
 import { IPaginationResponseData } from '../models/Other';
-import { IPaginationStudent, IResponsePaginationStudent, IStudent } from '../models/Student';
+import {
+    IPaginationStudent,
+    IResponsePaginationStudent,
+    IResponseStudent,
+    IStudent
+} from '../models/Student';
 import VisitModel, { IPaginationVisit, IResponsePaginationVisit, IVisit } from '../models/Visit';
 import { IResponseData } from '../utils/requests';
 import { callSnackbar, catchSnackbar } from '../panels/style';
 import { TAuthOrder, TDepartment } from '../consts/events';
 import React from 'react';
 import { ESetPopout } from '../App';
+import { snackbarDelay } from '../consts/snackbar';
 
 export interface IStudentVisit extends IStudent {
     authOrder?: TAuthOrder;
@@ -21,10 +27,10 @@ export interface ISearchStudentsListPromise {
 
 export interface ISearchStudentsList {
     eventId: number;
-    next?: string;
     searchValue?: string;
     searchNewStudent?: boolean;
-    page?: number;
+    offset?: number;
+    limit?: number;
 }
 
 export class EventController {
@@ -67,7 +73,7 @@ export class EventController {
 
     getEvents(start: Date, end: Date, setEvents: Function, department?: TDepartment): void {
         EventModel.getEvents({ start: start, end: end }, 1, department)
-            .then((response: IResponsePaginationEvent) => {
+            .then((response: IResponseEvents) => {
                 if (!response.ok) return;
                 setEvents(response.json);
             })
@@ -88,10 +94,17 @@ export class EventController {
     searchStudentsList(obj: ISearchStudentsList): Promise<ISearchStudentsListPromise> {
         return new Promise<IResponsePaginationStudent | IResponsePaginationVisit>((resolve, reject) => {
             if (obj.searchNewStudent) {
-                return resolve(EventModel.searchNewStudentsEvent(obj.eventId, obj.searchValue, obj.page));
+                return resolve(
+                    EventModel.searchNewStudentsEvent(obj.eventId, obj.searchValue, obj.offset, obj.limit)
+                );
             } else {
                 return resolve(
-                    VisitModel.getVisit({ event: obj.eventId, search: obj.searchValue, page: obj.page })
+                    VisitModel.getVisit({
+                        event: obj.eventId,
+                        search: obj.searchValue,
+                        offset: obj.offset,
+                        limit: obj.limit
+                    })
                 );
             }
         }).then((responseData: IResponseData) => {
@@ -119,6 +132,25 @@ export class EventController {
                 response: responseData
             };
         });
+    }
+
+    setVisit(eventId: number, student_vk_id: number | string, authOrder: TAuthOrder) {
+        student_vk_id = Number(student_vk_id);
+        EventModel.setVisitEvent(eventId, {
+            student_vk_id: student_vk_id,
+            auth_order: authOrder
+        })
+            .then((response: IResponseStudent) => {
+                if (!response.ok) {
+                    callSnackbar({ success: false, statusCodeForText: response.status });
+                    return;
+                }
+                callSnackbar({
+                    text: response.json.full_name ? response.json.full_name : 'Успешно',
+                    duration: snackbarDelay
+                });
+            })
+            .catch(catchSnackbar);
     }
 }
 class EventControllerInstance {

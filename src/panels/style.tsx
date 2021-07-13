@@ -2,7 +2,7 @@ import { Snackbar, Avatar } from '@vkontakte/vkui';
 import { Icon24Error, Icon16Done } from '@vkontakte/icons';
 import { textResponseCode } from '../consts/errors';
 import React from 'react';
-import { ESetSnackbar as setSnackbar } from '../App';
+import { ESetSnackbar } from '../App';
 
 export const redIcon = {
     color: 'var(--field_error_border)'
@@ -54,7 +54,7 @@ export function callSnackbar({
                 duration={duration}
                 layout="vertical"
                 onClose={() => {
-                    setSnackbar(null);
+                    ESetSnackbar(null);
                     return resolve();
                 }}
                 before={success ? successIconSnackbar : errorIconSnackbar}
@@ -68,7 +68,7 @@ export function callSnackbar({
                     : text}
             </Snackbar>
         );
-        setSnackbar(snackbar);
+        ESetSnackbar(snackbar);
     });
 }
 

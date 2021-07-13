@@ -247,7 +247,7 @@ export const EventForm: FunctionComponent<EventFormProps> = ({ event, onSave, on
                     >
                         {event === undefined ? 'Создать мероприятие' : 'Сохранить изменения'}
                     </Button>
-                    {event !== undefined && (
+                    {event && event.id && (
                         <Button
                             size="l"
                             mode="destructive"

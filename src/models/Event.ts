@@ -1,4 +1,5 @@
 import { TAuth, TAuthOrder, TDepartment, TEvent } from '../consts/events';
+import { getOffsetLimitQStr } from '../consts/limit';
 import { dateToString, getDateForRequest } from '../utils/date';
 import HttpRequests, { IResponseData, parseJson } from '../utils/requests';
 import { IResponsePaginationStudent, IResponseStudent } from './Student';
@@ -29,10 +30,6 @@ interface IEventRequest {
     address?: string;
     description?: string;
     department?: TDepartment;
-}
-
-export interface IResponsePaginationEvent extends IResponseData {
-    json: Array<IEvent>;
 }
 
 export interface IResponseEvent extends IResponseData {
@@ -73,8 +70,8 @@ export const parseDateResponseEvents = (response: IResponseEvents): IResponseDat
 };
 
 export const parseDateResponsePaginationEvent = (
-    response: IResponsePaginationEvent
-): IResponsePaginationEvent => {
+    response: IResponseEvents
+): IResponseEvents => {
     if (response.ok) {
         response.json = parseDateEventArray(response.json);
     }
@@ -88,7 +85,7 @@ export class EventModel {
         time?: { start?: string | Date; end?: string | Date },
         page?: number,
         department?: TDepartment
-    ): Promise<IResponsePaginationEvent> {
+    ): Promise<IResponseEvents> {
         let start = '',
             end = '';
         if (time?.start) {
@@ -128,8 +125,8 @@ export class EventModel {
             .then(parseJson)
             .then(parseDateResponseEvent);
     }
-    searchNewStudentsEvent(id: number, search?: string, page?: number): Promise<IResponsePaginationStudent> {
-        return HttpRequests.get(`/event/${id}/search_new_students/?search=${search}&page=${page || 1}`).then(
+    searchNewStudentsEvent(id: number, search?: string, offset?: number, limit?: number): Promise<IResponsePaginationStudent> {
+        return HttpRequests.get(`/event/${id}/search_new_students/?search=${search}&${getOffsetLimitQStr(offset, limit)}`).then(
             parseJson
         );
     }

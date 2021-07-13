@@ -1,10 +1,6 @@
 import React, { ReactChild, useEffect, useState } from 'react';
 import {
     withAdaptivity,
-    ViewWidth,
-    usePlatform,
-    VKCOM,
-    SplitCol,
     Panel,
     Placeholder,
     ModalPage,
@@ -12,10 +8,12 @@ import {
     Group,
     ScreenSpinner,
     ModalRoot,
-    SplitLayout,
     View,
     PanelHeader,
-    PanelHeaderBack
+    PanelHeaderBack,
+    ConfigProvider,
+    AdaptivityProvider,
+    AppRoot
 } from '@vkontakte/vkui';
 import { Icon56CheckCircleOutline, Icon56ErrorOutline } from '@vkontakte/icons';
 import { redIcon, blueIcon } from './panels/style';
@@ -29,11 +27,12 @@ import { EventInfo } from './components/EventInfo/EventInfo';
 import { StudentInfo } from './components/StudentInfo/StudentInfo';
 import { Event } from './panels/Event';
 import EventModel, { IEvent } from './models/Event';
-import StudentModel, { IStudent } from './models/Student';
+import StudentModel, { IResponseStudent, IStudent } from './models/Student';
 import { TGo, TModals, TModalsArray, TPanels } from './consts/goto';
 import bridge from '@vkontakte/vk-bridge';
 import { EventForm } from './components/EventForm/EventForm';
 import { StudentsPanel } from './panels/Students';
+import { ReportPanel } from './panels/Report';
 
 export let ESetPopout: Function = () => {};
 export let ESetSnackbar: Function = () => {};
@@ -42,8 +41,8 @@ export let EGoBack: Function = () => {};
 
 function App({ viewWidth }: any) {
     const [history] = useState<TGo[]>([]);
-    const [popout, setPopout] = useState<ReactChild | null>();
-    const [snackbar, setSnackbar] = useState<ReactChild | null>();
+    const [popout, setPopout] = useState<ReactChild | null>(null);
+    const [snackbar, setSnackbar] = useState<ReactChild | null>(null);
     ESetPopout = setPopout;
     ESetSnackbar = setSnackbar;
     const [activePanel, setActivePanel] = useState<TPanels>('spinner');
@@ -81,6 +80,11 @@ function App({ viewWidth }: any) {
         setPopout(<ScreenSpinner />);
         getAdminList();
         window.addEventListener('popstate', () => goBack());
+        StudentModel.getCurrentStudent().then((response: IResponseStudent) => {
+            if (response.ok) {
+                StudentModel.thisStudent = response.json;
+            }
+        });
     }, []);
 
     function getAdminList() {
@@ -113,82 +117,64 @@ function App({ viewWidth }: any) {
         </ModalRoot>
     );
 
-    const isDesktop = true || viewWidth >= ViewWidth.SMALL_TABLET;
-    const hasHeader = usePlatform() !== VKCOM;
-
     return (
-        // <ConfigProvider isWebView={true}>
-        //   <AdaptivityProvider>
-        //     <AppRoot>
-        <SplitLayout
-            style={{ justifyContent: 'center' }}
-            header={hasHeader && <PanelHeader separator={false} />}
-            popout={popout}
-            // modal={modalRoot}
-        >
-            <SplitCol
-                animate={!isDesktop}
-                spaced={isDesktop}
-                width={isDesktop ? '100%' : '100%'}
-                maxWidth={isDesktop ? '100%' : '100%'}
-            >
-                <View
-                    activePanel={activePanel}
-                    history={history}
-                    onSwipeBack={goBack}
-                    popout={popout}
-                    modal={modals}
-                >
-                    <Panel id="spinner">
-                        <PanelHeader>Загрузка</PanelHeader>
-                    </Panel>
+        <ConfigProvider isWebView={true}>
+            <AdaptivityProvider>
+                <AppRoot>
+                    <View
+                        activePanel={activePanel}
+                        history={history}
+                        onSwipeBack={goBack}
+                        popout={popout}
+                        modal={modals}
+                    >
+                        <Panel id="spinner">
+                            <PanelHeader>Загрузка</PanelHeader>
+                        </Panel>
 
-                    <Panel id="Success">
-                        <PanelHeader>Успешная авторизация</PanelHeader>
-                        <Placeholder
-                            icon={<Icon56CheckCircleOutline style={blueIcon} />}
-                            stretched
-                            id="Placeholder"
-                        >
-                            Успешная авторизация!
-                        </Placeholder>
-                    </Panel>
-
-                    <Panel id="ErrorOauth">
-                        <PanelHeader>Ошибка авторизации</PanelHeader>
-                        <Group>
+                        <Panel id="Success">
+                            <PanelHeader>Успешная авторизация</PanelHeader>
                             <Placeholder
-                                icon={<Icon56ErrorOutline style={redIcon} />}
+                                icon={<Icon56CheckCircleOutline style={blueIcon} />}
                                 stretched
                                 id="Placeholder"
                             >
-                                Ошибка авторизации
-                                <br />
-                                Попробуйте позже или свяжитесь с администратором группы!
+                                Успешная авторизация!
                             </Placeholder>
-                        </Group>
-                    </Panel>
+                        </Panel>
 
-                    <CalendarPanel id="Calendar" />
+                        <Panel id="ErrorOauth">
+                            <PanelHeader>Ошибка авторизации</PanelHeader>
+                            <Group>
+                                <Placeholder
+                                    icon={<Icon56ErrorOutline style={redIcon} />}
+                                    stretched
+                                    id="Placeholder"
+                                >
+                                    Ошибка авторизации
+                                    <br />
+                                    Попробуйте позже или свяжитесь с администратором группы!
+                                </Placeholder>
+                            </Group>
+                        </Panel>
 
-                    <Event id="Event" />
+                        <CalendarPanel id="Calendar" />
+                        <Event id="Event" />
+                        <StudentsPanel id="Students" />
+                        <ReportPanel id="Report" />
 
-                    <StudentsPanel id="Students" />
-
-                    <Panel id="studentInfo">
-                        <PanelHeader left={<PanelHeaderBack onClick={() => goBack()} />}>Журнал</PanelHeader>
-                        <StudentInfo student={StudentModel.currentStudent as IStudent} />
-                    </Panel>
-                </View>
-            </SplitCol>
-            {snackbar}
-        </SplitLayout>
+                        <Panel id="studentInfo">
+                            <PanelHeader left={<PanelHeaderBack onClick={() => goBack()} />}>
+                                Журнал
+                            </PanelHeader>
+                            <StudentInfo student={StudentModel.currentStudent as IStudent} />
+                        </Panel>
+                    </View>
+                    {snackbar}
+                </AppRoot>
+            </AdaptivityProvider>
+        </ConfigProvider>
     );
-    {
-        /* </AppRoot>
-      </AdaptivityProvider>
-    </ConfigProvider> */
-    }
 }
 
 const AppAdatpive = withAdaptivity(App, { viewWidth: true });

@@ -39,6 +39,8 @@ import { Roles, userRole } from '../consts/roles';
 import { thisMobile } from '../consts/quertParams';
 import { EGo as go, EGoBack as goBack } from '../App';
 import { EventInfo } from '../components/EventInfo/EventInfo';
+import { InfiniteScroll } from '../components/InfiniteScroll/InfiniteScroll';
+import { EventVisitItem } from '../components/EventVisitItem/EventVisitItem';
 
 export interface IEventPanel {
     id: string;
@@ -46,38 +48,13 @@ export interface IEventPanel {
 
 export const Event = ({ id }: IEventPanel) => {
     const [students, setStudents] = useState<IStudentVisit[]>([]);
-    const [updateStudentsList_v, updateStudentsList] = useState({});
     const [searchValue, setSearchValue] = useState<string>('');
-    const [next, setNext] = useState<string | null>();
-    const [page, setPage] = useState<number>(1);
-    const [download, setDownload] = useState(false);
     const [searchNewStudent, setSearchNewStudent] = useState<boolean>(false);
     const [QROrder, setQROrder] = useState<TAuthOrder>('final');
     const [QRData, setQRData] = useState<TQRData | null>();
     const [auth_type_is_single] = useState(EventModel.currentEvent?.auth_type === 'single');
+    const [hasMore, setHasMore] = useState<boolean>(true);
     let eventId = EventModel.currentEvent?.id || 0;
-
-    const setVisit = (eventId: number, student_vk_id: number | string, authOrder: TAuthOrder) => {
-        student_vk_id = Number(student_vk_id);
-        EventModel.setVisitEvent(eventId, {
-            student_vk_id: student_vk_id,
-            auth_order: authOrder
-        })
-            .then((response: IResponseStudent) => {
-                if (!response.ok) {
-                    callSnackbar({ success: false, statusCodeForText: response.status });
-                    return;
-                }
-                callSnackbar({
-                    text: response.json.full_name ? response.json.full_name : 'Успешно',
-                    duration: snackbarDelay
-                });
-            })
-            .catch(catchSnackbar)
-            .finally(() => {
-                updateStudentsList({});
-            });
-    };
 
     const sendReport = (eventId: number, authOrder: TAuthOrder) => {
         EventModel.sendReportEvent(eventId, authOrder)
@@ -91,17 +68,13 @@ export const Event = ({ id }: IEventPanel) => {
             .catch(catchSnackbar);
     };
 
-    const getStudents = (eventId: number, searchValue?: string, next?: string) => {
-        setDownload(true);
-        if (!next) {
-            setPage(1);
-        }
-        EventController.searchStudentsList({
+    const getStudents = (eventId: number, thisSearchValue?: string, offset?: number, limit?: number) => {
+        return EventController.searchStudentsList({
             eventId,
-            searchValue,
-            next,
+            searchValue: thisSearchValue,
             searchNewStudent,
-            page
+            offset,
+            limit
         })
             .then(({ studentsList, response }) => {
                 if (!response.ok) {
@@ -109,22 +82,17 @@ export const Event = ({ id }: IEventPanel) => {
                     return;
                 }
 
-                if (response.json.next) {
-                    setPage(page + 1);
-                } else {
-                    setPage(1);
+                if (!response.json.next) {
+                    setHasMore(false);
                 }
 
-                setNext(response.json.next);
-                if (next) {
-                    studentsList = students.concat(studentsList);
+                if (searchValue === thisSearchValue) {
+                    setStudents(students.concat(studentsList));
+                } else {
+                    setStudents(studentsList);
                 }
-                setStudents(studentsList);
             })
-            .catch(() => {
-                catchSnackbar();
-            })
-            .finally(() => setDownload(false));
+            .catch(catchSnackbar);
     };
 
     useEffect(() => {
@@ -160,10 +128,9 @@ export const Event = ({ id }: IEventPanel) => {
     }, [QRData]);
 
     useEffect(() => {
-        // setNext(null);
-        // setPage(1);
+        setHasMore(true);
         getStudents(eventId, searchValue);
-    }, [searchNewStudent, updateStudentsList_v]);
+    }, [searchNewStudent]);
 
     return (
         <Panel id={id}>
@@ -209,13 +176,10 @@ export const Event = ({ id }: IEventPanel) => {
                             onChange={(e) => {
                                 const { value } = e.currentTarget;
                                 setSearchValue(value);
-                                setNext(null);
-                                setPage(1);
                                 getStudents(eventId, value);
                             }}
                             placeholder="Поиск по Фамилии или Имени"
                         />
-                        {download && <Spinner size="medium" />}
                         {thisMobile &&
                             (auth_type_is_single ? (
                                 <IconButton
@@ -253,9 +217,8 @@ export const Event = ({ id }: IEventPanel) => {
                         {!searchNewStudent ? (
                             <IconButton
                                 onClick={() => {
+                                    setStudents([]);
                                     setSearchNewStudent(true);
-                                    setNext(null);
-                                    setPage(1);
                                 }}
                                 icon={<Icon28AddCircleOutline style={{ color: 'var(--accent)' }} />}
                                 style={{ marginRight: 8 }}
@@ -263,128 +226,28 @@ export const Event = ({ id }: IEventPanel) => {
                         ) : (
                             <IconButton
                                 onClick={() => {
+                                    setStudents([]);
                                     setSearchNewStudent(false);
-                                    setNext(null);
-                                    setPage(1);
                                 }}
                                 icon={<Icon28ChevronBack style={{ color: 'var(--accent)' }} />}
                                 style={{ marginRight: 8 }}
                             />
                         )}
                     </Div>
-                    <Div
-                        style={{
-                            height: '550px',
-                            overflow: 'auto',
-                            position: 'relative'
-                        }}
-                        onScroll={(e) => {
-                            let element = e.currentTarget;
-                            if (
-                                element.scrollTop + element.clientHeight >= element.scrollHeight - 250 &&
-                                !download &&
-                                next !== null
-                            ) {
-                                getStudents(eventId, searchValue, next);
-                            }
-                        }}
+                    <InfiniteScroll
+                        next={getStudents.bind(this, eventId, searchValue)}
+                        hasMore={hasMore}
+                        length={students.length}
+                        height={400}
                     >
-                        <List>
-                            {students.map((student: IStudentVisit) => (
-                                <RichCell
-                                    key={student.id}
-                                    caption={
-                                        student.authOrder && student.authOrder === 'initial'
-                                            ? 'Начал'
-                                            : student.authOrder === 'final'
-                                            ? auth_type_is_single
-                                                ? 'Отметился'
-                                                : 'Закончил'
-                                            : 'Не начал'
-                                    }
-                                    actions={
-                                        userRole === Roles.admin ? (
-                                            <>
-                                                {student.authOrder && student.authOrder !== 'final' && (
-                                                    <Button
-                                                        onClick={() =>
-                                                            setVisit(eventId, student.vk_id || 0, 'final')
-                                                        }
-                                                        size="m"
-                                                        mode="outline"
-                                                    >
-                                                        Завершить
-                                                    </Button>
-                                                )}
-                                                {!student.authOrder &&
-                                                    (EventModel.currentEvent?.auth_type === 'single' ? (
-                                                        <Button
-                                                            onClick={() =>
-                                                                setVisit(eventId, student.vk_id || 0, 'final')
-                                                            }
-                                                            size="m"
-                                                            mode="outline"
-                                                        >
-                                                            Отметить
-                                                        </Button>
-                                                    ) : (
-                                                        <>
-                                                            <Button
-                                                                onClick={() =>
-                                                                    setVisit(
-                                                                        eventId,
-                                                                        student.vk_id || 0,
-                                                                        'initial'
-                                                                    )
-                                                                }
-                                                                size="m"
-                                                                mode="outline"
-                                                            >
-                                                                Начать
-                                                            </Button>
-                                                            <Button
-                                                                onClick={() =>
-                                                                    setVisit(
-                                                                        eventId,
-                                                                        student.vk_id || 0,
-                                                                        'final_anyway'
-                                                                    )
-                                                                }
-                                                                size="m"
-                                                                mode="outline"
-                                                            >
-                                                                Начать и Завершить
-                                                            </Button>
-                                                        </>
-                                                    ))}
-                                            </>
-                                        ) : (
-                                            <></>
-                                        )
-                                    }
-                                    // onClick={() => {
-                                    //   go("studentInfo", true);
-                                    //   props.setGlobalProps({
-                                    //     ...props.globalProps,
-                                    //     student: student,
-                                    //   });
-                                    // }}
-                                    after={
-                                        <Icon28InfoOutline
-                                            onClick={() => {
-                                                StudentModel.currentStudent = student;
-                                                go('studentInfo');
-                                            }}
-                                        />
-                                    }
-                                    disabled
-                                >
-                                    {student.full_name}
-                                </RichCell>
-                            ))}
-                        </List>
-                        {!next && !download && <Footer>По вашему запросу больше ничего нет</Footer>}
-                    </Div>
+                        {students.map((student: IStudentVisit) => (
+                            <EventVisitItem
+                                key={student.id}
+                                event={EventModel.currentEvent as IEvent}
+                                student={student}
+                            />
+                        ))}
+                    </InfiniteScroll>
                 </Gradient>
             </Group>
         </Panel>

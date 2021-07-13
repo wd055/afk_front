@@ -1,4 +1,5 @@
 import { TAuthOrder } from '../consts/events';
+import { getOffsetLimitQStr } from '../consts/limit';
 import HttpRequests, { IResponseData, parseJson } from '../utils/requests';
 import { IPagination } from './Other';
 
@@ -51,12 +52,13 @@ export class VisitModel {
         event?: number;
         student?: number;
         search?: string;
-        page?: number;
+        offset?: number;
+        limit?: number;
     }): Promise<IResponsePaginationVisit> {
         return HttpRequests.get(
             `/visit/?event=${searchObj?.event || ''}&student=${searchObj?.student || ''}&search=${
                 searchObj?.search || ''
-            }&page=${searchObj?.page || 1}`
+            }&${getOffsetLimitQStr(searchObj?.offset, searchObj?.limit)}`
         ).then(parseJson);
     }
 }

@@ -3,7 +3,7 @@ import { Group, MiniInfoCell } from '@vkontakte/vkui';
 import { Icon20PlaceOutline, Icon20ArticleOutline, Icon16ClockOurline, Icon20EducationOutline } from '@vkontakte/icons';
 import { eventTypesIcons, TDepartmentName } from '../../consts/events';
 import { IEvent } from '../../models/Event';
-import { getDateTitle } from '../../utils/date';
+import { getDatesTitle } from '../../utils/date';
 
 type EventInfoProps = {
     event: IEvent;
@@ -24,7 +24,7 @@ export const EventInfo: FunctionComponent<EventInfoProps> = ({ event }, props) =
             )}
             {event.start && event.end && (
                 <MiniInfoCell before={<Icon16ClockOurline />} textWrap="full">
-                    {getDateTitle(new Date(event.start), new Date(event.end))}
+                    {getDatesTitle(new Date(event.start), new Date(event.end))}
                 </MiniInfoCell>
             )}
             {event.description && event.description.length > 0 && (

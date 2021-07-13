@@ -21,7 +21,11 @@ export const options_short: Intl.DateTimeFormatOptions = {
     minute: '2-digit'
 };
 
-export function getDateTitle(start: Date, end: Date): string {
+export function getDateTitle(date: Date): string {
+    return date.toLocaleDateString('ru-RU', options_full);
+}
+
+export function getDatesTitle(start: Date, end: Date): string {
     return (
         start.toLocaleDateString('ru-RU', options_full) +
         ' - ' +
@@ -109,7 +113,7 @@ export const checkPeriodCurrentSemestr = (date: Date): boolean => {
     }
 
     const begin = new Date(new Date().getFullYear(), startMonth);
-    const end = new Date(new Date().getFullYear(), endMonth);
+    const end = new Date(new Date().getFullYear(), endMonth, 31);
     return date >= begin && date <= end;
 };
 

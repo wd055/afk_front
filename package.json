@@ -14,8 +14,8 @@
     "eslint-init": "eslint --init",
     "eslint-check": "eslint ./src",
     "eslint-fix": "eslint --fix ./src",
-    "style-lint-check": "npx stylelint **/*.scss",
-    "style-lint-fix": "npx stylelint --fix **/*.scss",
+    "style-lint-check": "npx stylelint ./src",
+    "style-lint-fix": "npx stylelint --fix ./src",
     "lint": "npm run style-lint-fix && npm run eslint-fix",
     "lint-check": "npm run style-lint-check && npm run eslint-check"
   },

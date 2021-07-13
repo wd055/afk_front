@@ -10,8 +10,6 @@ import {
     Cell,
     CellButton,
     Footer,
-    CustomSelect,
-    CustomSelectOption,
     Tabs,
     TabsItem
 } from '@vkontakte/vkui';
@@ -20,13 +18,12 @@ import { Roles, userRole } from '../consts/roles';
 import EventModel, { IEvent } from '../models/Event';
 import EventController from '../controllers/Event';
 import {
-    departmentSelect,
     eventTypesIcons,
     TDepartment,
     TDepartmentArray,
     TDepartmentName
 } from '../consts/events';
-import { getDateTitle } from '../utils/date';
+import { getDatesTitle } from '../utils/date';
 import StudentModel from '../models/Student';
 import { EGo as go } from '../App';
 
@@ -107,6 +104,7 @@ export const CalendarPanel = ({ id }: ICalendarPanel) => {
                         {TDepartmentArray.map((item: TDepartment) => {
                             return (
                                 <TabsItem
+                                    key={item}
                                     onClick={() => {
                                         setSelectDepartment(item);
                                     }}
@@ -128,7 +126,7 @@ export const CalendarPanel = ({ id }: ICalendarPanel) => {
                                 event.favorite && userRole === Roles.admin ? <Icon28CheckCircleFill /> : <></>
                             }
                             before={eventTypesIcons[event.eventType]}
-                            description={getDateTitle(event.start, event.end)}
+                            description={getDatesTitle(event.start, event.end)}
                             key={event.id}
                             onClick={() => {
                                 EventModel.currentEvent = event;
@@ -152,6 +150,13 @@ export const CalendarPanel = ({ id }: ICalendarPanel) => {
                     }}
                 >
                     Мои посещения
+                </CellButton>
+                <CellButton
+                    onClick={() => {
+                        go('Report');
+                    }}
+                >
+                    Реферат
                 </CellButton>
             </Group>
             {userRole === Roles.admin && (

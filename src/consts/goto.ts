@@ -5,6 +5,7 @@ export type TPanels =
     | 'spinner'
     | 'ErrorOauth'
     | 'studentInfo'
+    | 'Report'
     | 'Students';
 export type TModals = 'eventInfo' | 'eventForm';
 export const TPanelsArray = [
@@ -14,6 +15,7 @@ export const TPanelsArray = [
     'spinner',
     'ErrorOauth',
     'studentInfo',
+    'Report',
     'Students'
 ];
 export const TModalsArray = ['eventInfo', 'eventForm'];

@@ -4,14 +4,15 @@ import {
     MiniInfoCell,
     Footer,
     Spinner,
-    SliderSwitch,
     Header,
     Tabs,
     TabsItem,
-    Counter
+    Counter,
+    List,
+    RichCell
 } from '@vkontakte/vkui';
 import { Icon20EducationOutline, Icon20UserOutline, Icon20Users3Outline } from '@vkontakte/icons';
-import { IStudent } from '../../models/Student';
+import StudentModel, { IStudent } from '../../models/Student';
 import { IEvent } from '../../models/Event';
 import { EventInfo } from '../EventInfo/EventInfo';
 import OtherModel, { IResponseGetStudentsEvents } from '../../models/Other';
@@ -20,8 +21,10 @@ import {
     checkPeriodCurrentAcademicYear,
     checkPeriodCurrentSemestr,
     checkPeriodObject,
-    checkPeriodType
+    checkPeriodType,
+    getDateTitle
 } from '../../utils/date';
+import ReportSubsModel, { IReportSubs, IResponsePaginationReportSubs } from '../../models/ReportSubscription';
 
 type StudentInfoProps = {
     student: IStudent;
@@ -32,6 +35,7 @@ export const StudentInfo: FunctionComponent<StudentInfoProps> = ({ student, upda
     const [events, setEvents] = useState<IEvent[]>([]);
     const [download, setDownload] = useState(false);
     const [searchPeriod, setSearchPeriod] = useState<checkPeriodType>('all');
+    const [usersReportsSubs, setUsersReportsSubs] = useState<IReportSubs[]>([]);
 
     function getStudentsVisits() {
         setDownload(true);
@@ -42,16 +46,21 @@ export const StudentInfo: FunctionComponent<StudentInfoProps> = ({ student, upda
             .finally(() => setDownload(false));
     }
 
-    useEffect(() => {
-        console.log(
-            checkPeriodArray.map((item: string) => {
-                return {
-                    name: checkPeriodObject[item as keyof typeof checkPeriodObject],
-                    value: item
-                };
+    const getUsersReportsSubs = () => {
+        ReportSubsModel.getReportSubses({
+            student: student?.id
+        })
+            .then((response: IResponsePaginationReportSubs) => {
+                if (response.ok) {
+                    setUsersReportsSubs(response.json.results);
+                }
             })
-        );
+            .catch();
+    };
+
+    useEffect(() => {
         getStudentsVisits();
+        getUsersReportsSubs();
     }, []);
 
     useEffect(() => {
@@ -77,11 +86,23 @@ export const StudentInfo: FunctionComponent<StudentInfoProps> = ({ student, upda
                     )}
                 </Group>
             )}
+            <Group header={<Header>Рефераты</Header>}>
+                <List>
+                    {usersReportsSubs.map((item: IReportSubs) => {
+                        return (
+                            <RichCell disabled key={item.id} caption={`Взят ${getDateTitle(item.date)}`}>
+                                {item.report_title}
+                            </RichCell>
+                        );
+                    })}
+                </List>
+            </Group>
             <Group header={<Header>Период</Header>}>
                 <Tabs mode="buttons">
                     {checkPeriodArray.map((item: checkPeriodType) => {
                         return (
                             <TabsItem
+                                key={item}
                                 onClick={() => {
                                     setSearchPeriod(item);
                                 }}
