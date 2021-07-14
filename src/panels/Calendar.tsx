@@ -48,7 +48,48 @@ export const CalendarPanel = ({ id }: ICalendarPanel) => {
     return (
         <Panel id={id}>
             <PanelHeader>Календарь</PanelHeader>
-            {favoriteEvents.length > 0 && (
+
+            <Group>
+                <CellButton
+                    onClick={() => {
+                        StudentModel.currentStudent = null;
+                        go('studentInfo');
+                    }}
+                >
+                    Мои посещения
+                </CellButton>
+                <CellButton
+                    onClick={() => {
+                        go('Report');
+                    }}
+                >
+                    Реферат
+                </CellButton>
+            </Group>
+
+            {userRole === Roles.admin && (
+                <Group>
+                    <CellButton
+                        before={<Icon28AddOutline />}
+                        onClick={() => {
+                            EventModel.currentEvent = null;
+                            go('eventForm', true);
+                        }}
+                    >
+                        Создать мероприятия
+                    </CellButton>
+                    <CellButton
+                        before={<Icon28SearchOutline />}
+                        onClick={() => {
+                            go('Students');
+                        }}
+                    >
+                        Студенты
+                    </CellButton>
+                </Group>
+            )}
+
+{favoriteEvents.length > 0 && (
                 <Group header={<Header>Избранные мероприятия</Header>}>
                     <List>
                         {favoriteEvents.map((event: IEvent) => (
@@ -85,7 +126,7 @@ export const CalendarPanel = ({ id }: ICalendarPanel) => {
                             min={{
                                 day: 1,
                                 month: 1,
-                                year: new Date().getFullYear() - 1
+                                year: 2019
                             }}
                             onDateChange={(value) => {
                                 setDateRange({
@@ -145,6 +186,7 @@ export const CalendarPanel = ({ id }: ICalendarPanel) => {
                     </Tabs>
                 </FormItem>
             </Group>
+            
             <Group>
                 <List>
                     {!events || (events.length === 0 && <Footer>В выбранные даты мероприятий нет</Footer>)}
@@ -170,44 +212,6 @@ export const CalendarPanel = ({ id }: ICalendarPanel) => {
                     ))}
                 </List>
             </Group>
-            <Group>
-                <CellButton
-                    onClick={() => {
-                        StudentModel.currentStudent = null;
-                        go('studentInfo');
-                    }}
-                >
-                    Мои посещения
-                </CellButton>
-                <CellButton
-                    onClick={() => {
-                        go('Report');
-                    }}
-                >
-                    Реферат
-                </CellButton>
-            </Group>
-            {userRole === Roles.admin && (
-                <Group>
-                    <CellButton
-                        before={<Icon28AddOutline />}
-                        onClick={() => {
-                            EventModel.currentEvent = null;
-                            go('eventForm', true);
-                        }}
-                    >
-                        Создать мероприятия
-                    </CellButton>
-                    <CellButton
-                        before={<Icon28SearchOutline />}
-                        onClick={() => {
-                            go('Students');
-                        }}
-                    >
-                        Студенты
-                    </CellButton>
-                </Group>
-            )}
         </Panel>
     );
 };

@@ -1,20 +1,17 @@
 import {
     Div,
     Group,
-    List,
     Panel,
     PanelHeader,
     PanelHeaderBack,
     RichCell,
     Search,
-    Spinner
 } from '@vkontakte/vkui';
 import React, { useEffect, useState } from 'react';
 import { EGo, EGoBack } from '../App';
 import { InfiniteScroll } from '../components/InfiniteScroll/InfiniteScroll';
 import StudentModel, { IStudent } from '../models/Student';
 import { callSnackbar, catchSnackbar } from './style';
-// import InfiniteScroll from 'react-infinite-scroll-component';
 
 export interface StudentsPanelProps {
     id: string;

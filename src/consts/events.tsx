@@ -6,11 +6,12 @@ import {
 } from '@vkontakte/icons';
 import React, { ReactChild } from 'react';
 
-export type TAuth = 'double' | 'single';
-export const TAuthArray = ['double', 'single'];
+export type TAuth = 'double' | 'single' | 'many';
+export const TAuthArray = ['double', 'single', 'many'];
 export const TAuthName = {
     double: 'Двойной',
-    single: 'Одинарный'
+    single: 'Одинарный',
+    many: 'Многократный'
 };
 
 export type TAuthOrder = 'initial' | 'final' | 'final_anyway';

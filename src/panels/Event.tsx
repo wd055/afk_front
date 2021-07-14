@@ -1,20 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import bridge from '@vkontakte/vk-bridge';
-
 import { catchSnackbar, callSnackbar } from './style';
-
 import {
     Button,
     Div,
     PanelHeaderBack,
-    RichCell,
     Group,
-    List,
     Search,
     IconButton,
     Gradient,
-    Spinner,
-    Footer,
     TabbarItem,
     Header,
     Panel,
@@ -26,7 +20,6 @@ import {
     Icon28AddCircleOutline,
     Icon24Send,
     Icon28ChevronBack,
-    Icon28InfoOutline,
     Icon28EditOutline
 } from '@vkontakte/icons';
 import { snackbarDelay } from '../consts/snackbar';
@@ -34,9 +27,7 @@ import EventModel, { IEvent, IResponseEvent } from '../models/Event';
 import { IVKWebAppOpenCodeReaderResultData } from '../consts/bridgesType';
 import { TQRData } from '../consts/QR';
 import { TAuthOrder } from '../consts/events';
-import StudentModel, { IResponseStudent } from '../models/Student';
 import EventController, { IStudentVisit } from '../controllers/Event';
-import { Roles, userRole } from '../consts/roles';
 import { thisMobile } from '../consts/quertParams';
 import { EGo as go, EGoBack as goBack } from '../App';
 import { EventInfo } from '../components/EventInfo/EventInfo';
@@ -141,7 +132,7 @@ export const Event = ({ id }: IEventPanel) => {
                     onClick={() => {
                         go('eventForm', true);
                     }}
-                    before={<Icon28EditOutline/>}
+                    before={<Icon28EditOutline />}
                 >
                     Редактировать мероприятия
                 </CellButton>
@@ -189,9 +180,10 @@ export const Event = ({ id }: IEventPanel) => {
                                         setQROrder('final');
                                         bridge.send('VKWebAppOpenCodeReader');
                                     }}
-                                    icon={<Icon28QrCodeOutline style={{ color: 'var(--accent)' }} />}
                                     style={{ marginRight: 8 }}
-                                />
+                                >
+                                    <Icon28QrCodeOutline style={{ color: 'var(--accent)' }} />
+                                </IconButton>
                             ) : (
                                 <div className="Tabbar Tabbar--l-vertical" style={{ position: 'static' }}>
                                     <TabbarItem
@@ -222,18 +214,20 @@ export const Event = ({ id }: IEventPanel) => {
                                     setStudents([]);
                                     setSearchNewStudent(true);
                                 }}
-                                icon={<Icon28AddCircleOutline style={{ color: 'var(--accent)' }} />}
                                 style={{ marginRight: 8 }}
-                            />
+                            >
+                                <Icon28AddCircleOutline style={{ color: 'var(--accent)' }} />
+                            </IconButton>
                         ) : (
                             <IconButton
                                 onClick={() => {
                                     setStudents([]);
                                     setSearchNewStudent(false);
                                 }}
-                                icon={<Icon28ChevronBack style={{ color: 'var(--accent)' }} />}
                                 style={{ marginRight: 8 }}
-                            />
+                            >
+                                <Icon28ChevronBack style={{ color: 'var(--accent)' }} />
+                            </IconButton>
                         )}
                     </Div>
                     <InfiniteScroll
@@ -244,7 +238,7 @@ export const Event = ({ id }: IEventPanel) => {
                     >
                         {students.map((student: IStudentVisit) => (
                             <EventVisitItem
-                                key={student.id}
+                                key={student?.visit?.id || student.id}
                                 event={EventModel.currentEvent as IEvent}
                                 student={student}
                             />

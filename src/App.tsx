@@ -33,6 +33,8 @@ import bridge from '@vkontakte/vk-bridge';
 import { EventForm } from './components/EventForm/EventForm';
 import { StudentsPanel } from './panels/Students';
 import { ReportPanel } from './panels/Report';
+import { EditReportPanel } from './panels/EditReport';
+import ReportModel from './models/Report';
 
 export let ESetPopout: Function = () => {};
 export let ESetSnackbar: Function = () => {};
@@ -162,6 +164,7 @@ function App({ viewWidth }: any) {
                         <Event id="Event" />
                         <StudentsPanel id="Students" />
                         <ReportPanel id="Report" />
+                        <EditReportPanel id="EditReport" report={ReportModel.currentReport} />
 
                         <Panel id="studentInfo">
                             <PanelHeader left={<PanelHeaderBack onClick={() => goBack()} />}>

@@ -1,15 +1,21 @@
 import React, { FunctionComponent } from 'react';
 import { Group, MiniInfoCell } from '@vkontakte/vkui';
-import { Icon20PlaceOutline, Icon20ArticleOutline, Icon16ClockOurline, Icon20EducationOutline } from '@vkontakte/icons';
+import {
+    Icon20PlaceOutline,
+    Icon20ArticleOutline,
+    Icon16ClockOurline,
+    Icon20EducationOutline
+} from '@vkontakte/icons';
 import { eventTypesIcons, TDepartmentName } from '../../consts/events';
 import { IEvent } from '../../models/Event';
-import { getDatesTitle } from '../../utils/date';
+import { getDatesTitle, getDateTitle } from '../../utils/date';
 
 type EventInfoProps = {
     event: IEvent;
+    date?: Date;
 };
 
-export const EventInfo: FunctionComponent<EventInfoProps> = ({ event }, props) => {
+export const EventInfo: FunctionComponent<EventInfoProps> = ({ event, date }, props) => {
     return (
         <Group>
             {event.title && event.title.length > 0 && (
@@ -22,7 +28,12 @@ export const EventInfo: FunctionComponent<EventInfoProps> = ({ event }, props) =
                     {event.address}
                 </MiniInfoCell>
             )}
-            {event.start && event.end && (
+            {date && (
+                <MiniInfoCell before={<Icon16ClockOurline />} textWrap="full">
+                    Посетил: {getDateTitle(date)}
+                </MiniInfoCell>
+            )}
+            {!date && event.start && event.end && (
                 <MiniInfoCell before={<Icon16ClockOurline />} textWrap="full">
                     {getDatesTitle(new Date(event.start), new Date(event.end))}
                 </MiniInfoCell>

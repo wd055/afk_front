@@ -44,6 +44,8 @@ const parseDateResponseSubscription = (resposne: IResponseReportSubs): IResponse
 };
 
 export class ReportSubsModel {
+    currentReportSubs: IReportSubs | null = null;
+
     getReportSubses(searchObj?: {
         student?: number;
         report?: number;
@@ -60,6 +62,9 @@ export class ReportSubsModel {
         return HttpRequests.get(`/reportsubscription/${ReportSubsId}`)
             .then(parseJson)
             .then(parseDateResponseSubscription);
+    }
+    deleteReportSubs(ReportSubsId: number): Promise<IResponseData> {
+        return HttpRequests.delete(`/reportsubscription/${ReportSubsId}/`).then(parseJson);
     }
     postReportSubs(data: IReportSubsRequest): Promise<IResponseReportSubs> {
         return HttpRequests.post(`/reportsubscription/`, data).then(parseJson);

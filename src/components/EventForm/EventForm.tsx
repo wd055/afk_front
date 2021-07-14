@@ -3,7 +3,6 @@ import React, { useState, useEffect, FunctionComponent } from 'react';
 import {
     Group,
     FormLayoutGroup,
-    SliderSwitch,
     Input,
     FormItem,
     Button,
@@ -14,17 +13,17 @@ import {
     CustomSelect,
     CustomSelectOption,
     Textarea,
-    Checkbox
+    Checkbox,
+    Tabs,
+    TabsItem
 } from '@vkontakte/vkui';
 
 import {
     departmentSelect,
     eventTypes,
-    TAuth,
     TAuthArray,
     TAuthName,
     TDepartment,
-    TDepartmentArray,
     TEvent
 } from '../../consts/events';
 import {
@@ -124,16 +123,23 @@ export const EventForm: FunctionComponent<EventFormProps> = ({ event, onSave, on
                     />
                 </FormItem>
                 <FormItem top="Тип авторизации">
-                    <SliderSwitch
-                        onSwitch={(e) => setFormsData({ ...formsData, auth_type: e as TAuth })}
-                        activeValue={formsData.auth_type}
-                        options={TAuthArray.map((item: string) => {
-                            return {
-                                name: TAuthName[item as keyof typeof TAuthName],
-                                value: item
-                            };
+                    <Tabs>
+                        {TAuthArray.map((item: string) => {
+                            return (
+                                <TabsItem
+                                    onClick={() =>
+                                        setFormsData({
+                                            ...formsData,
+                                            auth_type: item as keyof typeof TAuthName
+                                        })
+                                    }
+                                    selected={formsData.auth_type === item}
+                                >
+                                    {TAuthName[item as keyof typeof TAuthName]}
+                                </TabsItem>
+                            );
                         })}
-                    />
+                    </Tabs>
                 </FormItem>
                 <FormItem>
                     <Checkbox

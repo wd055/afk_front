@@ -58,7 +58,7 @@ export class StudentModel {
             .then(parseJson)
             .then(setIdStudentsResponse);
     }
-    getStudent(studentId?: string): Promise<IResponseStudent> {
+    getStudent(studentId?: string | number): Promise<IResponseStudent> {
         return HttpRequests.get(`/students/${studentId}`).then(parseJson).then(setIdStudentResponse);
     }
     getCurrentStudent(): Promise<IResponseStudent> {

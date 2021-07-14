@@ -27,14 +27,22 @@ export interface IResponseReport extends IResponseData {
 }
 
 export class ReportModel {
+    currentReport: IReport | null = null;
+
     getReports(
-        search?: string,
-        course?: number,
+        searchObj: {
+            search?: string;
+            course?: number;
+            showAll?: boolean;
+        },
         offset?: number,
         limit?: number
     ): Promise<IResponsePaginationReport> {
         return HttpRequests.get(
-            `/report/?search=${search || ''}&course=${course || ''}&${getOffsetLimitQStr(offset, limit)}`
+            `/report/?search=${searchObj.search || ''}&course=${searchObj.course || ''}&${getOffsetLimitQStr(
+                offset,
+                limit
+            )}${searchObj.showAll ? '&show_all' : ''}`
         ).then(parseJson);
     }
     getReport(reportId: number): Promise<IResponseReport> {
@@ -43,7 +51,7 @@ export class ReportModel {
     deleteReport(reportId: number): Promise<IResponseReport> {
         return HttpRequests.delete(`/report/${reportId}/`).then(parseJson);
     }
-    postReport(data: IReport): Promise<IResponseReport> {
+    postReport(data: IReportPut): Promise<IResponseReport> {
         return HttpRequests.post(`/report/`, data).then(parseJson);
     }
     putReport(reportId: number, data: IReportPut): Promise<IResponseReport> {

@@ -2,16 +2,17 @@ import { Alert } from '@vkontakte/vkui';
 import React from 'react';
 import { EGoBack, ESetPopout } from '../App';
 import ReportModel, { IReport, IReportPut, IResponseReport } from '../models/Report';
-import ReportSubsModel, { IReportSubs, IResponsePaginationReportSubs } from '../models/ReportSubscription';
+import ReportSubsModel, { IResponsePaginationReportSubs } from '../models/ReportSubscription';
 import StudentModel from '../models/Student';
 import { callSnackbar, catchSnackbar } from '../panels/style';
 
 export class ReportController {
-    postReport(title: string, course: number): void {
-        ReportModel.postReport({ title, course })
+    postReport(obj: IReportPut): Promise<void> {
+        return ReportModel.postReport(obj)
             .then((response: IResponseReport) => {
                 if (response.ok) {
                     callSnackbar({});
+                    EGoBack();
                 } else {
                     callSnackbar({ success: false });
                 }
@@ -19,11 +20,12 @@ export class ReportController {
             .catch(catchSnackbar);
     }
 
-    putReport(id: number, obj: IReportPut): void {
-        ReportModel.putReport(id, obj)
+    putReport(id: number, obj: IReportPut): Promise<void> {
+        return ReportModel.putReport(id, obj)
             .then((response: IResponseReport) => {
                 if (response.ok) {
                     callSnackbar({});
+                    EGoBack();
                 } else {
                     callSnackbar({ success: false });
                 }
@@ -31,8 +33,8 @@ export class ReportController {
             .catch(catchSnackbar);
     }
 
-    deleteReportRequest(id: number, onDelete?: Function): void {
-        ReportModel.deleteReport(id)
+    deleteReportRequest(id: number, onDelete?: Function): Promise<void> {
+        return ReportModel.deleteReport(id)
             .then((response: IResponseReport) => {
                 if (response.ok) {
                     if (onDelete) onDelete();
@@ -68,8 +70,8 @@ export class ReportController {
         );
     }
 
-    postReportSubsRequest(reportId: number): void {
-        ReportSubsModel.postReportSubs({
+    postReportSubsRequest(reportId: number): Promise<void> {
+        return ReportSubsModel.postReportSubs({
             student: StudentModel.thisStudent?.id as number,
             report: reportId
         })
@@ -110,8 +112,8 @@ export class ReportController {
         );
     }
 
-    getUsersReportsSubs(studentId: number, setUsersReportsSubs: Function) {
-        ReportSubsModel.getReportSubses({
+    getUsersReportsSubs(studentId: number, setUsersReportsSubs: Function): Promise<void> {
+        return ReportSubsModel.getReportSubses({
             student: studentId
         })
             .then((response: IResponsePaginationReportSubs) => {

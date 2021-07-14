@@ -6,6 +6,7 @@ import EventController, { IStudentVisit } from '../../controllers/Event';
 import { Roles, userRole } from '../../consts/roles';
 import StudentModel from '../../models/Student';
 import { EGo } from '../../App';
+import { getDateTitle } from '../../utils/date';
 
 type EventVisitItemProps = {
     event: IEvent;
@@ -18,20 +19,24 @@ export const EventVisitItem: FunctionComponent<EventVisitItemProps> = ({ event, 
 
     return (
         <RichCell
-            key={student.id}
+            key={student?.visit?.id || student.id}
             caption={
-                student.authOrder && student.authOrder === 'initial'
+                student.visit?.auth_order && student.visit?.auth_order === 'initial'
                     ? 'Начал'
-                    : student.authOrder === 'final'
+                    : student.visit?.auth_order === 'final'
                     ? authTypeIsSingle
                         ? 'Отметился'
-                        : 'Закончил'
+                        : `Закончил${
+                              event.auth_type === 'many' && student?.visit?.date
+                                  ? `: ${getDateTitle(student.visit?.date)}`
+                                  : ''
+                          }`
                     : 'Не начал'
             }
             actions={
                 userRole === Roles.admin ? (
                     <>
-                        {student.authOrder && student.authOrder !== 'final' && (
+                        {student.visit?.auth_order && student.visit?.auth_order !== 'final' && (
                             <Button
                                 onClick={() => EventController.setVisit(eventId, student.vk_id || 0, 'final')}
                                 size="m"
@@ -40,8 +45,8 @@ export const EventVisitItem: FunctionComponent<EventVisitItemProps> = ({ event, 
                                 Завершить
                             </Button>
                         )}
-                        {!student.authOrder &&
-                            (event.auth_type === 'single' ? (
+                        {!student.visit?.auth_order &&
+                            (event.auth_type !== 'double' ? (
                                 <Button
                                     onClick={() =>
                                         EventController.setVisit(eventId, student.vk_id || 0, 'final')

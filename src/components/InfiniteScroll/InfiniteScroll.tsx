@@ -1,5 +1,5 @@
-import React, { FunctionComponent, ReactNode, useEffect, useState } from 'react';
-import { Div, Footer, Group } from '@vkontakte/vkui';
+import React, { FunctionComponent, ReactNode, useState } from 'react';
+import { Div, Footer } from '@vkontakte/vkui';
 
 export interface INextFunction {
     (offset: number, limit: number): Promise<any>;
@@ -30,10 +30,6 @@ export const InfiniteScroll: FunctionComponent<InfiniteScrollProps> = ({
 }) => {
     const [download, setDownload] = useState<boolean>(false);
 
-    // useEffect(() => {
-    //     setDownload(true);
-    //     next(0, limit).finally(() => setDownload(false));
-    // }, []);
     return (
         <Div
             style={{

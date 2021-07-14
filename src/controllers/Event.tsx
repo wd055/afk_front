@@ -17,7 +17,7 @@ import { ESetPopout } from '../App';
 import { snackbarDelay } from '../consts/snackbar';
 
 export interface IStudentVisit extends IStudent {
-    authOrder?: TAuthOrder;
+    visit?: IVisit;
 }
 
 export interface ISearchStudentsListPromise {
@@ -108,7 +108,7 @@ export class EventController {
                 );
             } else {
                 return resolve(
-                    VisitModel.getVisit({
+                    VisitModel.getVisits({
                         event: obj.eventId,
                         search: obj.searchValue,
                         offset: obj.offset,
@@ -133,7 +133,7 @@ export class EventController {
             } else {
                 let data: IPaginationVisit = responseData.json as IPaginationVisit;
                 data.results.forEach((item: IVisit) => {
-                    studentsList.push({ ...item.student_data, authOrder: item.auth_order });
+                    studentsList.push({ ...item.student_data, visit: item });
                 });
             }
             return {
