@@ -8,6 +8,12 @@ export interface IReport {
     title: string;
 }
 
+export interface IReportPut {
+    id?: number;
+    course?: number;
+    title?: string;
+}
+
 export interface IPaginationReport extends IPagination {
     results: Array<IReport>;
 }
@@ -21,16 +27,27 @@ export interface IResponseReport extends IResponseData {
 }
 
 export class ReportModel {
-    getReports(search?: string, course?: number, offset?: number, limit?: number): Promise<IResponsePaginationReport> {
+    getReports(
+        search?: string,
+        course?: number,
+        offset?: number,
+        limit?: number
+    ): Promise<IResponsePaginationReport> {
         return HttpRequests.get(
             `/report/?search=${search || ''}&course=${course || ''}&${getOffsetLimitQStr(offset, limit)}`
         ).then(parseJson);
     }
     getReport(reportId: number): Promise<IResponseReport> {
-        return HttpRequests.get(`/report/${reportId}`).then(parseJson);
+        return HttpRequests.get(`/report/${reportId}/`).then(parseJson);
+    }
+    deleteReport(reportId: number): Promise<IResponseReport> {
+        return HttpRequests.delete(`/report/${reportId}/`).then(parseJson);
     }
     postReport(data: IReport): Promise<IResponseReport> {
         return HttpRequests.post(`/report/`, data).then(parseJson);
+    }
+    putReport(reportId: number, data: IReportPut): Promise<IResponseReport> {
+        return HttpRequests.put(`/report/${reportId}/`, data).then(parseJson);
     }
 }
 

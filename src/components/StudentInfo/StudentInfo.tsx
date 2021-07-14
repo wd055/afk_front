@@ -47,15 +47,17 @@ export const StudentInfo: FunctionComponent<StudentInfoProps> = ({ student, upda
     }
 
     const getUsersReportsSubs = () => {
-        ReportSubsModel.getReportSubses({
-            student: student?.id
-        })
-            .then((response: IResponsePaginationReportSubs) => {
-                if (response.ok) {
-                    setUsersReportsSubs(response.json.results);
-                }
+        if (student?.id) {
+            ReportSubsModel.getReportSubses({
+                student: student?.id
             })
-            .catch();
+                .then((response: IResponsePaginationReportSubs) => {
+                    if (response.ok) {
+                        setUsersReportsSubs(response.json.results);
+                    }
+                })
+                .catch();
+        }
     };
 
     useEffect(() => {
@@ -86,17 +88,19 @@ export const StudentInfo: FunctionComponent<StudentInfoProps> = ({ student, upda
                     )}
                 </Group>
             )}
-            <Group header={<Header>Рефераты</Header>}>
-                <List>
-                    {usersReportsSubs.map((item: IReportSubs) => {
-                        return (
-                            <RichCell disabled key={item.id} caption={`Взят ${getDateTitle(item.date)}`}>
-                                {item.report_title}
-                            </RichCell>
-                        );
-                    })}
-                </List>
-            </Group>
+            {student?.id && (
+                <Group header={<Header>Рефераты</Header>}>
+                    <List>
+                        {usersReportsSubs.map((item: IReportSubs) => {
+                            return (
+                                <RichCell disabled key={item.id} caption={`Взят ${getDateTitle(item.date)}`}>
+                                    {item.report_title}
+                                </RichCell>
+                            );
+                        })}
+                    </List>
+                </Group>
+            )}
             <Group header={<Header>Период</Header>}>
                 <Tabs mode="buttons">
                     {checkPeriodArray.map((item: checkPeriodType) => {

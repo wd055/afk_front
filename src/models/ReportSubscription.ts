@@ -47,12 +47,11 @@ export class ReportSubsModel {
     getReportSubses(searchObj?: {
         student?: number;
         report?: number;
-        page?: number;
     }): Promise<IResponsePaginationReportSubs> {
         return HttpRequests.get(
             `/reportsubscription/?student=${searchObj?.student || ''}&report=${
                 searchObj?.report || ''
-            }&page=${searchObj?.page || 1}`
+            }&limit=${100}`
         )
             .then(parseJson)
             .then(parseDateResponseSubscriptions);

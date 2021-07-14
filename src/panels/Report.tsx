@@ -1,20 +1,30 @@
+import { Icon28DeleteOutline, Icon28SendOutline } from '@vkontakte/icons';
 import {
     Alert,
     Cell,
+    CellButton,
+    Div,
+    FormItem,
+    FormLayoutGroup,
     Group,
     Header,
+    IconButton,
+    Input,
     List,
     Panel,
     PanelHeader,
     PanelHeaderBack,
     RichCell,
     Search,
+    Switch,
     Tabs,
     TabsItem
 } from '@vkontakte/vkui';
 import React, { useEffect, useState } from 'react';
-import { EGo, EGoBack, ESetPopout } from '../App';
+import { EGoBack, ESetPopout } from '../App';
 import { InfiniteScroll } from '../components/InfiniteScroll/InfiniteScroll';
+import { thisAdmin } from '../consts/roles';
+import ReportController from '../controllers/Report';
 import ReportModel, { IReport } from '../models/Report';
 import ReportSubsModel, { IReportSubs, IResponsePaginationReportSubs } from '../models/ReportSubscription';
 import StudentModel from '../models/Student';
@@ -29,10 +39,18 @@ export const ReportPanel = ({ id }: ReportPanelProps) => {
     const [reports, setReports] = useState<IReport[]>([]);
     const [usersReportsSubs, setUsersReportsSubs] = useState<IReportSubs[]>([]);
     const [searchValue, setSearchValue] = useState<string>('');
-    const [course, setCourse] = useState<number>(0);
+    const [course, setCourse] = useState<number | undefined>(0);
     const [hasMore, setHasMore] = useState<boolean>(true);
+    const [editReports, setEditReports] = useState<boolean>(false);
+    const [newReportTitle, setNewReportTitle] = useState<string>('');
+    const [newReportCourse, setNewReportCourse] = useState<number>(0);
 
-    const getReports = (thisSearchValue?: string, thisCourse?: number, offset?: number, limit?: number) => {
+    const getReports = (
+        thisSearchValue?: string,
+        thisCourse?: number | undefined,
+        offset?: number,
+        limit?: number
+    ) => {
         return ReportModel.getReports(thisSearchValue, thisCourse, offset, limit)
             .then((response) => {
                 if (!response.ok) {
@@ -55,62 +73,12 @@ export const ReportPanel = ({ id }: ReportPanelProps) => {
             });
     };
 
-    const getUsersReportsSubs = () => {
-        ReportSubsModel.getReportSubses({
-            student: StudentModel.thisStudent?.id
-        })
-            .then((response: IResponsePaginationReportSubs) => {
-                if (response.ok) {
-                    setUsersReportsSubs(response.json.results);
-                }
-            })
-            .catch();
-    };
-
-    const postReportRequest = (reportId: number): void => {
-        ReportSubsModel.postReportSubs({
-            student: StudentModel.thisStudent?.id as number,
-            report: reportId
-        })
-            .then((data) => {
-                if (data.ok) {
-                    callSnackbar({});
-                    EGoBack();
-                } else {
-                    callSnackbar({ success: false, statusCodeForText: data.status });
-                }
-            })
-            .catch(() => {
-                callSnackbar({ success: false, text: 'Ошибка запроса!' });
-            });
-    };
-
-    const postReport = (report: IReport): void => {
-        ESetPopout(
-            <Alert
-                actions={[
-                    {
-                        title: 'Отмена',
-                        autoclose: true,
-                        mode: 'cancel'
-                    },
-                    {
-                        title: 'Выбрать',
-                        autoclose: true,
-                        mode: 'destructive',
-                        action: () => postReportRequest(report.id as number)
-                    }
-                ]}
-                actionsLayout="horizontal"
-                onClose={() => ESetPopout(null)}
-                header="Выбор реферата"
-                text={`Вы уверены, что хотите выбрать тему: "${report.title}"? Изменить выбор потом будет невозможно!`}
-            />
-        );
-    };
-
     useEffect(() => {
-        getUsersReportsSubs();
+        ReportController.getUsersReportsSubs(StudentModel.thisStudent?.id as number, setUsersReportsSubs);
+        if (thisAdmin) {
+            setCourse(undefined);
+            getReports(searchValue);
+        }
     }, []);
 
     return (
@@ -130,9 +98,10 @@ export const ReportPanel = ({ id }: ReportPanelProps) => {
                 </Group>
             )}
 
-            {usersReportsSubs.filter((item: IReportSubs) => {
+            {(usersReportsSubs.filter((item: IReportSubs) => {
                 return checkPeriodCurrentSemestr(item.date);
-            }).length === 0 &&
+            }).length === 0 ||
+                thisAdmin) &&
                 (course === 0 ? (
                     <Group header={<Header>Выберите курс перед выбором реферата!</Header>}>
                         <Tabs mode="buttons">
@@ -162,15 +131,107 @@ export const ReportPanel = ({ id }: ReportPanelProps) => {
                             }}
                             placeholder="Поиск"
                         />
+                        {thisAdmin && (
+                            <Cell
+                                disabled
+                                after={
+                                    <Switch
+                                        checked={editReports}
+                                        onChange={(e) => setEditReports(e.target.checked)}
+                                    />
+                                }
+                            >
+                                Редактировать темы
+                            </Cell>
+                        )}
+                        {editReports && (
+                            <Div>
+                                <FormLayoutGroup mode="horizontal">
+                                    <FormItem status={newReportTitle.length > 0 ? 'valid' : 'error'}>
+                                        <Input
+                                            value={newReportTitle}
+                                            onChange={(e) => setNewReportTitle(e.target.value)}
+                                        />
+                                    </FormItem>
+                                    <FormItem status={newReportCourse !== 0 ? 'valid' : 'error'}>
+                                        <Input
+                                            value={newReportCourse}
+                                            type="number"
+                                            onChange={(e) => setNewReportCourse(Number(e.target.value))}
+                                        />
+                                    </FormItem>
+                                </FormLayoutGroup>
+                                <CellButton
+                                    onClick={() => {
+                                        if (newReportTitle.length > 0 && newReportCourse !== 0) {
+                                            ReportController.postReport(newReportTitle, newReportCourse);
+                                        }
+                                    }}
+                                >
+                                    Добавить реферат
+                                </CellButton>
+                            </Div>
+                        )}
                         <InfiniteScroll
                             next={getReports.bind(this, searchValue, course)}
                             hasMore={hasMore}
                             length={reports.length}
                         >
-                            {reports.map((item: IReport) => {
+                            {reports.map((item: IReport, i: number) => {
                                 return (
-                                    <Cell key={item.id} onClick={() => postReport(item)}>
-                                        {item.title}
+                                    <Cell
+                                        disabled={editReports}
+                                        key={item.id}
+                                        onClick={() => ReportController.postReportSubs(item)}
+                                        after={
+                                            thisAdmin &&
+                                            editReports && (
+                                                <IconButton>
+                                                    <Icon28DeleteOutline
+                                                        onClick={() =>
+                                                            ReportController.deleteReport(item, () => {
+                                                                reports.splice(i, 1);
+                                                                setReports([...reports]);
+                                                            })
+                                                        }
+                                                    />
+                                                </IconButton>
+                                            )
+                                        }
+                                    >
+                                        {editReports ? (
+                                            <div style={{ display: 'flex' }}>
+                                                <Input
+                                                    type="number"
+                                                    defaultValue={item.course}
+                                                    onChange={(e) => {
+                                                        item.course = Number(e.target.value);
+                                                    }}
+                                                    style={{ marginRight: 8 }}
+                                                />
+                                                <Input
+                                                    type="text"
+                                                    defaultValue={item.title}
+                                                    onChange={(e) => {
+                                                        item.title = e.target.value;
+                                                    }}
+                                                    after={
+                                                        <IconButton hoverMode="opacity">
+                                                            <Icon28SendOutline
+                                                                onClick={() =>
+                                                                    ReportController.putReport(
+                                                                        item.id as number,
+                                                                        item
+                                                                    )
+                                                                }
+                                                            />
+                                                        </IconButton>
+                                                    }
+                                                />
+                                            </div>
+                                        ) : (
+                                            item.title
+                                        )}
                                     </Cell>
                                 );
                             })}
