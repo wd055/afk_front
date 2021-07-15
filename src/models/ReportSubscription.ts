@@ -1,16 +1,17 @@
 import HttpRequests, { IResponseData, parseJson } from '../utils/requests';
 import { IPagination } from './Other';
+import { IStudent } from './Student';
 
 export interface IReportSubs {
     id?: number;
-    student: number;
+    student: number | IStudent;
     report: number;
     report_title?: string;
     date: Date;
 }
 
 interface IReportSubsRequest {
-    student: number;
+    student: number | IStudent;
     report: number;
 }
 
@@ -27,7 +28,12 @@ export interface IResponseReportSubs extends IResponseData {
 }
 
 const parseDate = (reportSubs: IReportSubs): IReportSubs => {
+console.log("🚀 ~ file: ReportSubscription.ts ~ line 31 ~ parseDate ~ reportSubs", reportSubs)
     reportSubs.date = new Date(reportSubs.date);
+
+    if ((reportSubs.student as IStudent).student) {
+        (reportSubs.student as IStudent).id = (reportSubs.student as IStudent).student || (reportSubs.student as IStudent).id;
+    }
     return reportSubs;
 };
 

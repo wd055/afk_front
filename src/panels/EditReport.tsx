@@ -39,7 +39,6 @@ export const EditReportPanel = ({ id, report, onSave, onDelete }: EditReportPane
         ...report
     });
     const [reportsSubs, setReportsSubs] = useState<IReportSubs[]>([]);
-    const [subsStudents, setSubsStudents] = useState<ISubsStudents[]>([]);
 
     const getReportsSubs = (reportId: number) => {
         return ReportSubsModel.getReportSubses({ report: reportId })
@@ -50,21 +49,7 @@ export const EditReportPanel = ({ id, report, onSave, onDelete }: EditReportPane
                 }
 
                 setReportsSubs(response.json.results);
-                response.json.results.forEach((item: IReportSubs) => {
-                    StudentModel.getStudent(item.student)
-                        .then((studentReponse: IResponseStudent) => {
-                            if (response.ok) {
-                                setSubsStudents([
-                                    ...subsStudents,
-                                    {
-                                        student: studentReponse.json,
-                                        report: item.id || 0
-                                    }
-                                ]);
-                            }
-                        })
-                        .catch(catchSnackbar);
-                });
+                console.log("🚀 ~ file: EditReport.tsx ~ line 105 ~ .then ~ response.json.results", response.json.results)
             })
             .catch(() => {
                 catchSnackbar();
@@ -148,37 +133,27 @@ export const EditReportPanel = ({ id, report, onSave, onDelete }: EditReportPane
             <Group>
                 {reportsSubs.length === 0 && <Footer>Темы ни разу не выбиралась</Footer>}
                 {reportsSubs.map((item: IReportSubs, i: number) => {
-                    const filteringStudents: ISubsStudents[] = subsStudents.filter(
-                        (studentsItem: ISubsStudents) => studentsItem.report === item.id
-                    );
-                    if (filteringStudents.length > 0) {
-                        const student: IStudent = filteringStudents[0].student;
-
-                        return (
-                            <RichCell
-                                disabled
-                                key={item.student}
-                                onClick={() => {
-                                    StudentModel.currentStudent = student;
-                                    EGo('studentInfo');
-                                }}
-                                after={
-                                    <UnpinReportSubs
-                                        reportSubs={item}
-                                        OnUnpin={() => {
-                                            reportsSubs.splice(i, 1);
-                                            setReportsSubs(reportsSubs);
-                                        }}
-                                    />
-                                }
-                            >
-                                {student.full_name}
-                            </RichCell>
-                        );
-                    }
+                    const student = item.student as IStudent;
+                    console.log("🚀 ~ file: EditReport.tsx ~ line 136 ~ {reportsSubs.map ~ student", student)
                     return (
-                        <RichCell after={<UnpinReportSubs reportSubs={item} />} key={item.student}>
-                            Загрузка...
+                        <RichCell
+                            disabled
+                            key={student.student}
+                            onClick={() => {
+                                StudentModel.currentStudent = student;
+                                EGo('studentInfo');
+                            }}
+                            after={
+                                <UnpinReportSubs
+                                    reportSubs={item}
+                                    OnUnpin={() => {
+                                        reportsSubs.splice(i, 1);
+                                        setReportsSubs(reportsSubs);
+                                    }}
+                                />
+                            }
+                        >
+                            {student.full_name}
                         </RichCell>
                     );
                 })}

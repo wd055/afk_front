@@ -38,7 +38,7 @@ export const ReportPanel = ({ id }: ReportPanelProps) => {
     const [course, setCourse] = useState<number | undefined>(0);
     const [hasMore, setHasMore] = useState<boolean>(true);
     const [selectInCurSem, setSelectInCurSem] = useState<boolean>(false);
-    const [shawAllReports, setShawAllReports] = useState<boolean>(false);
+    const [shawAllReports, setShawAllReports] = useState<boolean>(thisAdmin);
 
     const getReports = (
         thisSearchValue?: string,
