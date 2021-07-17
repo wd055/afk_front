@@ -1,33 +1,33 @@
 import { getOffsetLimitQStr } from '../consts/limit';
-import HttpRequests, { IResponseData, parseJson } from '../utils/requests';
-import { IPagination } from './Other';
+import HttpRequests, { ResponseData, parseJson } from '../utils/requests';
+import { Pagination } from './Other';
 
-export interface IReport {
+export interface Report {
     id?: number;
     course: number;
     title: string;
 }
 
-export interface IReportPut {
+export interface ReportPut {
     id?: number;
     course?: number;
     title?: string;
 }
 
-export interface IPaginationReport extends IPagination {
-    results: Array<IReport>;
+export interface PaginationReport extends Pagination {
+    results: Array<Report>;
 }
 
-export interface IResponsePaginationReport extends IResponseData {
-    json: IPaginationReport;
+export interface ResponsePaginationReport extends ResponseData {
+    json: PaginationReport;
 }
 
-export interface IResponseReport extends IResponseData {
-    json: IReport;
+export interface ResponseReport extends ResponseData {
+    json: Report;
 }
 
 export class ReportModel {
-    currentReport: IReport | null = null;
+    currentReport: Report | null = null;
 
     getReports(
         searchObj: {
@@ -37,7 +37,7 @@ export class ReportModel {
         },
         offset?: number,
         limit?: number
-    ): Promise<IResponsePaginationReport> {
+    ): Promise<ResponsePaginationReport> {
         return HttpRequests.get(
             `/report/?search=${searchObj.search || ''}&course=${searchObj.course || ''}&${getOffsetLimitQStr(
                 offset,
@@ -45,16 +45,16 @@ export class ReportModel {
             )}${searchObj.showAll ? '&show_all' : ''}`
         ).then(parseJson);
     }
-    getReport(reportId: number): Promise<IResponseReport> {
+    getReport(reportId: number): Promise<ResponseReport> {
         return HttpRequests.get(`/report/${reportId}/`).then(parseJson);
     }
-    deleteReport(reportId: number): Promise<IResponseReport> {
+    deleteReport(reportId: number): Promise<ResponseReport> {
         return HttpRequests.delete(`/report/${reportId}/`).then(parseJson);
     }
-    postReport(data: IReportPut): Promise<IResponseReport> {
-        return HttpRequests.post(`/report/`, data).then(parseJson);
+    postReport(data: ReportPut): Promise<ResponseReport> {
+        return HttpRequests.post('/report/', data).then(parseJson);
     }
-    putReport(reportId: number, data: IReportPut): Promise<IResponseReport> {
+    putReport(reportId: number, data: ReportPut): Promise<ResponseReport> {
         return HttpRequests.put(`/report/${reportId}/`, data).then(parseJson);
     }
 }

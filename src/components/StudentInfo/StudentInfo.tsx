@@ -1,17 +1,8 @@
 import React, { useState, useEffect, FunctionComponent } from 'react';
-import {
-    Group,
-    MiniInfoCell,
-    Header,
-    Tabs,
-    TabsItem,
-    Counter,
-    List,
-    RichCell
-} from '@vkontakte/vkui';
+import { Group, MiniInfoCell, Header, Tabs, TabsItem, Counter, List, RichCell } from '@vkontakte/vkui';
 import { Icon20EducationOutline, Icon20UserOutline, Icon20Users3Outline } from '@vkontakte/icons';
-import StudentModel, { IStudent } from '../../models/Student';
-import { IEvent } from '../../models/Event';
+import StudentModel, { Student } from '../../models/Student';
+import { Event } from '../../models/Event';
 import { EventInfo } from '../EventInfo/EventInfo';
 import {
     checkPeriodArray,
@@ -21,27 +12,26 @@ import {
     checkPeriodType,
     getDateTitle
 } from '../../utils/date';
-import ReportSubsModel, { IReportSubs, IResponsePaginationReportSubs } from '../../models/ReportSubscription';
+import ReportSubsModel, { ReportSubs, ResponsePaginationReportSubs } from '../../models/ReportSubscription';
 import { UnpinReportSubs } from '../UnpinReportSubs/UnpinReportSubs';
-import VisitModel, { IResponsePaginationVisit, IVisit } from '../../models/Visit';
+import VisitModel, { ResponsePaginationVisit, Visit } from '../../models/Visit';
 import { callSnackbar, catchSnackbar } from '../../panels/style';
 import { InfiniteScroll } from '../InfiniteScroll/InfiniteScroll';
 import { thisAdmin } from '../../consts/roles';
 
 type StudentInfoProps = {
-    student: IStudent;
-    updateModalHeight?: Function;
+    student: Student;
 };
 
-export const StudentInfo: FunctionComponent<StudentInfoProps> = ({ student, updateModalHeight }) => {
-    const [visits, setVisits] = useState<IVisit[]>([]);
+export const StudentInfo: FunctionComponent<StudentInfoProps> = ({ student }: StudentInfoProps) => {
+    const [visits, setVisits] = useState<Visit[]>([]);
     const [searchPeriod, setSearchPeriod] = useState<checkPeriodType>('all');
-    const [usersReportsSubs, setUsersReportsSubs] = useState<IReportSubs[]>([]);
+    const [usersReportsSubs, setUsersReportsSubs] = useState<ReportSubs[]>([]);
     const [hasMore, setHasMore] = useState<boolean>(true);
 
-    function getStudentsVisits(limit?: number, offset?: number) {
+    function getStudentsVisits(limit?: number, offset?: number): Promise<void> {
         return VisitModel.getVisits({ student: student?.id || StudentModel?.thisStudent?.id, limit, offset })
-            .then((response: IResponsePaginationVisit) => {
+            .then((response: ResponsePaginationVisit) => {
                 if (!response.ok) {
                     callSnackbar({ success: false, statusCodeForText: response.status });
                     return;
@@ -54,12 +44,12 @@ export const StudentInfo: FunctionComponent<StudentInfoProps> = ({ student, upda
             .catch(catchSnackbar);
     }
 
-    const getUsersReportsSubs = () => {
+    const getUsersReportsSubs = (): void => {
         if (student?.id) {
             ReportSubsModel.getReportSubses({
                 student: student?.id
             })
-                .then((response: IResponsePaginationReportSubs) => {
+                .then((response: ResponsePaginationReportSubs) => {
                     if (response.ok) {
                         setUsersReportsSubs(response.json.results);
                     }
@@ -73,7 +63,7 @@ export const StudentInfo: FunctionComponent<StudentInfoProps> = ({ student, upda
         getUsersReportsSubs();
     }, []);
 
-    const filterVisitPeriod = (visit: IVisit, period: checkPeriodType) => {
+    const filterVisitPeriod = (visit: Visit, period: checkPeriodType): boolean => {
         switch (period) {
             case 'currentSemestr':
                 return checkPeriodCurrentSemestr(visit.event_data.start);
@@ -107,7 +97,7 @@ export const StudentInfo: FunctionComponent<StudentInfoProps> = ({ student, upda
             {student?.id && (
                 <Group header={<Header>Рефераты</Header>}>
                     <List>
-                        {usersReportsSubs.map((item: IReportSubs, i: number) => {
+                        {usersReportsSubs.map((item: ReportSubs, i: number) => {
                             return (
                                 <RichCell
                                     disabled
@@ -116,7 +106,7 @@ export const StudentInfo: FunctionComponent<StudentInfoProps> = ({ student, upda
                                     after={
                                         <UnpinReportSubs
                                             reportSubs={item}
-                                            OnUnpin={() => {
+                                            OnUnpin={(): void => {
                                                 usersReportsSubs.splice(i, 1);
                                                 setUsersReportsSubs(usersReportsSubs);
                                             }}
@@ -136,9 +126,7 @@ export const StudentInfo: FunctionComponent<StudentInfoProps> = ({ student, upda
                         return (
                             <TabsItem
                                 key={item}
-                                onClick={() => {
-                                    setSearchPeriod(item);
-                                }}
+                                onClick={(): void => setSearchPeriod(item)}
                                 selected={searchPeriod === item}
                                 after={
                                     <Counter size="s">
@@ -161,7 +149,7 @@ export const StudentInfo: FunctionComponent<StudentInfoProps> = ({ student, upda
                 {visits
                     .filter((visit) => filterVisitPeriod(visit, searchPeriod))
                     .map((visit) => (
-                        <EventInfo key={visit.id} event={visit.event_data as IEvent} date={visit.date} />
+                        <EventInfo key={visit.id} event={visit.event_data as Event} date={visit.date} />
                     ))}
             </InfiniteScroll>
         </>

@@ -28,6 +28,9 @@ ReactDOM.render(
     </ConfigProvider>,
     document.getElementById('root')
 );
+
 if (process.env.NODE_ENV === 'development') {
-    // import("./eruda").then(({ default: eruda }) => {}); //runtime download
+    import('./eruda').then(() => {
+        console.warn('Run Eruda');
+    });
 }

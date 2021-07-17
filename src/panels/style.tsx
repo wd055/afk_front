@@ -35,7 +35,7 @@ export const errorIconSnackbar = (
     </Avatar>
 );
 
-export interface IStatusSnackbarText {
+export interface StatusSnackbarText {
     success?: boolean;
     text?: string;
     duration?: number;
@@ -47,13 +47,13 @@ export function callSnackbar({
     text = '',
     duration = 4000,
     statusCodeForText
-}: IStatusSnackbarText): Promise<void> {
-    return new Promise((resolve) => {
-        let snackbar = (
+}: StatusSnackbarText): Promise<void> {
+    return new Promise<void>((resolve) => {
+        const snackbar = (
             <Snackbar
                 duration={duration}
                 layout="vertical"
-                onClose={() => {
+                onClose={(): void => {
                     ESetSnackbar(null);
                     return resolve();
                 }}
@@ -72,6 +72,6 @@ export function callSnackbar({
     });
 }
 
-export const catchSnackbar = () => {
+export const catchSnackbar = (): void => {
     callSnackbar({ success: false, text: 'Ошибка запроса!' });
 };

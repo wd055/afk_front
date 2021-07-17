@@ -1,15 +1,15 @@
 import { Alert } from '@vkontakte/vkui';
 import React from 'react';
 import { EGoBack, ESetPopout } from '../App';
-import ReportModel, { IReport, IReportPut, IResponseReport } from '../models/Report';
-import ReportSubsModel, { IResponsePaginationReportSubs } from '../models/ReportSubscription';
+import ReportModel, { Report, ReportPut, ResponseReport } from '../models/Report';
+import ReportSubsModel, { ResponsePaginationReportSubs } from '../models/ReportSubscription';
 import StudentModel from '../models/Student';
 import { callSnackbar, catchSnackbar } from '../panels/style';
 
 export class ReportController {
-    postReport(obj: IReportPut): Promise<void> {
+    postReport(obj: ReportPut): Promise<void> {
         return ReportModel.postReport(obj)
-            .then((response: IResponseReport) => {
+            .then((response: ResponseReport) => {
                 if (response.ok) {
                     callSnackbar({});
                     EGoBack();
@@ -20,9 +20,9 @@ export class ReportController {
             .catch(catchSnackbar);
     }
 
-    putReport(id: number, obj: IReportPut): Promise<void> {
+    putReport(id: number, obj: ReportPut): Promise<void> {
         return ReportModel.putReport(id, obj)
-            .then((response: IResponseReport) => {
+            .then((response: ResponseReport) => {
                 if (response.ok) {
                     callSnackbar({});
                     EGoBack();
@@ -35,7 +35,7 @@ export class ReportController {
 
     deleteReportRequest(id: number, onDelete?: Function): Promise<void> {
         return ReportModel.deleteReport(id)
-            .then((response: IResponseReport) => {
+            .then((response: ResponseReport) => {
                 if (response.ok) {
                     if (onDelete) onDelete();
                     callSnackbar({});
@@ -46,7 +46,7 @@ export class ReportController {
             .catch(catchSnackbar);
     }
 
-    deleteReport(report: IReport, onDelete?: Function): void {
+    deleteReport(report: Report, onDelete?: Function): void {
         ESetPopout(
             <Alert
                 actions={[
@@ -59,11 +59,11 @@ export class ReportController {
                         title: 'Удалить',
                         autoclose: true,
                         mode: 'destructive',
-                        action: () => this.deleteReportRequest(report.id as number, onDelete)
+                        action: (): Promise<void> => this.deleteReportRequest(report.id as number, onDelete)
                     }
                 ]}
                 actionsLayout="horizontal"
-                onClose={() => ESetPopout(null)}
+                onClose={(): void => ESetPopout(null)}
                 header="Удаление темы"
                 text={`Вы уверены, что хотите удалить тему: "${report.title}"? Будут удалены выборы этой темы у всех студентов, кто её брал!`}
             />
@@ -88,7 +88,7 @@ export class ReportController {
             });
     }
 
-    postReportSubs(report: IReport): void {
+    postReportSubs(report: Report): void {
         ESetPopout(
             <Alert
                 actions={[
@@ -101,11 +101,11 @@ export class ReportController {
                         title: 'Выбрать',
                         autoclose: true,
                         mode: 'destructive',
-                        action: () => this.postReportSubsRequest(report.id as number)
+                        action: (): Promise<void> => this.postReportSubsRequest(report.id as number)
                     }
                 ]}
                 actionsLayout="horizontal"
-                onClose={() => ESetPopout(null)}
+                onClose={(): void => ESetPopout(null)}
                 header="Выбор реферата"
                 text={`Вы уверены, что хотите выбрать тему: "${report.title}"? Изменить выбор потом будет невозможно!`}
             />
@@ -116,7 +116,7 @@ export class ReportController {
         return ReportSubsModel.getReportSubses({
             student: studentId
         })
-            .then((response: IResponsePaginationReportSubs) => {
+            .then((response: ResponsePaginationReportSubs) => {
                 if (response.ok) {
                     setUsersReportsSubs(response.json.results);
                 }

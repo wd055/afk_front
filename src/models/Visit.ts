@@ -1,9 +1,9 @@
 import { TAuthOrder } from '../consts/events';
 import { getOffsetLimitQStr } from '../consts/limit';
-import HttpRequests, { IResponseData, parseJson } from '../utils/requests';
-import { IPagination } from './Other';
+import HttpRequests, { ResponseData, parseJson } from '../utils/requests';
+import { Pagination } from './Other';
 
-export interface IVisitsEvent {
+export interface VisitsEvent {
     title: string;
     start: Date;
     end: Date;
@@ -11,7 +11,7 @@ export interface IVisitsEvent {
     description?: string;
 }
 
-export interface IVisitsStudent {
+export interface VisitsStudent {
     full_name?: string;
     id?: number;
     vk_id?: string;
@@ -28,39 +28,39 @@ export interface IVisitsStudent {
     teacher?: string;
 }
 
-export interface IVisit {
+export interface Visit {
     url?: string;
     id?: number;
     student: number;
     event: number;
     auth_order: TAuthOrder;
     date?: Date;
-    student_data: IVisitsStudent;
-    event_data: IVisitsEvent;
+    student_data: VisitsStudent;
+    event_data: VisitsEvent;
 }
 
-export interface IPaginationVisit extends IPagination {
-    results: Array<IVisit>;
+export interface PaginationVisit extends Pagination {
+    results: Array<Visit>;
 }
 
-export interface IResponsePaginationVisit extends IResponseData {
-    json: IPaginationVisit;
+export interface ResponsePaginationVisit extends ResponseData {
+    json: PaginationVisit;
 }
 
-export const parseDateVisit = (visit: IVisit): IVisit => {
+export const parseDateVisit = (visit: Visit): Visit => {
     visit.date = new Date(visit.date as Date);
     visit.event_data.start = new Date(visit.event_data.start as Date);
     visit.event_data.end = new Date(visit.event_data.end as Date);
     return visit;
 };
 
-export const parseDateVisitArray = (visits: IVisit[]): IVisit[] => {
+export const parseDateVisitArray = (visits: Visit[]): Visit[] => {
     return visits.map(parseDateVisit);
 };
 
 export const parseDateResponsePaginationVisit = (
-    response: IResponsePaginationVisit
-): IResponsePaginationVisit => {
+    response: ResponsePaginationVisit
+): ResponsePaginationVisit => {
     if (response.ok) {
         response.json.results = parseDateVisitArray(response.json.results);
     }
@@ -74,7 +74,7 @@ export class VisitModel {
         search?: string;
         offset?: number;
         limit?: number;
-    }): Promise<IResponsePaginationVisit> {
+    }): Promise<ResponsePaginationVisit> {
         return HttpRequests.get(
             `/visit/?event=${searchObj?.event || ''}&student=${searchObj?.student || ''}&search=${
                 searchObj?.search || ''

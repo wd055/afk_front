@@ -1,4 +1,4 @@
-import { IEvent } from '../models/Event';
+import { Event } from '../models/Event';
 
 export function getDayOfWeek(date: Date): number {
     if (!date) date = new Date();
@@ -8,7 +8,7 @@ export function getDayOfWeek(date: Date): number {
 export function getDateForRequest(date: Date): string {
     return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
 }
-export const options_full: Intl.DateTimeFormatOptions = {
+export const optionsFull: Intl.DateTimeFormatOptions = {
     year: 'numeric',
     month: 'numeric',
     day: 'numeric',
@@ -16,20 +16,20 @@ export const options_full: Intl.DateTimeFormatOptions = {
     minute: 'numeric'
 };
 
-export const options_short: Intl.DateTimeFormatOptions = {
+export const optionsShort: Intl.DateTimeFormatOptions = {
     hour: '2-digit',
     minute: '2-digit'
 };
 
 export function getDateTitle(date: Date): string {
-    return date.toLocaleDateString('ru-RU', options_full);
+    return date.toLocaleDateString('ru-RU', optionsFull);
 }
 
 export function getDatesTitle(start: Date, end: Date): string {
     return (
-        start.toLocaleDateString('ru-RU', options_full) +
+        start.toLocaleDateString('ru-RU', optionsFull) +
         ' - ' +
-        end.toLocaleTimeString('ru-RU', options_short)
+        end.toLocaleTimeString('ru-RU', optionsShort)
     );
 }
 
@@ -41,18 +41,17 @@ export function getHoursAndMinutes(time: Date): string {
 }
 
 export function splitInputTime(value: string): { hour: number; minute: number } {
-    let result = {
+    return {
         hour: Number(value.split(':')[0]),
         minute: Number(value.split(':')[1])
     };
-    return result;
 }
 
 export function setHoursAndMinutes(
     date: Date,
     time: { hour: string | number; minute: string | number }
 ): Date {
-    let newDate = new Date(date);
+    const newDate = new Date(date);
     newDate.setHours(Number(time.hour));
     newDate.setMinutes(Number(time.minute));
     return newDate;
@@ -83,7 +82,7 @@ export const dateToString = (date: Date | string): string => {
     return date;
 };
 
-export function formsEventIsValid(formsEvent: IEvent): boolean {
+export function formsEventIsValid(formsEvent: Event): boolean {
     return (formsEvent.title &&
         formsEvent.title.length > 0 &&
         formsEvent.auth_type &&

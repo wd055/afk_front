@@ -1,35 +1,35 @@
-import HttpRequests, { IResponseData, parseJson } from '../utils/requests';
-import { IEvent, parseDateResponseEvents } from './Event';
+import HttpRequests, { ResponseData, parseJson } from '../utils/requests';
+import { Event, parseDateResponseEvents } from './Event';
 
-export interface IPagination {
+export interface Pagination {
     count: number;
     next?: string | null;
     previous?: string | null;
     results: Array<any>;
 }
 
-export interface IPaginationResponseData extends IResponseData {
-    json: IPagination;
+export interface PaginationResponseData extends ResponseData {
+    json: Pagination;
 }
 
-export interface IResponseGetAdminList extends IResponseData {
+export interface ResponseGetAdminList extends ResponseData {
     json: Array<number>;
 }
 
-export interface IResponseGetStudentsEvents extends IResponseData {
-    json: Array<IEvent>;
+export interface ResponseGetStudentsEvents extends ResponseData {
+    json: Array<Event>;
 }
 
 export class OtherModel {
-    getAdminList(): Promise<IResponseGetAdminList> {
+    getAdminList(): Promise<ResponseGetAdminList> {
         return HttpRequests.get('/get_admin_list').then(parseJson);
     }
-    getStudentsEvents(studentId?: number): Promise<IResponseGetStudentsEvents> {
+    getStudentsEvents(studentId?: number): Promise<ResponseGetStudentsEvents> {
         return HttpRequests.get(`/get_students_events/&student=${studentId || ''}`)
             .then(parseJson)
             .then(parseDateResponseEvents);
     }
-    getUrl(url: string): Promise<IResponseData> {
+    getUrl(url: string): Promise<ResponseData> {
         return HttpRequests.get(url).then(parseJson);
     }
 }

@@ -21,8 +21,8 @@ import { EGo, EGoBack } from '../App';
 import { InfiniteScroll } from '../components/InfiniteScroll/InfiniteScroll';
 import { thisAdmin } from '../consts/roles';
 import ReportController from '../controllers/Report';
-import ReportModel, { IReport } from '../models/Report';
-import { IReportSubs } from '../models/ReportSubscription';
+import ReportModel, { Report } from '../models/Report';
+import { ReportSubs } from '../models/ReportSubscription';
 import StudentModel from '../models/Student';
 import { checkPeriodCurrentSemestr, getDateTitle } from '../utils/date';
 import { callSnackbar, catchSnackbar } from './style';
@@ -31,9 +31,9 @@ interface ReportPanelProps {
     id: string;
 }
 
-export const ReportPanel = ({ id }: ReportPanelProps) => {
-    const [reports, setReports] = useState<IReport[]>([]);
-    const [usersReportsSubs, setUsersReportsSubs] = useState<IReportSubs[]>([]);
+export const ReportPanel = ({ id }: ReportPanelProps): JSX.Element => {
+    const [reports, setReports] = useState<Report[]>([]);
+    const [usersReportsSubs, setUsersReportsSubs] = useState<ReportSubs[]>([]);
     const [searchValue, setSearchValue] = useState<string>('');
     const [course, setCourse] = useState<number | undefined>(0);
     const [hasMore, setHasMore] = useState<boolean>(true);
@@ -45,7 +45,7 @@ export const ReportPanel = ({ id }: ReportPanelProps) => {
         thisCourse?: number | undefined,
         offset?: number,
         limit?: number
-    ) => {
+    ): Promise<void> => {
         return ReportModel.getReports(
             { search: thisSearchValue, course: thisCourse, showAll: shawAllReports },
             offset,
@@ -81,12 +81,13 @@ export const ReportPanel = ({ id }: ReportPanelProps) => {
     }, []);
 
     useEffect(() => {
+        console.log('shawAllReports hook');
         getReports(searchValue, course);
     }, [shawAllReports]);
 
     useEffect(() => {
         setSelectInCurSem(
-            usersReportsSubs.filter((item: IReportSubs) => {
+            usersReportsSubs.filter((item: ReportSubs) => {
                 return checkPeriodCurrentSemestr(item.date);
             }).length === 0
         );
@@ -94,11 +95,11 @@ export const ReportPanel = ({ id }: ReportPanelProps) => {
 
     return (
         <Panel id={id}>
-            <PanelHeader left={<PanelHeaderBack onClick={() => EGoBack()} />}>Реферат</PanelHeader>
+            <PanelHeader left={<PanelHeaderBack onClick={(): void => EGoBack()} />}>Реферат</PanelHeader>
             {usersReportsSubs.length > 0 && (
                 <Group header={<Header>Мои рефераты</Header>}>
                     <List>
-                        {usersReportsSubs.map((item: IReportSubs) => {
+                        {usersReportsSubs.map((item: ReportSubs) => {
                             return (
                                 <RichCell disabled key={item.id} caption={`Взят ${getDateTitle(item.date)}`}>
                                     {item.report_title}
@@ -118,7 +119,7 @@ export const ReportPanel = ({ id }: ReportPanelProps) => {
                                     return (
                                         <TabsItem
                                             key={item}
-                                            onClick={() => {
+                                            onClick={(): void => {
                                                 setCourse(item);
                                                 getReports(searchValue, item);
                                             }}
@@ -131,7 +132,7 @@ export const ReportPanel = ({ id }: ReportPanelProps) => {
                                 {thisAdmin && (
                                     <TabsItem
                                         key={'all'}
-                                        onClick={() => {
+                                        onClick={(): void => {
                                             setCourse(undefined);
                                             getReports(searchValue);
                                         }}
@@ -150,8 +151,8 @@ export const ReportPanel = ({ id }: ReportPanelProps) => {
                                 after={
                                     <Switch
                                         checked={shawAllReports}
-                                        onChange={(e) => {
-                                            setReports([])
+                                        onChange={(e): void => {
+                                            setReports([]);
                                             setShawAllReports(e.target.checked);
                                         }}
                                     />
@@ -165,7 +166,7 @@ export const ReportPanel = ({ id }: ReportPanelProps) => {
                         <Group header={<Header>Выбор реферата</Header>}>
                             <Search
                                 value={searchValue}
-                                onChange={(e) => {
+                                onChange={(e): void => {
                                     const { value } = e.currentTarget;
                                     setSearchValue(value);
                                     getReports(value, course);
@@ -177,7 +178,7 @@ export const ReportPanel = ({ id }: ReportPanelProps) => {
                                     <Button
                                         size="l"
                                         mode="outline"
-                                        onClick={() => {
+                                        onClick={(): void => {
                                             ReportModel.currentReport = null;
                                             EGo('EditReport');
                                         }}
@@ -192,19 +193,17 @@ export const ReportPanel = ({ id }: ReportPanelProps) => {
                                 length={reports.length}
                                 height={thisAdmin ? 390 : 500}
                             >
-                                {reports.map((item: IReport) => {
+                                {reports.map((item: Report) => {
                                     return (
                                         <Cell
                                             disabled={!selectInCurSem}
                                             key={item.id}
-                                            onClick={() => {
-                                                ReportController.postReportSubs(item);
-                                            }}
+                                            onClick={(): void => ReportController.postReportSubs(item)}
                                             after={
                                                 thisAdmin && (
-                                                    <IconButton onClick={(e) => e.stopPropagation()}>
+                                                    <IconButton onClick={(e): void => e.stopPropagation()}>
                                                         <Icon28EditOutline
-                                                            onClick={() => {
+                                                            onClick={(): void => {
                                                                 ReportModel.currentReport = item;
                                                                 EGo('EditReport');
                                                             }}

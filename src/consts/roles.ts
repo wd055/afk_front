@@ -4,7 +4,7 @@ export const Roles = {
     student: 2
 };
 export let userRole: number = Roles.student;
-export let thisAdmin: boolean = false;
+export let thisAdmin = false;
 
 export const setUserRole = (newRole: number): void => {
     userRole = newRole;

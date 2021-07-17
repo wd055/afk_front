@@ -1,12 +1,12 @@
 import { TAuth, TAuthOrder, TDepartment, TEvent } from '../consts/events';
 import { getOffsetLimitQStr } from '../consts/limit';
 import { dateToString, getDateForRequest } from '../utils/date';
-import HttpRequests, { IResponseData, parseJson } from '../utils/requests';
-import { IResponsePaginationStudent, IResponseStudent } from './Student';
+import HttpRequests, { ResponseData, parseJson } from '../utils/requests';
+import { ResponsePaginationStudent, ResponseStudent } from './Student';
 
 export type TEventDate = string | Date;
 
-export interface IEvent {
+export interface Event {
     id?: number;
     title: string;
     start: Date;
@@ -19,7 +19,7 @@ export interface IEvent {
     department?: TDepartment;
 }
 
-interface IEventRequest {
+interface EventRequest {
     id?: number;
     title: string;
     start: string;
@@ -32,46 +32,46 @@ interface IEventRequest {
     department?: TDepartment;
 }
 
-export interface IResponseEvent extends IResponseData {
-    json: IEvent;
+export interface ResponseEvent extends ResponseData {
+    json: Event;
 }
 
-export interface IResponseEvents extends IResponseData {
-    json: IEvent[];
+export interface ResponseEvents extends ResponseData {
+    json: Event[];
 }
 
-export interface ISetVisit {
+export interface SetVisit {
     student_vk_id: number;
     auth_order: TAuthOrder;
 }
 
-export const parseDateEvent = (event: IEvent): IEvent => {
+export const parseDateEvent = (event: Event): Event => {
     event.start = new Date(event.start);
     event.end = new Date(event.end);
     return event;
 };
 
-export const parseDateEventArray = (events: IEvent[]): IEvent[] => {
+export const parseDateEventArray = (events: Event[]): Event[] => {
     return events.map(parseDateEvent);
 };
 
-export const parseDateResponseEvent = (response: IResponseEvent): IResponseData => {
+export const parseDateResponseEvent = (response: ResponseEvent): ResponseData => {
     if (response.ok) {
         response.json = parseDateEvent(response.json);
     }
     return response;
 };
 
-export const parseDateResponseEvents = (response: IResponseEvents): IResponseData => {
+export const parseDateResponseEvents = (response: ResponseEvents): ResponseData => {
     if (response.ok) {
-        response.json = response.json.map((item: IEvent): IEvent => parseDateEvent(item));
+        response.json = response.json.map((item: Event): Event => parseDateEvent(item));
     }
     return response;
 };
 
 export const parseDateResponsePaginationEvent = (
-    response: IResponseEvents
-): IResponseEvents => {
+    response: ResponseEvents
+): ResponseEvents => {
     if (response.ok) {
         response.json = parseDateEventArray(response.json);
     }
@@ -79,13 +79,13 @@ export const parseDateResponsePaginationEvent = (
 };
 
 export class EventModel {
-    currentEvent: IEvent | null = null;
+    currentEvent: Event | null = null;
 
     getEvents(
         time?: { start?: string | Date; end?: string | Date },
         page?: number,
         department?: TDepartment
-    ): Promise<IResponseEvents> {
+    ): Promise<ResponseEvents> {
         let start = '',
             end = '';
         if (time?.start) {
@@ -98,42 +98,42 @@ export class EventModel {
             .then(parseJson)
             .then(parseDateResponsePaginationEvent);
     }
-    getFavorite(): Promise<IResponseEvents> {
-        return HttpRequests.get(`/event/get_favorite`).then(parseJson).then(parseDateResponseEvents);
+    getFavorite(): Promise<ResponseEvents> {
+        return HttpRequests.get('/event/get_favorite').then(parseJson).then(parseDateResponseEvents);
     }
-    getEvent(id: number): Promise<IResponseEvent> {
+    getEvent(id: number): Promise<ResponseEvent> {
         return HttpRequests.get(`/event/${id}`).then(parseJson).then(parseDateResponseEvent);
     }
-    deleteEvent(id: number): Promise<IResponseData> {
+    deleteEvent(id: number): Promise<ResponseData> {
         return HttpRequests.delete(`/event/${id}`).then(parseJson);
     }
-    postEvent(event: IEvent): Promise<IResponseEvent> {
-        const eventRequest: IEventRequest = {
+    postEvent(event: Event): Promise<ResponseEvent> {
+        const eventRequest: EventRequest = {
             ...event,
             start: dateToString(event.start),
             end: dateToString(event.end)
         };
-        return HttpRequests.post(`/event/`, eventRequest).then(parseJson).then(parseDateResponseEvent);
+        return HttpRequests.post('/event/', eventRequest).then(parseJson).then(parseDateResponseEvent);
     }
-    putEvent(id: number, event: IEvent): Promise<IResponseEvent> {
-        const eventRequest: IEventRequest = {
+    putEvent(id: number, event: Event): Promise<ResponseEvent> {
+        const eventRequest: EventRequest = {
             ...event,
             start: dateToString(event.start),
             end: dateToString(event.end)
         };
         return HttpRequests.put(`/event/${id}`, eventRequest).then(parseJson).then(parseDateResponseEvent);
     }
-    sendReportEvent(id: number, authOrder?: TAuthOrder): Promise<IResponseEvent> {
+    sendReportEvent(id: number, authOrder?: TAuthOrder): Promise<ResponseEvent> {
         return HttpRequests.post(`/event/${id}/send_report/?auth_order=${authOrder}`)
             .then(parseJson)
             .then(parseDateResponseEvent);
     }
-    searchNewStudentsEvent(id: number, search?: string, offset?: number, limit?: number): Promise<IResponsePaginationStudent> {
+    searchNewStudentsEvent(id: number, search?: string, offset?: number, limit?: number): Promise<ResponsePaginationStudent> {
         return HttpRequests.get(`/event/${id}/search_new_students/?search=${search}&${getOffsetLimitQStr(offset, limit)}`).then(
             parseJson
         );
     }
-    setVisitEvent(id: number, obj: ISetVisit): Promise<IResponseStudent> {
+    setVisitEvent(id: number, obj: SetVisit): Promise<ResponseStudent> {
         return HttpRequests.post(`/event/${id}/set_visit/`, obj).then(parseJson);
     }
 }

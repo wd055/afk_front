@@ -1,8 +1,8 @@
 import { getOffsetLimitQStr } from '../consts/limit';
-import HttpRequests, { IResponseData, parseJson } from '../utils/requests';
-import { IPagination } from './Other';
+import HttpRequests, { ResponseData, parseJson } from '../utils/requests';
+import { Pagination } from './Other';
 
-export interface IStudent {
+export interface Student {
     url?: string;
     full_name?: string;
     student?: number;
@@ -22,46 +22,46 @@ export interface IStudent {
     agree?: boolean;
 }
 
-export interface IPaginationStudent extends IPagination {
-    results: Array<IStudent>;
+export interface PaginationStudent extends Pagination {
+    results: Array<Student>;
 }
 
-export interface IResponsePaginationStudent extends IResponseData {
-    json: IPaginationStudent;
+export interface ResponsePaginationStudent extends ResponseData {
+    json: PaginationStudent;
 }
 
-export interface IResponseStudent extends IResponseData {
-    json: IStudent;
+export interface ResponseStudent extends ResponseData {
+    json: Student;
 }
 
-const setIdStudent = (student: IStudent): IStudent => {
+const setIdStudent = (student: Student): Student => {
     student.id = student.student || student.id;
     return student;
 };
 
-const setIdStudentResponse = (response: IResponseStudent): IResponseStudent => {
+const setIdStudentResponse = (response: ResponseStudent): ResponseStudent => {
     response.json = setIdStudent(response.json);
     return response;
 };
 
-const setIdStudentsResponse = (response: IResponsePaginationStudent): IResponsePaginationStudent => {
+const setIdStudentsResponse = (response: ResponsePaginationStudent): ResponsePaginationStudent => {
     response.json.results = response.json.results.map(setIdStudent);
     return response;
 };
 
 export class StudentModel {
-    currentStudent: IStudent | null = null;
-    thisStudent: IStudent | null = null;
+    currentStudent: Student | null = null;
+    thisStudent: Student | null = null;
 
-    getStudents(search?: string, offset?: number, limit?: number): Promise<IResponsePaginationStudent> {
+    getStudents(search?: string, offset?: number, limit?: number): Promise<ResponsePaginationStudent> {
         return HttpRequests.get(`/students/?search=${search || ''}&${getOffsetLimitQStr(offset, limit)}`)
             .then(parseJson)
             .then(setIdStudentsResponse);
     }
-    getStudent(studentId?: string | number): Promise<IResponseStudent> {
+    getStudent(studentId?: string | number): Promise<ResponseStudent> {
         return HttpRequests.get(`/students/${studentId}`).then(parseJson).then(setIdStudentResponse);
     }
-    getCurrentStudent(): Promise<IResponseStudent> {
+    getCurrentStudent(): Promise<ResponseStudent> {
         return HttpRequests.get('/get_current_student').then(parseJson).then(setIdStudentResponse);
     }
 }

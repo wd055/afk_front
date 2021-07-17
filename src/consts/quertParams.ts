@@ -1,9 +1,9 @@
-const parseQueryString = (str: string) => {
+const parseQueryString = (str: string): any => {
     return str
         .slice(1)
         .split('&')
         .map((queryParam) => {
-            let kvp = queryParam.split('=');
+            const kvp = queryParam.split('=');
             return { key: kvp[0], value: kvp[1] };
         })
         .reduce((query: any, kvp) => {

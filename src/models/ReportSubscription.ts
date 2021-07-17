@@ -1,61 +1,60 @@
-import HttpRequests, { IResponseData, parseJson } from '../utils/requests';
-import { IPagination } from './Other';
-import { IStudent } from './Student';
+import HttpRequests, { ResponseData, parseJson } from '../utils/requests';
+import { Pagination } from './Other';
+import { Student } from './Student';
 
-export interface IReportSubs {
+export interface ReportSubs {
     id?: number;
-    student: number | IStudent;
+    student: number | Student;
     report: number;
     report_title?: string;
     date: Date;
 }
 
-interface IReportSubsRequest {
-    student: number | IStudent;
+interface ReportSubsRequest {
+    student: number | Student;
     report: number;
 }
 
-export interface IPaginationReportSubs extends IPagination {
-    results: Array<IReportSubs>;
+export interface PaginationReportSubs extends Pagination {
+    results: Array<ReportSubs>;
 }
 
-export interface IResponsePaginationReportSubs extends IResponseData {
-    json: IPaginationReportSubs;
+export interface ResponsePaginationReportSubs extends ResponseData {
+    json: PaginationReportSubs;
 }
 
-export interface IResponseReportSubs extends IResponseData {
-    json: IReportSubs;
+export interface ResponseReportSubs extends ResponseData {
+    json: ReportSubs;
 }
 
-const parseDate = (reportSubs: IReportSubs): IReportSubs => {
-console.log("🚀 ~ file: ReportSubscription.ts ~ line 31 ~ parseDate ~ reportSubs", reportSubs)
+const parseDate = (reportSubs: ReportSubs): ReportSubs => {
     reportSubs.date = new Date(reportSubs.date);
 
-    if ((reportSubs.student as IStudent).student) {
-        (reportSubs.student as IStudent).id = (reportSubs.student as IStudent).student || (reportSubs.student as IStudent).id;
+    if ((reportSubs.student as Student).student) {
+        (reportSubs.student as Student).id = (reportSubs.student as Student).student || (reportSubs.student as Student).id;
     }
     return reportSubs;
 };
 
 const parseDateResponseSubscriptions = (
-    resposne: IResponsePaginationReportSubs
-): IResponsePaginationReportSubs => {
+    resposne: ResponsePaginationReportSubs
+): ResponsePaginationReportSubs => {
     resposne.json.results = resposne.json.results.map(parseDate);
     return resposne;
 };
 
-const parseDateResponseSubscription = (resposne: IResponseReportSubs): IResponseReportSubs => {
+const parseDateResponseSubscription = (resposne: ResponseReportSubs): ResponseReportSubs => {
     resposne.json = parseDate(resposne.json);
     return resposne;
 };
 
 export class ReportSubsModel {
-    currentReportSubs: IReportSubs | null = null;
+    currentReportSubs: ReportSubs | null = null;
 
     getReportSubses(searchObj?: {
         student?: number;
         report?: number;
-    }): Promise<IResponsePaginationReportSubs> {
+    }): Promise<ResponsePaginationReportSubs> {
         return HttpRequests.get(
             `/reportsubscription/?student=${searchObj?.student || ''}&report=${
                 searchObj?.report || ''
@@ -64,16 +63,16 @@ export class ReportSubsModel {
             .then(parseJson)
             .then(parseDateResponseSubscriptions);
     }
-    getReportSubs(ReportSubsId: number): Promise<IResponseReportSubs> {
+    getReportSubs(ReportSubsId: number): Promise<ResponseReportSubs> {
         return HttpRequests.get(`/reportsubscription/${ReportSubsId}`)
             .then(parseJson)
             .then(parseDateResponseSubscription);
     }
-    deleteReportSubs(ReportSubsId: number): Promise<IResponseData> {
+    deleteReportSubs(ReportSubsId: number): Promise<ResponseData> {
         return HttpRequests.delete(`/reportsubscription/${ReportSubsId}/`).then(parseJson);
     }
-    postReportSubs(data: IReportSubsRequest): Promise<IResponseReportSubs> {
-        return HttpRequests.post(`/reportsubscription/`, data).then(parseJson);
+    postReportSubs(data: ReportSubsRequest): Promise<ResponseReportSubs> {
+        return HttpRequests.post('/reportsubscription/', data).then(parseJson);
     }
 }
 

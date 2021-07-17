@@ -1,31 +1,30 @@
 import { Alert } from '@vkontakte/vkui';
-import EventModel, { IEvent, IResponseEvent, IResponseEvents } from '../models/Event';
-
-import { IPaginationResponseData } from '../models/Other';
+import EventModel, { Event, ResponseEvent, ResponseEvents } from '../models/Event';
+import { PaginationResponseData } from '../models/Other';
 import {
-    IPaginationStudent,
-    IResponsePaginationStudent,
-    IResponseStudent,
-    IStudent
+    PaginationStudent,
+    ResponsePaginationStudent,
+    ResponseStudent,
+    Student
 } from '../models/Student';
-import VisitModel, { IPaginationVisit, IResponsePaginationVisit, IVisit } from '../models/Visit';
-import { IResponseData } from '../utils/requests';
+import VisitModel, { PaginationVisit, ResponsePaginationVisit, Visit } from '../models/Visit';
+import { ResponseData } from '../utils/requests';
 import { callSnackbar, catchSnackbar } from '../panels/style';
 import { TAuthOrder, TDepartment } from '../consts/events';
 import React from 'react';
 import { ESetPopout } from '../App';
 import { snackbarDelay } from '../consts/snackbar';
 
-export interface IStudentVisit extends IStudent {
-    visit?: IVisit;
+export interface StudentVisit extends Student {
+    visit?: Visit;
 }
 
-export interface ISearchStudentsListPromise {
-    studentsList: IStudentVisit[];
-    response: IPaginationResponseData;
+export interface SearchStudentsListPromise {
+    studentsList: StudentVisit[];
+    response: PaginationResponseData;
 }
 
-export interface ISearchStudentsList {
+export interface SearchStudentsList {
     eventId: number;
     searchValue?: string;
     searchNewStudent?: boolean;
@@ -60,11 +59,11 @@ export class EventController {
                         title: 'Удалить',
                         autoclose: true,
                         mode: 'destructive',
-                        action: () => this.deleteEventRequest(eventId, onDelete)
+                        action: (): void => this.deleteEventRequest(eventId, onDelete)
                     }
                 ]}
                 actionsLayout="horizontal"
-                onClose={() => ESetPopout(null)}
+                onClose={(): void => ESetPopout(null)}
                 header="Удаление мероприятия"
                 text="Вы уверены, что хотите удалить это мероприятие?"
             />
@@ -73,7 +72,7 @@ export class EventController {
 
     getFavorite(setEvents: Function): void {
         EventModel.getFavorite()
-            .then((response: IResponseEvents) => {
+            .then((response: ResponseEvents) => {
                 if (!response.ok) return;
                 setEvents(response.json);
             })
@@ -82,15 +81,15 @@ export class EventController {
 
     getEvents(start: Date, end: Date, setEvents: Function, department?: TDepartment): void {
         EventModel.getEvents({ start: start, end: end }, 1, department)
-            .then((response: IResponseEvents) => {
+            .then((response: ResponseEvents) => {
                 if (!response.ok) return;
                 setEvents(response.json);
             })
             .catch(catchSnackbar);
     }
 
-    saveEvent(formsData: IEvent): void {
-        ((): Promise<IResponseEvent> => {
+    saveEvent(formsData: Event): void {
+        ((): Promise<ResponseEvent> => {
             if (formsData.id) {
                 return EventModel.putEvent(formsData.id, formsData);
             }
@@ -100,8 +99,8 @@ export class EventController {
             .catch(catchSnackbar);
     }
 
-    searchStudentsList(obj: ISearchStudentsList): Promise<ISearchStudentsListPromise> {
-        return new Promise<IResponsePaginationStudent | IResponsePaginationVisit>((resolve, reject) => {
+    searchStudentsList(obj: SearchStudentsList): Promise<SearchStudentsListPromise> {
+        return new Promise<ResponsePaginationStudent | ResponsePaginationVisit>((resolve) => {
             if (obj.searchNewStudent) {
                 return resolve(
                     EventModel.searchNewStudentsEvent(obj.eventId, obj.searchValue, obj.offset, obj.limit)
@@ -116,23 +115,23 @@ export class EventController {
                     })
                 );
             }
-        }).then((responseData: IResponseData) => {
+        }).then((responseData: ResponseData) => {
             if (!responseData.ok) {
                 return {
                     studentsList: [],
                     response: responseData
                 };
             }
-            let studentsList: IStudentVisit[] = [];
+            const studentsList: StudentVisit[] = [];
             if (obj.searchNewStudent) {
-                let data: IPaginationStudent = responseData.json as IPaginationStudent;
-                data.results.forEach((item: IStudent) => {
+                const data: PaginationStudent = responseData.json as PaginationStudent;
+                data.results.forEach((item: Student) => {
                     item.id = item.student;
                     studentsList.push(item);
                 });
             } else {
-                let data: IPaginationVisit = responseData.json as IPaginationVisit;
-                data.results.forEach((item: IVisit) => {
+                const data: PaginationVisit = responseData.json as PaginationVisit;
+                data.results.forEach((item: Visit) => {
                     studentsList.push({ ...item.student_data, visit: item });
                 });
             }
@@ -143,13 +142,13 @@ export class EventController {
         });
     }
 
-    setVisit(eventId: number, student_vk_id: number | string, authOrder: TAuthOrder) {
-        student_vk_id = Number(student_vk_id);
+    setVisit(eventId: number, studentVkId: number | string, authOrder: TAuthOrder): void {
+        studentVkId = Number(studentVkId);
         EventModel.setVisitEvent(eventId, {
-            student_vk_id: student_vk_id,
+            student_vk_id: studentVkId,
             auth_order: authOrder
         })
-            .then((response: IResponseStudent) => {
+            .then((response: ResponseStudent) => {
                 if (!response.ok) {
                     callSnackbar({ success: false, statusCodeForText: response.status });
                     return;

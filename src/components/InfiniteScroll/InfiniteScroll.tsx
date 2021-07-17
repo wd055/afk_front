@@ -1,20 +1,20 @@
 import React, { FunctionComponent, ReactNode, useState } from 'react';
 import { Div, Footer } from '@vkontakte/vkui';
 
-export interface INextFunction {
+export interface NextFunction {
     (offset: number, limit: number): Promise<any>;
 }
 
 type InfiniteScrollProps = {
-    children: ReactNode;
-    next: INextFunction;
+    children: JSX.Element | ReactNode;
+    next: NextFunction;
     hasMore?: boolean;
     limit?: number;
     scrollThreshold?: number;
     height?: number;
     length: number;
-    loader?: ReactNode;
-    endMessage?: ReactNode;
+    loader?: JSX.Element;
+    endMessage?: JSX.Element;
 };
 
 export const InfiniteScroll: FunctionComponent<InfiniteScrollProps> = ({
@@ -27,7 +27,7 @@ export const InfiniteScroll: FunctionComponent<InfiniteScrollProps> = ({
     scrollThreshold = 250,
     loader = <Footer>Загрузка</Footer>,
     endMessage = <Footer>Конец списка</Footer>
-}) => {
+}: InfiniteScrollProps) => {
     const [download, setDownload] = useState<boolean>(false);
 
     return (
@@ -37,8 +37,8 @@ export const InfiniteScroll: FunctionComponent<InfiniteScrollProps> = ({
                 overflow: 'auto',
                 position: 'relative'
             }}
-            onScroll={(e) => {
-                let element = e.currentTarget;
+            onScroll={(e): void => {
+                const element = e.currentTarget;
                 if (
                     element.scrollTop + element.clientHeight >= element.scrollHeight - scrollThreshold &&
                     !download &&

@@ -16,31 +16,27 @@ import React, { useEffect, useState } from 'react';
 import { EGo, EGoBack } from '../App';
 import { UnpinReportSubs } from '../components/UnpinReportSubs/UnpinReportSubs';
 import ReportController from '../controllers/Report';
-import { IReport } from '../models/Report';
-import ReportSubsModel, { IReportSubs } from '../models/ReportSubscription';
-import StudentModel, { IResponseStudent, IStudent } from '../models/Student';
+import { Report } from '../models/Report';
+import ReportSubsModel, { ReportSubs } from '../models/ReportSubscription';
+import StudentModel, { Student } from '../models/Student';
 import { callSnackbar, catchSnackbar } from './style';
 
 interface EditReportPanelProps {
     id: string;
-    report?: IReport | null;
+    report?: Report | null;
     onSave?: Function;
     onDelete?: Function;
 }
-interface ISubsStudents {
-    student: IStudent;
-    report: number;
-}
 
-export const EditReportPanel = ({ id, report, onSave, onDelete }: EditReportPanelProps) => {
-    const [reportTmp, setReportTmp] = useState<IReport>({
+export const EditReportPanel = ({ id, report, onSave, onDelete }: EditReportPanelProps): JSX.Element => {
+    const [reportTmp, setReportTmp] = useState<Report>({
         course: 0,
         title: '',
         ...report
     });
-    const [reportsSubs, setReportsSubs] = useState<IReportSubs[]>([]);
+    const [reportsSubs, setReportsSubs] = useState<ReportSubs[]>([]);
 
-    const getReportsSubs = (reportId: number) => {
+    const getReportsSubs = (reportId: number): Promise<void> => {
         return ReportSubsModel.getReportSubses({ report: reportId })
             .then((response) => {
                 if (!response.ok) {
@@ -49,7 +45,6 @@ export const EditReportPanel = ({ id, report, onSave, onDelete }: EditReportPane
                 }
 
                 setReportsSubs(response.json.results);
-                console.log("🚀 ~ file: EditReport.tsx ~ line 105 ~ .then ~ response.json.results", response.json.results)
             })
             .catch(() => {
                 catchSnackbar();
@@ -64,7 +59,7 @@ export const EditReportPanel = ({ id, report, onSave, onDelete }: EditReportPane
 
     return (
         <Panel id={id}>
-            <PanelHeader left={<PanelHeaderBack onClick={() => EGoBack()} />}>
+            <PanelHeader left={<PanelHeaderBack onClick={(): void => EGoBack()} />}>
                 Редактирование реферата
             </PanelHeader>
             <Group>
@@ -77,7 +72,7 @@ export const EditReportPanel = ({ id, report, onSave, onDelete }: EditReportPane
                             return (
                                 <TabsItem
                                     key={item}
-                                    onClick={() => setReportTmp({ ...reportTmp, course: item })}
+                                    onClick={(): void => setReportTmp({ ...reportTmp, course: item })}
                                     selected={item === reportTmp.course}
                                 >
                                     {item}
@@ -90,7 +85,7 @@ export const EditReportPanel = ({ id, report, onSave, onDelete }: EditReportPane
                     <Input
                         type="text"
                         defaultValue={reportTmp.title}
-                        onChange={(e) =>
+                        onChange={(e): void =>
                             setReportTmp({ ...reportTmp, title: e.target.value.trim().replaceAll('  ', ' ') })
                         }
                     />
@@ -100,7 +95,7 @@ export const EditReportPanel = ({ id, report, onSave, onDelete }: EditReportPane
                         size="l"
                         stretched
                         disabled={reportTmp.course <= 0 || reportTmp.title.length === 0}
-                        onClick={(e) => {
+                        onClick={(): void => {
                             if (onSave !== undefined) onSave(reportTmp);
                             if (!report) {
                                 ReportController.postReport(reportTmp);
@@ -116,7 +111,7 @@ export const EditReportPanel = ({ id, report, onSave, onDelete }: EditReportPane
                             size="l"
                             mode="destructive"
                             style={{ marginLeft: 8 }}
-                            onClick={() => {
+                            onClick={(): void => {
                                 if (onDelete !== undefined) onDelete(reportTmp);
                                 if (reportTmp.id) {
                                     ReportController.deleteReport(reportTmp, () => {
@@ -132,21 +127,20 @@ export const EditReportPanel = ({ id, report, onSave, onDelete }: EditReportPane
             </Group>
             <Group>
                 {reportsSubs.length === 0 && <Footer>Темы ни разу не выбиралась</Footer>}
-                {reportsSubs.map((item: IReportSubs, i: number) => {
-                    const student = item.student as IStudent;
-                    console.log("🚀 ~ file: EditReport.tsx ~ line 136 ~ {reportsSubs.map ~ student", student)
+                {reportsSubs.map((item: ReportSubs, i: number) => {
+                    const student = item.student as Student;
                     return (
                         <RichCell
                             disabled
                             key={student.student}
-                            onClick={() => {
+                            onClick={(): void => {
                                 StudentModel.currentStudent = student;
                                 EGo('studentInfo');
                             }}
                             after={
                                 <UnpinReportSubs
                                     reportSubs={item}
-                                    OnUnpin={() => {
+                                    OnUnpin={(): void => {
                                         reportsSubs.splice(i, 1);
                                         setReportsSubs(reportsSubs);
                                     }}

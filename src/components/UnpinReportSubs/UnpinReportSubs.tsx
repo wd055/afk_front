@@ -1,21 +1,21 @@
 import React, { FunctionComponent } from 'react';
 import { Icon28UnpinOutline } from '@vkontakte/icons';
-import ReportSubsModel, { IReportSubs } from '../../models/ReportSubscription';
+import ReportSubsModel, { ReportSubs } from '../../models/ReportSubscription';
 import { callSnackbar, catchSnackbar } from '../../panels/style';
-import { IResponseData } from '../../utils/requests';
+import { ResponseData } from '../../utils/requests';
 
 type UnpinReportSubsProps = {
-    reportSubs: IReportSubs;
+    reportSubs: ReportSubs;
     OnUnpin?: Function;
 };
 
-export const UnpinReportSubs: FunctionComponent<UnpinReportSubsProps> = ({ reportSubs, OnUnpin }, props) => {
+export const UnpinReportSubs: FunctionComponent<UnpinReportSubsProps> = ({ reportSubs, OnUnpin }: UnpinReportSubsProps) => {
     return (
         <Icon28UnpinOutline
-            onClick={(e) => {
+            onClick={(e): void => {
                 e.stopPropagation();
                 ReportSubsModel.deleteReportSubs(reportSubs.id as number)
-                    .then((response: IResponseData) => {
+                    .then((response: ResponseData) => {
                         if (response.ok) {
                             if (OnUnpin) OnUnpin();
                             callSnackbar({});

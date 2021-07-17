@@ -1,28 +1,20 @@
-import {
-    Div,
-    Group,
-    Panel,
-    PanelHeader,
-    PanelHeaderBack,
-    RichCell,
-    Search,
-} from '@vkontakte/vkui';
+import { Div, Group, Panel, PanelHeader, PanelHeaderBack, RichCell, Search } from '@vkontakte/vkui';
 import React, { useEffect, useState } from 'react';
 import { EGo, EGoBack } from '../App';
 import { InfiniteScroll } from '../components/InfiniteScroll/InfiniteScroll';
-import StudentModel, { IStudent } from '../models/Student';
+import StudentModel, { Student } from '../models/Student';
 import { callSnackbar, catchSnackbar } from './style';
 
 export interface StudentsPanelProps {
     id: string;
 }
 
-export const StudentsPanel = ({ id }: StudentsPanelProps) => {
-    const [students, setStudents] = useState<IStudent[]>([]);
+export const StudentsPanel = ({ id }: StudentsPanelProps): JSX.Element => {
+    const [students, setStudents] = useState<Student[]>([]);
     const [searchValue, setSearchValue] = useState<string>('');
     const [hasMore, setHasMore] = useState<boolean>(true);
 
-    const getStudents = (thisSearchValue?: string, offset?: number, limit?: number) => {
+    const getStudents = (thisSearchValue?: string, offset?: number, limit?: number): Promise<void> => {
         return StudentModel.getStudents(thisSearchValue, offset, limit)
             .then((response) => {
                 if (!response.ok) {
@@ -49,12 +41,12 @@ export const StudentsPanel = ({ id }: StudentsPanelProps) => {
 
     return (
         <Panel id={id}>
-            <PanelHeader left={<PanelHeaderBack onClick={() => EGoBack()} />}>Студенты</PanelHeader>
+            <PanelHeader left={<PanelHeaderBack onClick={(): void => EGoBack()} />}>Студенты</PanelHeader>
             <Group>
                 <Div style={{ display: 'flex' }}>
                     <Search
                         value={searchValue}
-                        onChange={(e) => {
+                        onChange={(e): void => {
                             const { value } = e.currentTarget;
                             setSearchValue(value);
                             getStudents(value);
@@ -69,11 +61,11 @@ export const StudentsPanel = ({ id }: StudentsPanelProps) => {
                     hasMore={hasMore}
                     length={students.length}
                 >
-                    {students.map((student: IStudent) => {
+                    {students.map((student: Student) => {
                         return (
                             <RichCell
                                 key={student.id}
-                                onClick={() => {
+                                onClick={(): void => {
                                     StudentModel.currentStudent = student;
                                     EGo('studentInfo');
                                 }}

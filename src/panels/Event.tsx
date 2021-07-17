@@ -23,34 +23,34 @@ import {
     Icon28EditOutline
 } from '@vkontakte/icons';
 import { snackbarDelay } from '../consts/snackbar';
-import EventModel, { IEvent, IResponseEvent } from '../models/Event';
-import { IVKWebAppOpenCodeReaderResultData } from '../consts/bridgesType';
+import EventModel, { Event, ResponseEvent } from '../models/Event';
+import { VKWebAppOpenCodeReaderResultData } from '../consts/bridgesType';
 import { TQRData } from '../consts/QR';
 import { TAuthOrder } from '../consts/events';
-import EventController, { IStudentVisit } from '../controllers/Event';
+import EventController, { StudentVisit } from '../controllers/Event';
 import { thisMobile } from '../consts/quertParams';
 import { EGo as go, EGoBack as goBack } from '../App';
 import { EventInfo } from '../components/EventInfo/EventInfo';
 import { InfiniteScroll } from '../components/InfiniteScroll/InfiniteScroll';
 import { EventVisitItem } from '../components/EventVisitItem/EventVisitItem';
 
-export interface IEventPanel {
+export interface EventPanelProps {
     id: string;
 }
 
-export const Event = ({ id }: IEventPanel) => {
-    const [students, setStudents] = useState<IStudentVisit[]>([]);
+export const EventPanel = ({ id }: EventPanelProps): JSX.Element => {
+    const [students, setStudents] = useState<StudentVisit[]>([]);
     const [searchValue, setSearchValue] = useState<string>('');
     const [searchNewStudent, setSearchNewStudent] = useState<boolean>(false);
     const [QROrder, setQROrder] = useState<TAuthOrder>('final');
     const [QRData, setQRData] = useState<TQRData | null>();
-    const [auth_type_is_single] = useState(EventModel.currentEvent?.auth_type === 'single');
+    const [authTypeSingle] = useState(EventModel.currentEvent?.auth_type === 'single');
     const [hasMore, setHasMore] = useState<boolean>(true);
-    let eventId = EventModel.currentEvent?.id || 0;
+    const eventId = EventModel.currentEvent?.id || 0;
 
-    const sendReport = (eventId: number, authOrder: TAuthOrder) => {
+    const sendReport = (eventId: number, authOrder: TAuthOrder): void => {
         EventModel.sendReportEvent(eventId, authOrder)
-            .then((response: IResponseEvent) => {
+            .then((response: ResponseEvent) => {
                 if (!response.ok) {
                     callSnackbar({ success: false, statusCodeForText: response.status });
                     return;
@@ -60,7 +60,7 @@ export const Event = ({ id }: IEventPanel) => {
             .catch(catchSnackbar);
     };
 
-    const getStudents = (eventId: number, thisSearchValue?: string, offset?: number, limit?: number) => {
+    const getStudents = (eventId: number, thisSearchValue?: string, offset?: number, limit?: number): Promise<void> => {
         return EventController.searchStudentsList({
             eventId,
             searchValue: thisSearchValue,
@@ -91,7 +91,7 @@ export const Event = ({ id }: IEventPanel) => {
         bridge.subscribe(({ detail: { type, data } }) => {
             if (type === 'VKWebAppOpenCodeReaderResult') {
                 try {
-                    data = JSON.parse((data as IVKWebAppOpenCodeReaderResultData).code_data);
+                    data = JSON.parse((data as VKWebAppOpenCodeReaderResultData).code_data);
                 } catch (error) {
                     console.error(error);
                 }
@@ -126,10 +126,10 @@ export const Event = ({ id }: IEventPanel) => {
 
     return (
         <Panel id={id}>
-            <PanelHeader left={<PanelHeaderBack onClick={() => goBack()} />}>Мероприятие</PanelHeader>
+            <PanelHeader left={<PanelHeaderBack onClick={(): void => goBack()} />}>Мероприятие</PanelHeader>
             <Group>
                 <CellButton
-                    onClick={() => {
+                    onClick={(): void => {
                         go('eventForm', true);
                     }}
                     before={<Icon28EditOutline />}
@@ -137,14 +137,14 @@ export const Event = ({ id }: IEventPanel) => {
                     Редактировать мероприятия
                 </CellButton>
             </Group>
-            <EventInfo event={EventModel.currentEvent as IEvent} />
+            <EventInfo event={EventModel.currentEvent as Event} />
             <Group header={<Header>Отчеты</Header>}>
                 <Div style={{ display: 'flex' }}>
-                    {!auth_type_is_single && (
+                    {!authTypeSingle && (
                         <Button
                             size="l"
                             style={{ marginRight: 8 }}
-                            onClick={() => sendReport(eventId, 'initial')}
+                            onClick={(): void => sendReport(eventId, 'initial')}
                             after={<Icon24Send />}
                         >
                             Отправить себе всех
@@ -153,7 +153,7 @@ export const Event = ({ id }: IEventPanel) => {
                     <Button
                         size="l"
                         style={{ marginRight: 8 }}
-                        onClick={() => sendReport(eventId, 'final')}
+                        onClick={(): void => sendReport(eventId, 'final')}
                         after={<Icon24Send />}
                     >
                         Отправить себе закончивших
@@ -166,7 +166,7 @@ export const Event = ({ id }: IEventPanel) => {
                     <Div style={{ display: 'flex' }}>
                         <Search
                             value={searchValue}
-                            onChange={(e) => {
+                            onChange={(e): void => {
                                 const { value } = e.currentTarget;
                                 setSearchValue(value);
                                 getStudents(eventId, value);
@@ -174,9 +174,9 @@ export const Event = ({ id }: IEventPanel) => {
                             placeholder="Поиск по Фамилии или Имени"
                         />
                         {thisMobile &&
-                            (auth_type_is_single ? (
+                            (authTypeSingle ? (
                                 <IconButton
-                                    onClick={() => {
+                                    onClick={(): void => {
                                         setQROrder('final');
                                         bridge.send('VKWebAppOpenCodeReader');
                                     }}
@@ -187,7 +187,7 @@ export const Event = ({ id }: IEventPanel) => {
                             ) : (
                                 <div className="Tabbar Tabbar--l-vertical" style={{ position: 'static' }}>
                                     <TabbarItem
-                                        onClick={() => {
+                                        onClick={(): void => {
                                             setQROrder('initial');
                                             bridge.send('VKWebAppOpenCodeReader');
                                         }}
@@ -197,7 +197,7 @@ export const Event = ({ id }: IEventPanel) => {
                                         <Icon28QrCodeOutline style={{ paddingRight: 8 }} />
                                     </TabbarItem>
                                     <TabbarItem
-                                        onClick={() => {
+                                        onClick={(): void => {
                                             setQROrder('final');
                                             bridge.send('VKWebAppOpenCodeReader');
                                         }}
@@ -210,7 +210,7 @@ export const Event = ({ id }: IEventPanel) => {
                             ))}
                         {!searchNewStudent ? (
                             <IconButton
-                                onClick={() => {
+                                onClick={(): void => {
                                     setStudents([]);
                                     setSearchNewStudent(true);
                                 }}
@@ -220,7 +220,7 @@ export const Event = ({ id }: IEventPanel) => {
                             </IconButton>
                         ) : (
                             <IconButton
-                                onClick={() => {
+                                onClick={(): void => {
                                     setStudents([]);
                                     setSearchNewStudent(false);
                                 }}
@@ -236,10 +236,10 @@ export const Event = ({ id }: IEventPanel) => {
                         length={students.length}
                         height={400}
                     >
-                        {students.map((student: IStudentVisit) => (
+                        {students.map((student: StudentVisit) => (
                             <EventVisitItem
                                 key={student?.visit?.id || student.id}
-                                event={EventModel.currentEvent as IEvent}
+                                event={EventModel.currentEvent as Event}
                                 student={student}
                             />
                         ))}

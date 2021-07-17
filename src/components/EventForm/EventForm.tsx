@@ -35,20 +35,20 @@ import {
     splitInputTime,
     formsEventIsValid
 } from '../../utils/date';
-import { IEvent } from '../../models/Event';
+import { Event } from '../../models/Event';
 import EventController from '../../controllers/Event';
 import { DatePickerDateFormat } from '@vkontakte/vkui/dist/components/DatePicker/DatePicker';
 import { EGoBack as goBack } from '../../App';
 
 type EventFormProps = {
-    event?: IEvent;
+    event?: Event;
     onSave?: Function;
     onEdit?: Function;
     onDelete?: Function;
 };
 const defaultDate = new Date(new Date().getFullYear(), 0, 1);
 
-const default_formsData: IEvent = {
+const defaultFormsData: Event = {
     title: '',
     auth_type: 'single',
     address: '',
@@ -60,10 +60,15 @@ const default_formsData: IEvent = {
     end: defaultDate
 };
 
-export const EventForm: FunctionComponent<EventFormProps> = ({ event, onSave, onEdit, onDelete }) => {
-    const [formsData, setFormsData] = useState<IEvent>(
+export const EventForm: FunctionComponent<EventFormProps> = ({
+    event,
+    onSave,
+    onEdit,
+    onDelete
+}: EventFormProps) => {
+    const [formsData, setFormsData] = useState<Event>(
         event === undefined || event === null
-            ? default_formsData
+            ? defaultFormsData
             : {
                   id: event.id,
                   title: event.title,
@@ -91,7 +96,7 @@ export const EventForm: FunctionComponent<EventFormProps> = ({ event, onSave, on
                     <Input
                         type="text"
                         defaultValue={formsData.title}
-                        onChange={(e) =>
+                        onChange={(e): void =>
                             setFormsData({
                                 ...formsData,
                                 title: e.currentTarget.value
@@ -103,7 +108,7 @@ export const EventForm: FunctionComponent<EventFormProps> = ({ event, onSave, on
                     <Input
                         type="text"
                         defaultValue={formsData.address}
-                        onChange={(e) =>
+                        onChange={(e): void =>
                             setFormsData({
                                 ...formsData,
                                 address: e.currentTarget.value
@@ -114,7 +119,7 @@ export const EventForm: FunctionComponent<EventFormProps> = ({ event, onSave, on
                 <FormItem top="Описание">
                     <Textarea
                         defaultValue={formsData.description}
-                        onChange={(e) =>
+                        onChange={(e): void =>
                             setFormsData({
                                 ...formsData,
                                 description: e.currentTarget.value
@@ -127,7 +132,8 @@ export const EventForm: FunctionComponent<EventFormProps> = ({ event, onSave, on
                         {TAuthArray.map((item: string) => {
                             return (
                                 <TabsItem
-                                    onClick={() =>
+                                    key={item}
+                                    onClick={(): void =>
                                         setFormsData({
                                             ...formsData,
                                             auth_type: item as keyof typeof TAuthName
@@ -144,7 +150,7 @@ export const EventForm: FunctionComponent<EventFormProps> = ({ event, onSave, on
                 <FormItem>
                     <Checkbox
                         defaultChecked={formsData.favorite}
-                        onChange={(e) => setFormsData({ ...formsData, favorite: e.currentTarget.checked })}
+                        onChange={(e): void => setFormsData({ ...formsData, favorite: e.currentTarget.checked })}
                     >
                         Избранное
                     </Checkbox>
@@ -154,13 +160,13 @@ export const EventForm: FunctionComponent<EventFormProps> = ({ event, onSave, on
                         placeholder="Обе"
                         options={departmentSelect}
                         value={formsData.department}
-                        onChange={(option) =>
+                        onChange={(option): void =>
                             setFormsData({
                                 ...formsData,
                                 department: option.currentTarget.value as TDepartment
                             })
                         }
-                        renderOption={({ option: { icon }, ...otherProps }) => {
+                        renderOption={({ option: { icon }, ...otherProps }): JSX.Element => {
                             return <CustomSelectOption before={icon} {...otherProps} />;
                         }}
                     />
@@ -170,13 +176,13 @@ export const EventForm: FunctionComponent<EventFormProps> = ({ event, onSave, on
                         placeholder="Не выбрано"
                         options={eventTypes}
                         value={formsData.eventType}
-                        onChange={(option) =>
+                        onChange={(option): void =>
                             setFormsData({
                                 ...formsData,
                                 eventType: option.currentTarget.value as TEvent
                             })
                         }
-                        renderOption={({ option: { icon }, ...otherProps }) => {
+                        renderOption={({ option: { icon }, ...otherProps }): JSX.Element => {
                             return <CustomSelectOption before={icon} {...otherProps} />;
                         }}
                     />
@@ -188,7 +194,7 @@ export const EventForm: FunctionComponent<EventFormProps> = ({ event, onSave, on
                             month: 1,
                             year: new Date().getFullYear() - 1
                         }}
-                        onDateChange={(value: DatePickerDateFormat) => {
+                        onDateChange={(value: DatePickerDateFormat): void => {
                             const start = eventDateComposition(value as IDateFormat, formsData.start);
                             const end = eventDateComposition(value as IDateFormat, formsData.end);
                             setFormsData({
@@ -204,12 +210,12 @@ export const EventForm: FunctionComponent<EventFormProps> = ({ event, onSave, on
                     />
                 </FormItem>
                 <FormLayoutGroup mode="horizontal">
-                    <FormItem top="С" status={formsData.start > defaultDate ? 'valid' : 'error'}>
+                    <FormItem top="С" status={formsData.start.getHours() > 0 ? 'valid' : 'error'}>
                         <Input
                             type="time"
                             required
                             defaultValue={event === undefined ? '' : getHoursAndMinutes(formsData.start)}
-                            onInput={(e) => {
+                            onInput={(e): void => {
                                 setFormsData({
                                     ...formsData,
                                     start: setHoursAndMinutes(
@@ -229,7 +235,7 @@ export const EventForm: FunctionComponent<EventFormProps> = ({ event, onSave, on
                             type="time"
                             required
                             defaultValue={event === undefined ? '' : getHoursAndMinutes(formsData.end)}
-                            onInput={(e) =>
+                            onInput={(e): void =>
                                 setFormsData({
                                     ...formsData,
                                     end: setHoursAndMinutes(
@@ -246,7 +252,7 @@ export const EventForm: FunctionComponent<EventFormProps> = ({ event, onSave, on
                         size="l"
                         stretched
                         disabled={!formsEventIsValid(formsData)}
-                        onClick={(e) => {
+                        onClick={(): void => {
                             if (onSave !== undefined) onSave(formsData);
                             EventController.saveEvent(formsData);
                         }}
@@ -258,7 +264,7 @@ export const EventForm: FunctionComponent<EventFormProps> = ({ event, onSave, on
                             size="l"
                             mode="destructive"
                             style={{ marginLeft: 8 }}
-                            onClick={() => {
+                            onClick={(): void => {
                                 if (onDelete !== undefined) onDelete(formsData);
                                 if (formsData.id) {
                                     EventController.deleteEvent(formsData.id, () => {

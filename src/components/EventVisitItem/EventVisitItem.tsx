@@ -1,21 +1,21 @@
 import React, { FunctionComponent } from 'react';
 import { Button, RichCell } from '@vkontakte/vkui';
 import { Icon28InfoOutline } from '@vkontakte/icons';
-import { IEvent } from '../../models/Event';
-import EventController, { IStudentVisit } from '../../controllers/Event';
+import { Event } from '../../models/Event';
+import EventController, { StudentVisit } from '../../controllers/Event';
 import { Roles, userRole } from '../../consts/roles';
 import StudentModel from '../../models/Student';
 import { EGo } from '../../App';
 import { getDateTitle } from '../../utils/date';
 
 type EventVisitItemProps = {
-    event: IEvent;
-    student: IStudentVisit;
+    event: Event;
+    student: StudentVisit;
 };
 
-export const EventVisitItem: FunctionComponent<EventVisitItemProps> = ({ event, student }, props) => {
+export const EventVisitItem: FunctionComponent<EventVisitItemProps> = ({ event, student }: EventVisitItemProps) => {
     const authTypeIsSingle = event.auth_type === 'single';
-    let eventId = event?.id || 0;
+    const eventId = event?.id || 0;
 
     return (
         <RichCell
@@ -38,7 +38,7 @@ export const EventVisitItem: FunctionComponent<EventVisitItemProps> = ({ event, 
                     <>
                         {student.visit?.auth_order && student.visit?.auth_order !== 'final' && (
                             <Button
-                                onClick={() => EventController.setVisit(eventId, student.vk_id || 0, 'final')}
+                                onClick={(): void => EventController.setVisit(eventId, student.vk_id || 0, 'final')}
                                 size="m"
                                 mode="outline"
                             >
@@ -48,7 +48,7 @@ export const EventVisitItem: FunctionComponent<EventVisitItemProps> = ({ event, 
                         {!student.visit?.auth_order &&
                             (event.auth_type !== 'double' ? (
                                 <Button
-                                    onClick={() =>
+                                    onClick={(): void =>
                                         EventController.setVisit(eventId, student.vk_id || 0, 'final')
                                     }
                                     size="m"
@@ -59,7 +59,7 @@ export const EventVisitItem: FunctionComponent<EventVisitItemProps> = ({ event, 
                             ) : (
                                 <>
                                     <Button
-                                        onClick={() =>
+                                        onClick={(): void =>
                                             EventController.setVisit(eventId, student.vk_id || 0, 'initial')
                                         }
                                         size="m"
@@ -68,7 +68,7 @@ export const EventVisitItem: FunctionComponent<EventVisitItemProps> = ({ event, 
                                         Начать
                                     </Button>
                                     <Button
-                                        onClick={() =>
+                                        onClick={(): void =>
                                             EventController.setVisit(
                                                 eventId,
                                                 student.vk_id || 0,
@@ -89,7 +89,7 @@ export const EventVisitItem: FunctionComponent<EventVisitItemProps> = ({ event, 
             }
             after={
                 <Icon28InfoOutline
-                    onClick={() => {
+                    onClick={(): void => {
                         StudentModel.currentStudent = student;
                         EGo('studentInfo');
                     }}

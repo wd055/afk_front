@@ -21,13 +21,13 @@ import { CalendarPanel } from './panels/Calendar';
 
 import '@vkontakte/vkui/dist/vkui.css';
 import { queryParams } from './consts/quertParams';
-import OtherModel, { IResponseGetAdminList } from './models/Other';
+import OtherModel, { ResponseGetAdminList } from './models/Other';
 import { Roles, setUserRole } from './consts/roles';
 import { EventInfo } from './components/EventInfo/EventInfo';
 import { StudentInfo } from './components/StudentInfo/StudentInfo';
-import { Event } from './panels/Event';
-import EventModel, { IEvent } from './models/Event';
-import StudentModel, { IResponseStudent, IStudent } from './models/Student';
+import { EventPanel } from './panels/Event';
+import EventModel, { Event } from './models/Event';
+import StudentModel, { ResponseStudent, Student } from './models/Student';
 import { TGo, TModals, TModalsArray, TPanels } from './consts/goto';
 import bridge from '@vkontakte/vk-bridge';
 import { EventForm } from './components/EventForm/EventForm';
@@ -36,12 +36,14 @@ import { ReportPanel } from './panels/Report';
 import { EditReportPanel } from './panels/EditReport';
 import ReportModel from './models/Report';
 
-export let ESetPopout: Function = () => {};
-export let ESetSnackbar: Function = () => {};
-export let EGo = (name: TGo, itsModal?: boolean) => {};
-export let EGoBack: Function = () => {};
+type GoFunc = (name: TGo, itsModal?: boolean) => void;
 
-function App({ viewWidth }: any) {
+export let ESetPopout: Function;
+export let ESetSnackbar: Function;
+export let EGo: GoFunc;
+export let EGoBack: Function;
+
+function App(): JSX.Element {
     const [history] = useState<TGo[]>([]);
     const [popout, setPopout] = useState<ReactChild | null>(null);
     const [snackbar, setSnackbar] = useState<ReactChild | null>(null);
@@ -50,7 +52,7 @@ function App({ viewWidth }: any) {
     const [activePanel, setActivePanel] = useState<TPanels>('spinner');
     const [modal, setModal] = useState<TModals | null>();
 
-    function goBack() {
+    function goBack(): void {
         if (history.length === 1) {
             bridge.send('VKWebAppClose', { status: 'success' });
         } else if (history.length > 1) {
@@ -65,7 +67,7 @@ function App({ viewWidth }: any) {
         }
     }
 
-    function go(name: TGo, itsModal?: boolean) {
+    function go(name: TGo, itsModal?: boolean): void {
         if (history[history.length - 1] !== name) {
             if (itsModal) {
                 setModal(name as TModals);
@@ -76,22 +78,10 @@ function App({ viewWidth }: any) {
             window.history.pushState({ panel: name }, name);
         }
     }
-    EGo = go;
-    EGoBack = goBack;
-    useEffect(() => {
-        setPopout(<ScreenSpinner />);
-        getAdminList();
-        window.addEventListener('popstate', () => goBack());
-        StudentModel.getCurrentStudent().then((response: IResponseStudent) => {
-            if (response.ok) {
-                StudentModel.thisStudent = response.json;
-            }
-        });
-    }, []);
 
-    function getAdminList() {
+    function getAdminList(): void {
         OtherModel.getAdminList()
-            .then((response: IResponseGetAdminList) => {
+            .then((response: ResponseGetAdminList) => {
                 if (!response.ok) {
                     go('Success');
                     return;
@@ -104,6 +94,19 @@ function App({ viewWidth }: any) {
             .finally(() => setPopout(null));
     }
 
+    EGo = go;
+    EGoBack = goBack;
+    useEffect(() => {
+        setPopout(<ScreenSpinner />);
+        getAdminList();
+        window.addEventListener('popstate', () => goBack());
+        StudentModel.getCurrentStudent().then((response: ResponseStudent) => {
+            if (response.ok) {
+                StudentModel.thisStudent = response.json;
+            }
+        });
+    }, []);
+
     const modals = (
         <ModalRoot activeModal={modal} onClose={goBack}>
             <ModalPage
@@ -111,10 +114,17 @@ function App({ viewWidth }: any) {
                 id={'eventInfo'}
                 header={<ModalPageHeader>Мероприятие</ModalPageHeader>}
             >
-                <EventInfo event={EventModel.currentEvent as IEvent} />
+                <EventInfo event={EventModel.currentEvent as Event} />
             </ModalPage>
             <ModalPage onClose={goBack} id={'eventForm'} header={<ModalPageHeader>Форма</ModalPageHeader>}>
-                <EventForm event={EventModel.currentEvent as IEvent} onSave={goBack} onDelete={goBack} />
+                <EventForm
+                    event={EventModel.currentEvent as Event}
+                    onSave={(formsData: Event): void => {
+                        goBack();
+                        EventModel.currentEvent = formsData;
+                    }}
+                    onDelete={goBack}
+                />
             </ModalPage>
         </ModalRoot>
     );
@@ -161,16 +171,14 @@ function App({ viewWidth }: any) {
                         </Panel>
 
                         <CalendarPanel id="Calendar" />
-                        <Event id="Event" />
+                        <EventPanel id="Event" />
                         <StudentsPanel id="Students" />
                         <ReportPanel id="Report" />
                         <EditReportPanel id="EditReport" report={ReportModel.currentReport} />
 
                         <Panel id="studentInfo">
-                            <PanelHeader left={<PanelHeaderBack onClick={() => goBack()} />}>
-                                Журнал
-                            </PanelHeader>
-                            <StudentInfo student={StudentModel.currentStudent as IStudent} />
+                            <PanelHeader left={<PanelHeaderBack onClick={goBack} />}>Журнал</PanelHeader>
+                            <StudentInfo student={StudentModel.currentStudent as Student} />
                         </Panel>
                     </View>
                     {snackbar}

@@ -1,13 +1,13 @@
 import { mainApiUrl } from '../consts/config';
-import Context from './Context';
+import { Context } from './Context';
 
-export interface IResponseData {
+export interface ResponseData {
     status: number;
     ok: boolean;
     json: Context;
 }
 
-export function parseJson(response: Response): Promise<IResponseData> {
+export function parseJson(response: Response): Promise<ResponseData> {
     if (response.status === 204) {
         return Promise.resolve(response);
     }
@@ -49,7 +49,7 @@ class BaseRequest {
 
         const options: RequestInit = {
             method: method,
-            mode: 'cors',
+            mode: 'cors'
             // credentials: 'include'
         };
 

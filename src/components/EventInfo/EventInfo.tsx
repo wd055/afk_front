@@ -7,15 +7,15 @@ import {
     Icon20EducationOutline
 } from '@vkontakte/icons';
 import { eventTypesIcons, TDepartmentName } from '../../consts/events';
-import { IEvent } from '../../models/Event';
+import { Event } from '../../models/Event';
 import { getDatesTitle, getDateTitle } from '../../utils/date';
 
 type EventInfoProps = {
-    event: IEvent;
+    event: Event;
     date?: Date;
 };
 
-export const EventInfo: FunctionComponent<EventInfoProps> = ({ event, date }, props) => {
+export const EventInfo: FunctionComponent<EventInfoProps> = ({ event, date }: EventInfoProps ) => {
     return (
         <Group>
             {event.title && event.title.length > 0 && (
@@ -50,12 +50,4 @@ export const EventInfo: FunctionComponent<EventInfoProps> = ({ event, date }, pr
             )}
         </Group>
     );
-};
-
-export type EventItem = {
-    id: Number;
-    title: String;
-    auth_type: String;
-    start: String;
-    end: String;
 };

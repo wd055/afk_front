@@ -16,28 +16,28 @@ import {
 } from '@vkontakte/vkui';
 import { Icon28AddOutline, Icon28CheckCircleFill, Icon28SearchOutline } from '@vkontakte/icons';
 import { Roles, userRole } from '../consts/roles';
-import EventModel, { IEvent } from '../models/Event';
+import EventModel, { Event } from '../models/Event';
 import EventController from '../controllers/Event';
 import { eventTypesIcons, TDepartment, TDepartmentArray, TDepartmentName } from '../consts/events';
 import { getDatesTitle } from '../utils/date';
 import StudentModel from '../models/Student';
 import { EGo as go } from '../App';
 
-export interface ICalendarPanel {
+export interface CalendarPanelProps {
     id: string;
 }
 
-export const CalendarPanel = ({ id }: ICalendarPanel) => {
-    const [events, setEvents] = useState<IEvent[]>([]);
-    const [favoriteEvents, setFavoriteEvents] = useState<IEvent[]>([]);
+export const CalendarPanel = ({ id }: CalendarPanelProps): JSX.Element => {
+    const [events, setEvents] = useState<Event[]>([]);
+    const [favoriteEvents, setFavoriteEvents] = useState<Event[]>([]);
     const [selectDepartment, setSelectDepartment] = useState<TDepartment>('');
 
-    let date = new Date();
-    let first = date.getDate();
-    let last = first + 6;
+    const date = new Date();
+    const first = date.getDate();
+    const last = first + 6;
 
-    let start = new Date(date.setDate(first));
-    let end = new Date(date.setDate(last));
+    const start = new Date(date.setDate(first));
+    const end = new Date(date.setDate(last));
     const [dateRange, setDateRange] = useState({ start: start, end: end });
 
     useEffect(() => {
@@ -51,48 +51,37 @@ export const CalendarPanel = ({ id }: ICalendarPanel) => {
 
             <Group>
                 <CellButton
-                    onClick={() => {
+                    onClick={(): void => {
                         StudentModel.currentStudent = null;
                         go('studentInfo');
                     }}
                 >
                     Мои посещения
                 </CellButton>
-                <CellButton
-                    onClick={() => {
-                        go('Report');
-                    }}
-                >
-                    Реферат
-                </CellButton>
+                <CellButton onClick={(): void => go('Report')}>Реферат</CellButton>
             </Group>
 
             {userRole === Roles.admin && (
                 <Group>
                     <CellButton
                         before={<Icon28AddOutline />}
-                        onClick={() => {
+                        onClick={(): void => {
                             EventModel.currentEvent = null;
                             go('eventForm', true);
                         }}
                     >
                         Создать мероприятия
                     </CellButton>
-                    <CellButton
-                        before={<Icon28SearchOutline />}
-                        onClick={() => {
-                            go('Students');
-                        }}
-                    >
+                    <CellButton before={<Icon28SearchOutline />} onClick={(): void => go('Students')}>
                         Студенты
                     </CellButton>
                 </Group>
             )}
 
-{favoriteEvents.length > 0 && (
+            {favoriteEvents.length > 0 && (
                 <Group header={<Header>Избранные мероприятия</Header>}>
                     <List>
-                        {favoriteEvents.map((event: IEvent) => (
+                        {favoriteEvents.map((event: Event) => (
                             <Cell
                                 indicator={
                                     event.favorite && userRole === Roles.admin ? (
@@ -104,7 +93,7 @@ export const CalendarPanel = ({ id }: ICalendarPanel) => {
                                 before={eventTypesIcons[event.eventType]}
                                 description={getDatesTitle(event.start, event.end)}
                                 key={event.id}
-                                onClick={() => {
+                                onClick={(): void => {
                                     EventModel.currentEvent = event;
                                     if (userRole !== Roles.student) {
                                         go('Event');
@@ -128,7 +117,7 @@ export const CalendarPanel = ({ id }: ICalendarPanel) => {
                                 month: 1,
                                 year: 2019
                             }}
-                            onDateChange={(value) => {
+                            onDateChange={(value): void => {
                                 setDateRange({
                                     ...dateRange,
                                     start: new Date(value.year, value.month - 1, value.day)
@@ -151,7 +140,7 @@ export const CalendarPanel = ({ id }: ICalendarPanel) => {
                                 month: 1,
                                 year: new Date().getFullYear() - 1
                             }}
-                            onDateChange={(value) => {
+                            onDateChange={(value): void => {
                                 setDateRange({
                                     ...dateRange,
                                     end: new Date(value.year, value.month - 1, value.day)
@@ -174,9 +163,7 @@ export const CalendarPanel = ({ id }: ICalendarPanel) => {
                             return (
                                 <TabsItem
                                     key={item}
-                                    onClick={() => {
-                                        setSelectDepartment(item);
-                                    }}
+                                    onClick={(): void => setSelectDepartment(item)}
                                     selected={selectDepartment === item}
                                 >
                                     {TDepartmentName[item as keyof typeof TDepartmentName]}
@@ -186,11 +173,11 @@ export const CalendarPanel = ({ id }: ICalendarPanel) => {
                     </Tabs>
                 </FormItem>
             </Group>
-            
+
             <Group>
                 <List>
                     {!events || (events.length === 0 && <Footer>В выбранные даты мероприятий нет</Footer>)}
-                    {events.map((event: IEvent) => (
+                    {events.map((event: Event) => (
                         <Cell
                             indicator={
                                 event.favorite && userRole === Roles.admin ? <Icon28CheckCircleFill /> : <></>
@@ -198,7 +185,7 @@ export const CalendarPanel = ({ id }: ICalendarPanel) => {
                             before={eventTypesIcons[event.eventType]}
                             description={getDatesTitle(event.start, event.end)}
                             key={event.id}
-                            onClick={() => {
+                            onClick={(): void => {
                                 EventModel.currentEvent = event;
                                 if (userRole !== Roles.student) {
                                     go('Event');
