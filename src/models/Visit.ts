@@ -32,6 +32,7 @@ export interface Visit {
     url?: string;
     id?: number;
     student: number;
+    teacher: string;
     event: number;
     auth_order: TAuthOrder;
     date?: Date;

@@ -1,5 +1,15 @@
 import React, { useState, useEffect, FunctionComponent } from 'react';
-import { Group, MiniInfoCell, Header, Tabs, TabsItem, Counter, List, RichCell } from '@vkontakte/vkui';
+import {
+    Group,
+    MiniInfoCell,
+    Header,
+    Tabs,
+    TabsItem,
+    Counter,
+    List,
+    RichCell,
+    CellButton
+} from '@vkontakte/vkui';
 import { Icon20EducationOutline, Icon20UserOutline, Icon20Users3Outline } from '@vkontakte/icons';
 import StudentModel, { Student } from '../../models/Student';
 import { Event } from '../../models/Event';
@@ -18,6 +28,7 @@ import VisitModel, { ResponsePaginationVisit, Visit } from '../../models/Visit';
 import { callSnackbar, catchSnackbar } from '../../panels/style';
 import { InfiniteScroll } from '../InfiniteScroll/InfiniteScroll';
 import { thisAdmin } from '../../consts/roles';
+import { ResponseData } from '../../utils/requests';
 
 type StudentInfoProps = {
     student: Student;
@@ -58,6 +69,18 @@ export const StudentInfo: FunctionComponent<StudentInfoProps> = ({ student }: St
         }
     };
 
+    const sendReport = (studentId: number): void => {
+        StudentModel.sendReport(studentId)
+            .then((response: ResponseData) => {
+                if (!response.ok) {
+                    callSnackbar({ success: false, statusCodeForText: response.status });
+                    return;
+                }
+                callSnackbar({});
+            })
+            .catch(catchSnackbar);
+    };
+
     useEffect(() => {
         getStudentsVisits();
         getUsersReportsSubs();
@@ -77,6 +100,13 @@ export const StudentInfo: FunctionComponent<StudentInfoProps> = ({ student }: St
 
     return (
         <>
+            {thisAdmin && student && (
+                <Group>
+                    <CellButton onClick={(): void => sendReport(student.id as number)}>
+                        Получить отчет
+                    </CellButton>
+                </Group>
+            )}
             {student && student.full_name && (
                 <Group>
                     <MiniInfoCell before={<Icon20UserOutline />} textLevel="primary">

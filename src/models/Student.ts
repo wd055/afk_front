@@ -64,6 +64,9 @@ export class StudentModel {
     getCurrentStudent(): Promise<ResponseStudent> {
         return HttpRequests.get('/get_current_student').then(parseJson).then(setIdStudentResponse);
     }
+    sendReport(studentId?: string | number): Promise<ResponseData> {
+        return HttpRequests.post(`/students/${studentId}/send_report/`).then(parseJson);
+    }
 }
 
 class StudentModelInstance {
