@@ -125,8 +125,7 @@ export class EventModel {
     }
     sendReportEvent(id: number, authOrder?: TAuthOrder): Promise<ResponseEvent> {
         return HttpRequests.post(`/event/${id}/send_report/?auth_order=${authOrder}`)
-            .then(parseJson)
-            .then(parseDateResponseEvent);
+            .then(parseJson);
     }
     searchNewStudentsEvent(id: number, search?: string, offset?: number, limit?: number): Promise<ResponsePaginationStudent> {
         return HttpRequests.get(`/event/${id}/search_new_students/?search=${search}&${getOffsetLimitQStr(offset, limit)}`).then(

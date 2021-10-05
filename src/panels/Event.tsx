@@ -60,7 +60,12 @@ export const EventPanel = ({ id }: EventPanelProps): JSX.Element => {
             .catch(catchSnackbar);
     };
 
-    const getStudents = (eventId: number, thisSearchValue?: string, offset?: number, limit?: number): Promise<void> => {
+    const getStudents = (
+        eventId: number,
+        thisSearchValue?: string,
+        offset?: number,
+        limit?: number
+    ): Promise<void> => {
         return EventController.searchStudentsList({
             eventId,
             searchValue: thisSearchValue,
@@ -126,7 +131,9 @@ export const EventPanel = ({ id }: EventPanelProps): JSX.Element => {
 
     return (
         <Panel id={id}>
-            <PanelHeader left={<PanelHeaderBack onClick={(): void => goBack()} />}>Мероприятие</PanelHeader>
+            <PanelHeader left={<PanelHeaderBack onClick={(): void => goBack()} />}>
+                Мероприятие
+            </PanelHeader>
             <Group>
                 <CellButton
                     onClick={(): void => {
@@ -185,7 +192,10 @@ export const EventPanel = ({ id }: EventPanelProps): JSX.Element => {
                                     <Icon28QrCodeOutline style={{ color: 'var(--accent)' }} />
                                 </IconButton>
                             ) : (
-                                <div className="Tabbar Tabbar--l-vertical" style={{ position: 'static' }}>
+                                <div
+                                    className="Tabbar Tabbar--l-vertical"
+                                    style={{ position: 'static' }}
+                                >
                                     <TabbarItem
                                         onClick={(): void => {
                                             setQROrder('initial');
