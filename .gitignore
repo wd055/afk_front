@@ -16,3 +16,4 @@ npm-debug.log*
 .vscode
 .idea
 bundle.zip
+/build.zip
