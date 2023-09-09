@@ -1,2 +1,2 @@
-export const mainUrl = 'https://bmstu-afk.herokuapp.com';
+export const mainUrl = 'https://bmstu-afk.ru';
 export const mainApiUrl = mainUrl + '/api';

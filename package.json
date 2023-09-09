@@ -35,10 +35,10 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
-    "@vkontakte/icons": "^1.111.0",
-    "@vkontakte/vk-bridge": "^2.4.4",
-    "@vkontakte/vkjs": "^0.22.1",
-    "@vkontakte/vkui": "^4.11.0",
+    "@vkontakte/icons": "1.111.0",
+    "@vkontakte/vk-bridge": "2.4.4",
+    "@vkontakte/vkjs": "0.22.1",
+    "@vkontakte/vkui": "4.11.0",
     "bootstrap": "^4.5.3",
     "centrifuge": "^2.6.4",
     "chalk": "^2.4.2",

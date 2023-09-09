@@ -70,7 +70,7 @@ export const CalendarPanel = ({ id, nonCurrnetStudent }: CalendarPanelProps): JS
 						>
 							Мои посещения
 						</CellButton>
-						<CellButton onClick={(): void => go('Report')}>Реферат</CellButton>
+						{/*<CellButton onClick={(): void => go('Report')}>Реферат</CellButton>*/}
 					</Group>
 
 					{userRole === Roles.admin && (
