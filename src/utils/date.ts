@@ -117,6 +117,12 @@ export const checkPeriodCurrentSemestr = (date: Date): boolean => {
 };
 
 export const checkPeriodCurrentAcademicYear = (date: Date): boolean => {
+    if (new Date().getMonth() >= 7) {
+        return (
+            (date.getFullYear() === new Date().getFullYear() && date.getMonth() >= 6)
+        );
+    }
+
     return (
         (date.getFullYear() === new Date().getFullYear() - 1 && date.getMonth() >= 7) ||
         (date.getFullYear() === new Date().getFullYear() && date.getMonth() <= 6)
